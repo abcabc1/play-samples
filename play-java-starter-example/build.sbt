@@ -1,5 +1,6 @@
+
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava)
+  .enablePlugins(PlayJava, PlayEbean)
   .settings(
     name := """play-java-starter-example""",
     version := "1.0-SNAPSHOT",
