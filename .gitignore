@@ -4,3 +4,4 @@ RUNNING_PID
 .DS_Store
 /play-java-starter-example/.idea
 /play-java-ebean-example/.idea
+.idea
