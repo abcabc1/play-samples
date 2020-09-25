@@ -1,28 +1,50 @@
-package interfaces.base;
+package interfaces;
 
 import io.ebean.PagedList;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface BaseInterface<T> {
     void insert(T model);
-    void insertAll(List<T> models);
+
+    void insertAll(Collection<T> models);
+
     void update(T model);
-    void updateAll(List<T> models);
+
+    void updateAll(Collection<T> models);
+
     void save(T model);
-    void saveAll(List<T> models);
+
+    void saveAll(Collection<T> models);
+
     T get(T model);
+
     boolean remove(T model);
-    int removeAll(List<T> model);
+
+    int removeAll(Collection<T> model);
+
     void delete(T model);
-    void deleteAll(List<T> model);
-    PagedList<T> list(T model);
-    PagedList<T> list(T model, String sort);
+
+    void deleteAll(Collection<T> model);
+
+    List<T> list(T model);
+
+    List<T> list(T model, int size);
+
+    List<T> list(T model, String sort, int size);
+
     PagedList<T> pagedList(T model, int page, int pageSize);
+
     PagedList<T> pagedList(T model, String sort, int page, int pageSize);
+
     String getSort();
+
     Object getPk(T model);
+
     void insertNode(T model);
+
     void updateNode(T model);
+
     void deleteNode(T model);
 }

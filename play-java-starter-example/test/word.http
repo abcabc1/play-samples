@@ -1,0 +1,23 @@
+###
+POST http://{{host}}:{{port}}/word/test
+Content-Type: application/json
+
+{   "model": {    } }
+
+###
+POST http://{{host}}:{{port}}/word/testDb
+Content-Type: application/json
+
+{   "model": {    } }
+
+###
+POST http://{{host}}:{{port}}/word/dicWordEnSentence
+Content-Type: application/json
+
+{   "model": {    } }
+
+
+
+
+
+

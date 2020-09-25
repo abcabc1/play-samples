@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
       "org.awaitility" % "awaitility" % "4.0.1" % Test,
       "mysql" % "mysql-connector-java" % "5.1.47",
       javaJdbc,
+      javaWs,
       "org.beanshell" % "bsh" % "2.0b5",
       "com.github.stuxuhai" % "jpinyin" % "1.1.8",
       "net.coobird" % "thumbnailator" % "0.4.8",
@@ -23,7 +24,6 @@ lazy val root = (project in file("."))
       "me.xdrop" % "fuzzywuzzy" % "1.2.0",
       "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.8.1",
       "org.elasticsearch" % "elasticsearch" % "6.8.1",
-      "org.assertj" % "assertj-core" % "3.12.2" % Test,
       "org.mockito" % "mockito-core" % "3.0.0" % Test,
     ),
     javacOptions ++= Seq(

@@ -1,16 +1,20 @@
 package services.base;
 
-import interfaces.base.BaseInterface;
+import interfaces.BaseInterface;
 import io.ebean.PagedList;
 import models.base.BaseModel;
 import repository.base.BaseRepository;
+import utils.Constant;
 
+import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class BaseService<T extends BaseModel> implements BaseInterface<T> {
 
-    protected BaseRepository<T> repository;
+    private BaseRepository<T> repository;
 
+    @Inject
     public BaseService(BaseRepository<T> repository) {
         this.repository = repository;
     }
@@ -19,7 +23,7 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         repository.insert(model);
     }
 
-    public void insertAll(List<T> models) {
+    public void insertAll(Collection<T> models) {
         repository.insertAll(models);
     }
 
@@ -27,7 +31,7 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         repository.save(model);
     }
 
-    public void saveAll(List<T> models) {
+    public void saveAll(Collection<T> models) {
         repository.saveAll(models);
     }
 
@@ -35,7 +39,7 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         repository.update(model);
     }
 
-    public void updateAll(List<T> models) {
+    public void updateAll(Collection<T> models) {
         repository.updateAll(models);
     }
 
@@ -47,7 +51,7 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         return repository.remove(model);
     }
 
-    public int removeAll(List<T> models) {
+    public int removeAll(Collection<T> models) {
         return repository.removeAll(models);
     }
 
@@ -55,16 +59,24 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         repository.delete(model);
     }
 
-    public void deleteAll(List<T> models) {
+    public void deleteAll(Collection<T> models) {
         repository.deleteAll(models);
     }
 
-    public PagedList<T> list(T model) {
-        return repository.list(model, getSort());
+    public List<T> list(T model) {
+        return list(model, getSort());
     }
 
-    public PagedList<T> list(T model, String sort) {
-        return repository.list(model, sort);
+    public List<T> list(T model, int size) {
+        return list(model, getSort(), size);
+    }
+
+    public List<T> list(T model, String sort) {
+        return list(model, sort, Constant.MAX_PAGE_SIZE);
+    }
+
+    public List<T> list(T model, String sort, int size) {
+        return repository.list(model, sort, size);
     }
 
     public PagedList<T> pagedList(T model, int page, int pageSize) {
