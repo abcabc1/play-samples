@@ -2,16 +2,12 @@ package repository;
 
 import io.ebean.ExpressionList;
 import models.word.WordEnArticle;
-import play.db.ebean.EbeanConfig;
 import repository.base.BaseRepository;
-
-import javax.inject.Inject;
 
 public class WordEnArticleRepository extends BaseRepository<WordEnArticle> {
 
-    @Inject
-    public WordEnArticleRepository(EbeanConfig ebeanConfig) {
-        super(ebeanConfig, "word");
+    public WordEnArticleRepository() {
+        super("word");
     }
 
     @Override

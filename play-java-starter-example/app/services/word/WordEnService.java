@@ -5,7 +5,6 @@ import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.WordEnArticle;
 import repository.WordEnArticleRepository;
-import services.base.BaseService;
 import services.dict.DictService;
 import utils.StringUtil;
 
@@ -102,5 +101,9 @@ public class WordEnService {
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
             wordEnArticleRepository.insertAll(subList);
         }
+    }
+
+    public List<WordEnArticle> listWordEnArticle(WordEnArticle wordEnArticle) {
+        return wordEnArticleRepository.list(wordEnArticle);
     }
 }

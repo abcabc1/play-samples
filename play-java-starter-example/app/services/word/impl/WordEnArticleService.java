@@ -1,12 +1,15 @@
 package services.word.impl;
 
 import models.word.WordEnArticle;
-import repository.base.BaseRepository;
+import repository.WordEnArticleRepository;
 import services.base.BaseService;
+
+import javax.inject.Inject;
 
 public class WordEnArticleService extends BaseService<WordEnArticle> {
 
-    public WordEnArticleService(BaseRepository<WordEnArticle> repository) {
+    @Inject
+    public WordEnArticleService(WordEnArticleRepository repository) {
         super(repository);
     }
 }

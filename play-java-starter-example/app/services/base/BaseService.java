@@ -6,15 +6,13 @@ import models.base.BaseModel;
 import repository.base.BaseRepository;
 import utils.Constant;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 
 public abstract class BaseService<T extends BaseModel> implements BaseInterface<T> {
 
-    private BaseRepository<T> repository;
+    BaseRepository<T> repository;
 
-    @Inject
     public BaseService(BaseRepository<T> repository) {
         this.repository = repository;
     }

@@ -3,11 +3,9 @@ package repository.base;
 import interfaces.BaseInterface;
 import io.ebean.*;
 import models.base.BaseModel;
-import play.db.ebean.EbeanConfig;
 import utils.Constant;
 import utils.exception.InternalException;
 
-import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
@@ -17,65 +15,53 @@ import static utils.exception.ExceptionEnum.MODEL_NOT_FOUND_IN_DB;
 
 public abstract class BaseRepository<T extends BaseModel> implements BaseInterface<T> {
 
-    private final EbeanServer ebeanServer;
     private final String serverName;
 
-    @Inject
     public BaseRepository() {
-        this.ebeanServer = Ebean.getServer("default");
+        this.serverName = "default";
     }
 
-    @Inject
-    public BaseRepository(EbeanConfig ebeanConfig, String serverName) {
-        this.ebeanServer = Ebean.getServer(serverName == null ? ebeanConfig.defaultServer() : serverName);
-    }
-
-    @Inject
-    public BaseRepository(EbeanConfig ebeanConfig) {
-        this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
-    }
-
-    public EbeanServer getServer(String serverName) {
-        return Ebean.getServer(serverName);
+    public BaseRepository(String serverName) {
+        this.serverName = serverName;
     }
 
     public EbeanServer getServer() {
-        return Ebean.getServer("default");
+        return Ebean.getServer(serverName);
     }
 
     public void insert(T model) {
         if (model == null) return;
-        ebeanServer.insert(model);
+        getServer().insert(model);
     }
 
     public void insertAll(Collection<T> models) {
         if (models == null || models.size() == 0) return;
-        ebeanServer.saveAll(models);
+        getServer().saveAll(models);
     }
 
     public void save(T model) {
         if (model == null) return;
-        ebeanServer.save(model);
+        getServer().save(model);
     }
 
     public void saveAll(Collection<T> models) {
         if (models == null || models.size() == 0) return;
-        ebeanServer.saveAll(models);
+        getServer().saveAll(models);
     }
 
     public void update(T model) {
         if (model == null) return;
-        ebeanServer.update(model);
+        getServer().update(model);
     }
 
     public void updateAll(Collection<T> models) {
         if (models == null || models.size() == 0) return;
-        ebeanServer.updateAll(models);
+        getServer().updateAll(models);
     }
 
     @SuppressWarnings("unchecked")
     public T get(T model) {
-        T t = (T) ebeanServer.find(model.getClass()).setId(getPk(model)).findOne();
+        T t = (T) getServer().find(model.getClass()).setId(getPk(model)).findOne();
         if (t == null) {
             throw InternalException.build(MODEL_NOT_FOUND_IN_DB, new String[]{getSimpleName(model), getPk(model).toString()});
         }
@@ -85,17 +71,17 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
     public boolean remove(T model) {
         T t = get(model);
         if (t == null) return false;
-        return ebeanServer.delete(t);
+        return getServer().delete(t);
     }
 
     public int removeAll(Collection<T> models) {
         if (models == null || models.size() == 0) return 0;
-        return ebeanServer.deleteAll(models);
+        return getServer().deleteAll(models);
     }
 
     public void delete(T model) {
         model.status = false;
-        ebeanServer.update(model);
+        getServer().update(model);
     }
 
     public void deleteAll(Collection<T> models) {
@@ -103,7 +89,7 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
         for (T model : models) {
             model.status = false;
         }
-        ebeanServer.updateAll(models);
+        getServer().updateAll(models);
     }
 
     public List<T> list(T model, int size) {
@@ -152,7 +138,7 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
 
     @SuppressWarnings("unchecked")
     public ExpressionList<T> getExpressionList(T model) {
-        ExpressionList<T> expressionList = (ExpressionList<T>) ebeanServer.find(model.getClass()).where();
+        ExpressionList<T> expressionList = (ExpressionList<T>) getServer().find(model.getClass()).where();
         model.status = Optional.ofNullable(model.status).orElse(true);
         if (model.timeFrom != null && model.timeTo == null) {
             expressionList.ge("createTime", model.timeFrom);
@@ -171,9 +157,9 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
 
     public int sqlUpdate(String updateSql) {
         int num = 0;
-        Transaction txn = ebeanServer.beginTransaction();
+        Transaction txn = getServer().beginTransaction();
         try {
-            num = ebeanServer.createSqlUpdate(updateSql).execute();
+            num = getServer().createSqlUpdate(updateSql).execute();
             txn.commit();
         } finally {
             txn.close();
@@ -182,7 +168,7 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
     }
 
     public List<SqlRow> sqlQuery(String querySql) {
-        return ebeanServer.createSqlQuery(querySql).findList();
+        return getServer().createSqlQuery(querySql).findList();
     }
 
     public void insertNode(T model) {

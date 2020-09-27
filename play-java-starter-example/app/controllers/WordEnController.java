@@ -4,7 +4,6 @@ import models.word.WordEnArticle;
 import play.mvc.Controller;
 import play.mvc.Result;
 import services.word.WordEnService;
-import services.word.impl.WordEnArticleService;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -15,13 +14,9 @@ public class WordEnController extends Controller {
     @Inject
     WordEnService wordEnService;
 
-    @Inject
-    WordEnArticleService wordEnArticleService;
-
-    @SuppressWarnings("unchecked")
     public Result testDb() {
         WordEnArticle wordEnArticle = new WordEnArticle();
-        List<WordEnArticle> wordEnArticleList = wordEnArticleService.list(wordEnArticle);
+        List<WordEnArticle> wordEnArticleList = wordEnService.listWordEnArticle(wordEnArticle);
         return play.mvc.Results.ok(wordEnArticleList.size() + "");
     }
 
