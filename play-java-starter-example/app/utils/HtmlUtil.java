@@ -97,10 +97,11 @@ public class HtmlUtil {
         return map;
     }
 
-    public static Set<String> extractXMLYXiaShuoTitle(String html) {
+    public static List<String> extractXMLYXiaShuoTitle(String html) {
         Document document = Jsoup.parse(html);
 //        List<String> titleList  = document.select(".title._Vc").eachText();
         Set<String> titleSet = new HashSet<>();
+        List<String> titleList = new ArrayList<>();
         Elements elements = document.select(".text._Vc");
         for (Element element : elements) {
             String title = "";
@@ -108,10 +109,12 @@ public class HtmlUtil {
             if (text.indexOf("（") != -1) {
                 title = text.substring(0, text.indexOf("（"));
                 String href = element.select("a").attr("href");
-                titleSet.add(title + "#" + href);
+                if (titleSet.add(title)) {
+                    titleList.add(title + "#" + href);
+                }
             }
         }
-        return titleSet;
+        return titleList;
     }
 
     public static Set<String> extractXMLYChinaDailyTitle(String html) {

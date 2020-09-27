@@ -1,5 +1,5 @@
 ###
-POST http://{{host}}:{{port}}/word/test
+POST http://{{host}}:{{port}}/word/loadXiaShuoArticle
 Content-Type: application/json
 
 {   "model": {    } }

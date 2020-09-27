@@ -23,19 +23,18 @@ public class WordEnService {
     WordEnArticleRepository wordEnArticleRepository;
 
     @Transactional
-    public void dictXMLYXiaShuo(String pageLinkPrefix) throws ExecutionException, InterruptedException {
+    public void loadXiaShuoArticle(String pageLinkPrefix, int page) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "xia_shuo";
         Map<String, WordEnArticle> wordEnArticleMap = new HashMap<>();
         List<String> pageLinkList = new ArrayList<>();
-        for (int i = 1; i <= 1; i++) {
+        for (int i = 1; i <= page; i++) {
             pageLinkList.add(pageLinkPrefix + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
         for (String pageLink : pageLinkList) {
-            Set<String> titleSet = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
-            titleSet.size();
-            for (String titleText : titleSet) {
+            List<String> titleList = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
+            for (String titleText : titleList) {
                 System.out.println(titleText);
                 String[] titleStr = titleText.split("#");
                 String title = titleStr[0];
@@ -53,12 +52,12 @@ public class WordEnService {
     }
 
     @Transactional
-    public void dictXMLYChinaDaily(String pageLinkPrefix) throws ExecutionException, InterruptedException {
+    public void loadChinaDailyArticle(String pageLinkPrefix, int page) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "china_daily";
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
-        for (int i = 1; i <= 1; i++) {
+        for (int i = 1; i <= page; i++) {
             pageLinkList.add(pageLinkPrefix + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
@@ -101,9 +100,5 @@ public class WordEnService {
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
             wordEnArticleRepository.insertAll(subList);
         }
-    }
-
-    public List<WordEnArticle> listWordEnArticle(WordEnArticle wordEnArticle) {
-        return wordEnArticleRepository.list(wordEnArticle);
     }
 }

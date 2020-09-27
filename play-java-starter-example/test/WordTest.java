@@ -23,6 +23,7 @@ public class WordTest extends WithApplication {
     @Test
     public void test() throws ExecutionException, InterruptedException {
         String pageLink = "/waiyu/3240558";
-        wordEnService.dictXMLYXiaShuo(pageLink);
+        int page = 1;
+        wordEnService.loadXiaShuoArticle(pageLink, page);
     }
 }

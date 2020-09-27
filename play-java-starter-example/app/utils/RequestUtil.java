@@ -17,11 +17,12 @@ public class RequestUtil {
 
     @NotNull
     private static JsonNode getJsonNode(Http.Request request, String object) {
-        JsonNode jsonNode = request.body().asJson().findValue(object);
-        if (jsonNode == null) {
-            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
-        }
-        return jsonNode;
+        return request.body().asJson().findValue(object);
+//        JsonNode jsonNode = request.body().asJson().findValue(object);
+//        if (jsonNode == null) {
+//            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
+//        }
+//        return jsonNode;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -59,10 +60,20 @@ public class RequestUtil {
 
     @BodyParser.Of(BodyParser.Json.class)
     public static Integer getInt(Http.Request request, String object) {
+        return getInt(request, object, null);
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Integer getInt(Http.Request request, String object, Integer o) {
         JsonNode jsonNode = getJsonNode(request, object);
+        if (jsonNode == null && o == null) {
+            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
+        } else if (jsonNode == null) {
+            return o;
+        }
         String typeName = jsonNode.getNodeType().name();
         if (typeName.equals("NUMBER")) {
-            return Integer.valueOf(jsonNode.asInt());
+            return jsonNode.asInt();
         } else {
             throw InternalException.build(WRONG_TYPE_PARAM_IN_JSON_REQUEST, new String[]{"NUMBER", typeName});
         }
@@ -70,7 +81,17 @@ public class RequestUtil {
 
     @BodyParser.Of(BodyParser.Json.class)
     public static String getString(Http.Request request, String object) {
+        return getString(request, object, null);
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public static String getString(Http.Request request, String object, String o) {
         JsonNode jsonNode = getJsonNode(request, object);
+        if (jsonNode == null && o == null) {
+            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
+        } else if (jsonNode == null) {
+            return o;
+        }
         String typeName = jsonNode.getNodeType().name();
         if (typeName.equals("STRING")) {
             return jsonNode.asText();
@@ -81,7 +102,17 @@ public class RequestUtil {
 
     @BodyParser.Of(BodyParser.Json.class)
     public static Boolean getBoolean(Http.Request request, String object) {
+        return getBoolean(request, object, null);
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Boolean getBoolean(Http.Request request, String object, Boolean o) {
         JsonNode jsonNode = getJsonNode(request, object);
+        if (jsonNode == null && o == null) {
+            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
+        } else if (jsonNode == null) {
+            return o;
+        }
         String typeName = jsonNode.getNodeType().name();
         if (typeName.equals("BOOLEAN")) {
             return Boolean.valueOf(jsonNode.asBoolean());
@@ -92,7 +123,17 @@ public class RequestUtil {
 
     @BodyParser.Of(BodyParser.Json.class)
     public static Long getLong(Http.Request request, String object) {
+        return getLong(request, object, null);
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Long getLong(Http.Request request, String object, Long o) {
         JsonNode jsonNode = getJsonNode(request, object);
+        if (jsonNode == null && o == null) {
+            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
+        } else if (jsonNode == null) {
+            return o;
+        }
         String typeName = jsonNode.getNodeType().name();
         if (typeName.equals("NUMBER")) {
             return Long.valueOf(jsonNode.asLong());

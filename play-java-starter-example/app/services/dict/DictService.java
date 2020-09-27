@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import static utils.Constant.*;
-import static utils.Constant.HOST_XMLY;
 
 public class DictService {
+
     private static WSClient ws;
 
     @Inject
@@ -37,7 +37,7 @@ public class DictService {
         return ws.url(HOST_DICT + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictPhraseEn);
     }
 
-    public CompletionStage<Set<String>> getXMLYXiaShuoTitle(String pageLink) {
+    public CompletionStage<List<String>> getXMLYXiaShuoTitle(String pageLink) {
         return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYXiaShuoTitle);
     }
 
