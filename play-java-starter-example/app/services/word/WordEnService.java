@@ -26,7 +26,7 @@ public class WordEnService {
     public void loadXiaShuoArticle(String pageLinkPrefix, int page) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "xia_shuo";
-        Map<String, WordEnArticle> wordEnArticleMap = new HashMap<>();
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
         for (int i = 1; i <= page; i++) {
             pageLinkList.add(pageLinkPrefix + "/p" + i);
@@ -44,11 +44,10 @@ public class WordEnService {
                 wordEnArticle.titleNote = title;
                 wordEnArticle.content = article;
                 wordEnArticle.source = config;
-                wordEnArticleMap.put(title, wordEnArticle);
+                wordEnArticleList.add(wordEnArticle);
             }
         }
-
-//        wordEnArticleRepository.insertAll(wordEnArticleMap);
+        wordEnArticleRepository.insertAll(wordEnArticleList);
     }
 
     @Transactional
