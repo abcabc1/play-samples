@@ -21,20 +21,20 @@ public class DictService {
         this.ws = ws;
     }
 
-    public CompletionStage<Map<String, List<String>>> dicWordEn(String word) {
-        return ws.url(HOST_DICT + "search").addQueryParameter("q", word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictEn);
+    public CompletionStage<Map<String, List<String>>> dictWordEn(String word) {
+        return ws.url(HOST_DICT + "/search").addQueryParameter("q", word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictEn);
     }
 
-    public CompletionStage<Map<String, List<String>>> dicWordCn(String word) {
-        return ws.url(HOST_HANS + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractHans);
+    public CompletionStage<Map<String, List<String>>> dictWordCn(String word) {
+        return ws.url(HOST_HANS + "/" + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractHans);
     }
 
     public CompletionStage<List<String>> dictPhraseCn(String word) {
-        return ws.url(HOST_HANS + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractHansPhrase);
+        return ws.url(HOST_HANS + "/" + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractHansPhrase);
     }
 
     public CompletionStage<Map<String, List<String>>> dictPhraseEn(String word) {
-        return ws.url(HOST_DICT + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictPhraseEn);
+        return ws.url(HOST_DICT + "/" + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictPhraseEn);
     }
 
     public CompletionStage<List<String>> getXMLYXiaShuoTitle(String pageLink) {

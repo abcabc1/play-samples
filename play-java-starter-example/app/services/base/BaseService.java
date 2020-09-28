@@ -45,6 +45,8 @@ public abstract class BaseService<T extends BaseModel> implements BaseInterface<
         return repository.get(model);
     }
 
+    public T getById(Object id) { return repository.getById(id); }
+
     public boolean remove(T model) {
         return repository.remove(model);
     }

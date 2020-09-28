@@ -1,4 +1,4 @@
-package repository;
+package repository.word;
 
 import io.ebean.ExpressionList;
 import models.word.WordEnArticle;
@@ -15,6 +15,9 @@ public class WordEnArticleRepository extends BaseRepository<WordEnArticle> {
         return model.id;
     }
 
+    public WordEnArticle getById(Object id) {
+        return WordEnArticle.find.byId((Long)id);
+    }
     /* 
     remove it if sort by id   
     */

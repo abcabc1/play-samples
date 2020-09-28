@@ -1,7 +1,7 @@
 package services.word.impl;
 
 import models.word.WordEnArticle;
-import repository.WordEnArticleRepository;
+import repository.word.WordEnArticleRepository;
 import services.base.BaseService;
 
 import javax.inject.Inject;

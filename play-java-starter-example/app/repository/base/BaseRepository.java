@@ -125,6 +125,8 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
 
     public abstract Object getPk(T model);
 
+    public abstract T getById(Object id);
+
     /*
     col1 asc, col2 desc, col3
      */

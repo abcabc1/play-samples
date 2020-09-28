@@ -42,6 +42,8 @@ public interface BaseInterface<T> {
 
     Object getPk(T model);
 
+    T getById(Object id);
+
     void insertNode(T model);
 
     void updateNode(T model);

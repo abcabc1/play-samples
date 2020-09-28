@@ -5,13 +5,13 @@ Content-Type: application/json
 {   "model": {    } }
 
 ###
-POST http://{{host}}:{{port}}/word/testDb
+POST http://{{host}}:{{port}}/word/loadChinaDailyArticle
 Content-Type: application/json
 
 {   "model": {    } }
 
 ###
-POST http://{{host}}:{{port}}/word/dicWordEnSentence
+POST http://{{host}}:{{port}}/word/dictWordEn
 Content-Type: application/json
 
 {   "model": {    } }

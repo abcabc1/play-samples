@@ -12,8 +12,8 @@ public class Constant {
     public final static String PWD = "111111";
     public static final String HOST_BAIDU = "http://api.map.baidu.com";
     public static final String AK_BAIDU = "BPkri1sw4IBu0TBoI6EE8g7N5fk7ysay";
-    public static final String HOST_HANS = "https://www.zdic.net/hans/";
-    public static final String HOST_DICT = "https://dict.cn/";
+    public static final String HOST_HANS = "https://www.zdic.net/hans";
+    public static final String HOST_DICT = "https://dict.cn";
     public static final String HOST_XMLY = "https://www.ximalaya.com";
     public static final String HOST_ALI_PAY = "https://openauth.alipaydev.com/oauth2/publicAppAuthorize.htm";
     public static final String HOST_ALI_PAY_CALLBACK = "http://localhost:9000/alipay/callback";
