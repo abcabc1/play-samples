@@ -2,7 +2,7 @@
 POST http://{{host}}:{{port}}/word/loadXiaShuoArticle
 Content-Type: application/json
 
-{   "model": {    } }
+{   "startPage": 2, "endPage": 2 }
 
 ###
 POST http://{{host}}:{{port}}/word/loadChinaDailyArticle

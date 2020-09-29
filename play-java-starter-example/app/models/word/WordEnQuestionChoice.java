@@ -31,6 +31,10 @@ public class WordEnQuestionChoice extends BaseModel {
     @JoinColumn(name = "source")
     public Config source;
 
+    @ManyToOne
+    @JoinColumn(name = "knowledge")
+    public Config knowledge;
+
     @Column(insertable = false, columnDefinition = "tinyint unsigned not null default 0 comment '是否标记为识记[0 不识记, 1 识记]'")
     public Boolean remember_mark;
 }

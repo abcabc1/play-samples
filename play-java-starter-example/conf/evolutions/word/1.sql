@@ -93,6 +93,7 @@ create table word_en_article (
   content_note                  varchar(1024) default '' comment '翻译',
   source                        varchar(32) comment '配置节点',
   remember_mark                 tinyint unsigned default 0 comment '是否标记为识记[0 不识记, 1 识记]' not null,
+  answer                        varchar(64) not null default '' comment '答案',
   constraint pk_word_en_article primary key (id)
 );
 
@@ -108,6 +109,21 @@ create table word_en_extend (
   constraint pk_word_en_extend primary key (word,type,no)
 );
 
+create table word_en_question_choice (
+  id                            bigint auto_increment not null,
+  status                        tinyint unsigned default 1 comment '数据是否有效[0 无效,1 有效]' not null,
+  create_time                   datetime(6) default current_timestamp(6) comment '创建时间' not null,
+  update_time                   datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间' not null,
+  question                      varchar(256) not null default '' comment '题目',
+  answer                        varchar(16) not null default '' comment '答案',
+  remark                        varchar(256) not null default '' comment '备注',
+  error_num                     integer not null default 0 comment '错误次数',
+  source                        varchar(32) comment '配置节点',
+  knowledge                     varchar(32) comment '配置节点',
+  remember_mark                 tinyint unsigned not null default 0 comment '是否标记为识记[0 不识记, 1 识记]',
+  constraint pk_word_en_question_choice primary key (id)
+);
+
 create table word_en_sentence (
   word                          varchar(32) comment '英文单词' not null,
   type                          varchar(16) comment '词类' not null,
@@ -117,7 +133,7 @@ create table word_en_sentence (
   create_time                   datetime(6) default current_timestamp(6) comment '创建时间' not null,
   update_time                   datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间' not null,
   sentence_note                 varchar(1024) not null default '' comment '例句解释',
-  remember_mark                 tinyint unsigned not null default 1 comment '是否标记为识记[0 不识记, 1 识记]' not null,
+  remember_mark                 tinyint unsigned not null default 0 comment '是否标记为识记[0 不识记, 1 识记]' not null,
   constraint pk_word_en_sentence primary key (word,type,no,sentence)
 );
 
@@ -129,6 +145,12 @@ alter table word_en add constraint fk_word_en_source foreign key (source) refere
 
 create index ix_word_en_article_source on word_en_article (source);
 alter table word_en_article add constraint fk_word_en_article_source foreign key (source) references config (node) on delete restrict on update restrict;
+
+create index ix_word_en_question_choice_source on word_en_question_choice (source);
+alter table word_en_question_choice add constraint fk_word_en_question_choice_source foreign key (source) references config (node) on delete restrict on update restrict;
+
+create index ix_word_en_question_choice_knowledge on word_en_question_choice (knowledge);
+alter table word_en_question_choice add constraint fk_word_en_question_choice_knowledge foreign key (knowledge) references config (node) on delete restrict on update restrict;
 
 create index ix_word_en_sentence_wordenextend on word_en_sentence (word,type,no);
 alter table word_en_sentence add constraint fk_word_en_sentence_wordenextend foreign key (word,type,no) references word_en_extend (word,type,no) on delete restrict on update restrict;
@@ -145,6 +167,12 @@ drop index ix_word_en_source on word_en;
 alter table word_en_article drop foreign key fk_word_en_article_source;
 drop index ix_word_en_article_source on word_en_article;
 
+alter table word_en_question_choice drop foreign key fk_word_en_question_choice_source;
+drop index ix_word_en_question_choice_source on word_en_question_choice;
+
+alter table word_en_question_choice drop foreign key fk_word_en_question_choice_knowledge;
+drop index ix_word_en_question_choice_knowledge on word_en_question_choice;
+
 alter table word_en_sentence drop foreign key fk_word_en_sentence_wordenextend;
 drop index ix_word_en_sentence_wordenextend on word_en_sentence;
 
@@ -155,6 +183,8 @@ drop table if exists word_en;
 drop table if exists word_en_article;
 
 drop table if exists word_en_extend;
+
+drop table if exists word_en_question_choice;
 
 drop table if exists word_en_sentence;
 

@@ -35,12 +35,14 @@ public class WordEnService {
     WordEnSentenceRepository wordEnSentenceRepository;
 
     @Transactional
-    public void loadXiaShuoArticle(String pageLinkPrefix, int page) throws ExecutionException, InterruptedException {
+    public void loadXiaShuoArticle(String pageLinkPrefix, int startPage, int endPage) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "xia_shuo";
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
-        for (int i = 1; i <= page; i++) {
+        startPage = startPage <= 1 ? 1 : startPage;
+        endPage = endPage <= 1 ? 1 : endPage;
+        for (int i = startPage; i <= endPage; i++) {
             pageLinkList.add(pageLinkPrefix + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
@@ -56,6 +58,7 @@ public class WordEnService {
                 wordEnArticle.titleNote = title;
                 wordEnArticle.content = article;
                 wordEnArticle.source = config;
+                wordEnArticle.answer = "";
                 wordEnArticleList.add(wordEnArticle);
             }
         }
@@ -63,12 +66,14 @@ public class WordEnService {
     }
 
     @Transactional
-    public void loadChinaDailyArticle(String pageLinkPrefix, int page) throws ExecutionException, InterruptedException {
+    public void loadChinaDailyArticle(String pageLinkPrefix, int startPage, int endPage) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "china_daily";
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
-        for (int i = 1; i <= page; i++) {
+        startPage = startPage <= 1 ? 1 : startPage;
+        endPage = endPage <= 1 ? 1 : endPage;
+        for (int i = startPage; i <= endPage; i++) {
             pageLinkList.add(pageLinkPrefix + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
@@ -103,6 +108,7 @@ public class WordEnService {
                             wordEnArticle.contentNote = ss[3];
                         }
                         wordEnArticle.source = config;
+                        wordEnArticle.answer = "";
                         wordEnArticleList.add(wordEnArticle);
                     }
                 }

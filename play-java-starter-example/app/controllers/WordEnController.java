@@ -23,15 +23,17 @@ public class WordEnController extends Controller {
 
     public Result loadXiaShuoArticle(Http.Request request) throws ExecutionException, InterruptedException {
         String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/3240558");
-        Integer page = RequestUtil.getInt(request, "page", 1);
-        wordEnService.loadXiaShuoArticle(pageLink, page);
+        Integer startPage = RequestUtil.getInt(request, "startPage", 1);
+        Integer endPage = RequestUtil.getInt(request, "endPage", 1);
+        wordEnService.loadXiaShuoArticle(pageLink, startPage, endPage);
         return play.mvc.Results.ok();
     }
 
     public Result loadChinaDailyArticle(Http.Request request) throws ExecutionException, InterruptedException {
         String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/14804689");
-        Integer page = RequestUtil.getInt(request, "page", 1);
-        wordEnService.loadChinaDailyArticle(pageLink, page);
+        Integer startPage = RequestUtil.getInt(request, "startPage", 1);
+        Integer endPage = RequestUtil.getInt(request, "endPage", 1);
+        wordEnService.loadChinaDailyArticle(pageLink, startPage, endPage);
         return play.mvc.Results.ok();
     }
 }
