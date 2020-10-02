@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
+import models.word.vo.ArticleParam;
 import repository.word.WordEnArticleRepository;
 import repository.word.WordEnExtendRepository;
 import repository.word.WordEnRepository;
@@ -35,15 +36,15 @@ public class WordEnService {
     WordEnSentenceRepository wordEnSentenceRepository;
 
     @Transactional
-    public void loadXiaShuoArticle(String pageLinkPrefix, int startPage, int endPage) throws ExecutionException, InterruptedException {
+    public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "xia_shuo";
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
-        startPage = startPage <= 1 ? 1 : startPage;
-        endPage = endPage <= 1 ? 1 : endPage;
-        for (int i = startPage; i <= endPage; i++) {
-            pageLinkList.add(pageLinkPrefix + "/p" + i);
+        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
+        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
+        for (int i = articleParam.articleStartPage; i <= articleParam.articleEndPage; i++) {
+            pageLinkList.add(articleParam.articlePageLink + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
         for (String pageLink : pageLinkList) {
@@ -66,15 +67,15 @@ public class WordEnService {
     }
 
     @Transactional
-    public void loadChinaDailyArticle(String pageLinkPrefix, int startPage, int endPage) throws ExecutionException, InterruptedException {
+    public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "china_daily";
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<String> pageLinkList = new ArrayList<>();
-        startPage = startPage <= 1 ? 1 : startPage;
-        endPage = endPage <= 1 ? 1 : endPage;
-        for (int i = startPage; i <= endPage; i++) {
-            pageLinkList.add(pageLinkPrefix + "/p" + i);
+        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
+        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
+        for (int i = articleParam.articleStartPage; i <= articleParam.articleEndPage; i++) {
+            pageLinkList.add(articleParam.articlePageLink + "/p" + i);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
         int articleSize = 0;

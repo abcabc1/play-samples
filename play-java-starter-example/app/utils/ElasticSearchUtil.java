@@ -27,11 +27,11 @@ public class ElasticSearchUtil {
     String baseIndex = "mytest_user";
     String baseType = "_doc";
     RestHighLevelClient client;
-    private int connectTimeoutMillis = 1000;
-    private int socketTimeoutMillis = 30000;
-    private int connectionRequestTimeoutMillis = 500;
-    private int maxConnectPerRoute = 10;
-    private int maxConnectTotal = 30;
+    private final int connectTimeoutMillis = 1000;
+    private final int socketTimeoutMillis = 30000;
+    private final int connectionRequestTimeoutMillis = 500;
+    private final int maxConnectPerRoute = 10;
+    private final int maxConnectTotal = 30;
 
     public static void main(String[] arg) throws Exception {
         ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();

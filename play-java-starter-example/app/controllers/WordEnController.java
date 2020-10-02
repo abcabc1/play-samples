@@ -1,6 +1,7 @@
 package controllers;
 
 import models.word.WordEn;
+import models.word.vo.ArticleParam;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -23,17 +24,15 @@ public class WordEnController extends Controller {
 
     public Result loadXiaShuoArticle(Http.Request request) throws ExecutionException, InterruptedException {
         String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/3240558");
-        Integer startPage = RequestUtil.getInt(request, "startPage", 1);
-        Integer endPage = RequestUtil.getInt(request, "endPage", 1);
-        wordEnService.loadXiaShuoArticle(pageLink, startPage, endPage);
+        ArticleParam articleParam = RequestUtil.getModel(request, "model", ArticleParam.class);
+        wordEnService.loadXiaShuoArticle(articleParam);
         return play.mvc.Results.ok();
     }
 
     public Result loadChinaDailyArticle(Http.Request request) throws ExecutionException, InterruptedException {
         String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/14804689");
-        Integer startPage = RequestUtil.getInt(request, "startPage", 1);
-        Integer endPage = RequestUtil.getInt(request, "endPage", 1);
-        wordEnService.loadChinaDailyArticle(pageLink, startPage, endPage);
+        ArticleParam articleParam = RequestUtil.getModel(request, "model", ArticleParam.class);
+        wordEnService.loadChinaDailyArticle(articleParam);
         return play.mvc.Results.ok();
     }
 }

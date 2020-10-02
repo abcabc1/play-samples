@@ -2,13 +2,13 @@
 POST http://{{host}}:{{port}}/word/loadXiaShuoArticle
 Content-Type: application/json
 
-{   "startPage": 2, "endPage": 2 }
+{ "model": { "articlePageLink":"/waiyu/3240558", "articleStartPage": 1, "articleEndPage": 1, "articleIndex": 1, "articleTitle": ""} }
 
 ###
 POST http://{{host}}:{{port}}/word/loadChinaDailyArticle
 Content-Type: application/json
 
-{   "model": {    } }
+{ "model": { "articlePageLink":"/waiyu/14804689", "articleStartPage": 1, "articleEndPage": 1, "articleIndex": 1, "articleTitle": ""} }
 
 ###
 POST http://{{host}}:{{port}}/word/dictWordEn
