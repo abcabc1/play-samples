@@ -1,3 +1,4 @@
+import models.word.vo.ArticleParam;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +23,10 @@ public class WordTest extends WithApplication {
 
     @Test
     public void test() throws ExecutionException, InterruptedException {
-        String pageLink = "/waiyu/3240558";
-        int page = 1;
-        wordEnService.loadXiaShuoArticle(pageLink, page);
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.articlePageLink = "/waiyu/3240558";
+        articleParam.articleStartPage = 1;
+        articleParam.articleEndPage = 1;
+        wordEnService.loadXiaShuoArticle(articleParam);
     }
 }

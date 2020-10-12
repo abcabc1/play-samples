@@ -2,7 +2,7 @@
 POST http://{{host}}:{{port}}/word/loadXiaShuoArticle
 Content-Type: application/json
 
-{ "model": { "articlePageLink":"/waiyu/3240558", "articleStartPage": 1, "articleEndPage": 1, "articleIndex": 1, "articleTitle": ""} }
+{ "model": { "articlePageLink":"/waiyu/3240558", "articleStartPage": 1, "articleEndPage": 1, "articleIndex": 1, "articleTitleList": ["把绿色理念变成商业","2"]} }
 
 ###
 POST http://{{host}}:{{port}}/word/loadChinaDailyArticle

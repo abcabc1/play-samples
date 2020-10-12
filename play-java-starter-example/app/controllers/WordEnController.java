@@ -23,7 +23,7 @@ public class WordEnController extends Controller {
     }
 
     public Result loadXiaShuoArticle(Http.Request request) throws ExecutionException, InterruptedException {
-        String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/3240558");
+//        String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/3240558");
         ArticleParam articleParam = RequestUtil.getModel(request, "model", ArticleParam.class);
         wordEnService.loadXiaShuoArticle(articleParam);
         return play.mvc.Results.ok();

@@ -2,6 +2,8 @@ package models.word.vo;
 
 import io.ebean.Model;
 
+import java.util.List;
+
 public class ArticleParam extends Model {
     public String articlePageLink;
 
@@ -11,5 +13,5 @@ public class ArticleParam extends Model {
 
     public Integer articleIndex;
 
-    public String articleTitle;
+    public List<String> articleTitleList;
 }

@@ -43,16 +43,19 @@ public class WordEnService {
         List<String> pageLinkList = new ArrayList<>();
         articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
         articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
-        for (int i = articleParam.articleStartPage; i <= articleParam.articleEndPage; i++) {
-            pageLinkList.add(articleParam.articlePageLink + "/p" + i);
+        for (int p = articleParam.articleStartPage; p <= articleParam.articleEndPage; p++) {
+            pageLinkList.add(articleParam.articlePageLink + "/p" + p);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
         for (String pageLink : pageLinkList) {
             List<String> titleList = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
-            for (String titleText : titleList) {
+            for (String titleText: titleList) {
                 System.out.println(titleText);
                 String[] titleStr = titleText.split("#");
                 String title = titleStr[0];
+                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
+                    continue;
+                }
                 List<String> articleList = dictService.getXMLYXiaShuoArticle(titleStr[1]).toCompletableFuture().get();
                 String article = String.join(" ", articleList);
                 WordEnArticle wordEnArticle = new WordEnArticle();
