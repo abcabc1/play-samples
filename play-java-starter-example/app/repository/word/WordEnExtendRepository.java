@@ -1,7 +1,6 @@
 package repository.word;
 
 import io.ebean.ExpressionList;
-import models.word.WordEn;
 import models.word.WordEnExtend;
 import models.word.WordEnExtendPk;
 import repository.base.BaseRepository;

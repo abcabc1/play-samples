@@ -93,6 +93,9 @@ public class WordEnService {
                 boolean isSingle = !StringUtil.hasChinese(title) || title.isEmpty();
                 if (!title.equals("Nation honors UN, multilateralism pledge")) continue;
                 System.out.print(title);
+                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
+                    continue;
+                }
                 System.out.print(" [");
                 List<String> articleList = dictService.getXMLYChinaDailyArticle(isSingle, link).toCompletableFuture().get();
                 if (articleList != null && !articleList.isEmpty()) {
@@ -176,5 +179,9 @@ public class WordEnService {
         wordEnRepository.updateAll(wordEnList);
         wordEnExtendRepository.saveAll(wordEnExtendList);
         wordEnSentenceRepository.saveAll(wordEnSentenceList);
+    }
+
+    public List<WordEn> listWordEn(WordEn model) {
+        return wordEnRepository.list(model);
     }
 }

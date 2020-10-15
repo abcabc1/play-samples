@@ -1,5 +1,6 @@
 package models.base;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.Model;
@@ -22,14 +23,17 @@ public class BaseModel extends Model {
      */
     @Column(insertable = false, nullable = false, columnDefinition = "tinyint unsigned default 1 comment '数据是否有效[0 无效,1 有效]'")
     public Boolean status;
+
 //    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @Column(insertable = false, nullable = false, columnDefinition = "datetime(6) default current_timestamp(6) comment '创建时间'")
     public LocalDateTime createTime;
 //    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @Column(insertable = false, nullable = false, columnDefinition = "datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间'")
@@ -37,11 +41,13 @@ public class BaseModel extends Model {
 
     @Transient
 //    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime timeFrom;
     @Transient
 //    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime timeTo;
 }

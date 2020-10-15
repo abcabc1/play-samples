@@ -17,7 +17,11 @@ public class RequestUtil {
 
     @NotNull
     private static JsonNode getJsonNode(Http.Request request, String object) {
-        return request.body().asJson().findValue(object);
+        JsonNode jsonNode  = request.body().asJson();
+        if (object == null || object.isEmpty()) {
+            return jsonNode;
+        }
+        return jsonNode.findValue(object);
 //        JsonNode jsonNode = request.body().asJson().findValue(object);
 //        if (jsonNode == null) {
 //            throw InternalException.build(MISSING_PARAM_IN_JSON_REQUEST, new String[]{object, request.body().asJson().toString()});
@@ -44,7 +48,7 @@ public class RequestUtil {
 
     @BodyParser.Of(BodyParser.Json.class)
     public static <A> A getModel(Http.Request request, Class<A> objectClass) {
-        return getModel(request, "model", objectClass);
+        return getModel(request, null, objectClass);
     }
 
     @BodyParser.Of(BodyParser.Json.class)

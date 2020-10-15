@@ -142,7 +142,7 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
     public ExpressionList<T> getExpressionList(T model) {
         ExpressionList<T> expressionList = (ExpressionList<T>) getServer().find(model.getClass()).where();
         model.status = Optional.ofNullable(model.status).orElse(true);
-        if (model.timeFrom != null && model.timeTo == null) {
+/*        if (model.timeFrom != null && model.timeTo == null) {
             expressionList.ge("createTime", model.timeFrom);
         }
         if (model.timeFrom == null && model.timeTo != null) {
@@ -150,7 +150,7 @@ public abstract class BaseRepository<T extends BaseModel> implements BaseInterfa
         }
         if (model.timeFrom != null && model.timeTo != null) {
             expressionList.inRange("createTime", model.timeFrom, model.timeTo);
-        }
+        }*/
         if (model.status != null) {
             expressionList.eq("status", model.status);
         }

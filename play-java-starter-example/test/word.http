@@ -16,6 +16,13 @@ Content-Type: application/json
 
 {   "model": {    } }
 
+###
+POST http://{{host}}:{{port}}/word/listWordEn
+Content-Type: application/json
+
+{   "word": "key" }
+
+
 
 
 

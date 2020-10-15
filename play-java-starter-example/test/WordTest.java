@@ -22,9 +22,18 @@ public class WordTest extends WithApplication {
     }
 
     @Test
-    public void test() throws ExecutionException, InterruptedException {
+    public void testXiaShuo() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
         articleParam.articlePageLink = "/waiyu/3240558";
+        articleParam.articleStartPage = 1;
+        articleParam.articleEndPage = 1;
+        wordEnService.loadXiaShuoArticle(articleParam);
+    }
+
+    @Test
+    public void testChinaDaily() throws ExecutionException, InterruptedException {
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.articlePageLink = "/waiyu/14804689";
         articleParam.articleStartPage = 1;
         articleParam.articleEndPage = 1;
         wordEnService.loadXiaShuoArticle(articleParam);
