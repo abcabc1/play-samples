@@ -3,17 +3,17 @@ package services.base;
 import interfaces.BaseInterface;
 import io.ebean.PagedList;
 import models.base.BaseModel;
-import repository.base.BaseRepository;
+import repository.base.ModelRepository;
 import utils.Constant;
 
 import java.util.Collection;
 import java.util.List;
 
-public abstract class BaseService<T extends BaseModel> implements BaseInterface<T> {
+public abstract class ModelService<T extends BaseModel> implements BaseInterface<T> {
 
-    BaseRepository<T> repository;
+    ModelRepository<T> repository;
 
-    public BaseService(BaseRepository<T> repository) {
+    public ModelService(ModelRepository<T> repository) {
         this.repository = repository;
     }
 

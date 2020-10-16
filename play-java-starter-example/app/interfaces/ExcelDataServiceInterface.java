@@ -1,4 +1,4 @@
-package interfaces.base;
+package interfaces;
 
 import java.util.List;
 import java.util.function.Consumer;

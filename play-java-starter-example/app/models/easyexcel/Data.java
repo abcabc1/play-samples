@@ -1,4 +1,4 @@
-package datas;
+package models.easyexcel;
 
 import annotations.CheckGender;
 import annotations.NameInclude;
@@ -6,6 +6,7 @@ import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import datas.GenderConverter;
 import io.ebean.Model;
 import org.hibernate.validator.constraints.Length;
 

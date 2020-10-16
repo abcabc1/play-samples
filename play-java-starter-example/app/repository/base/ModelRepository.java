@@ -13,15 +13,15 @@ import java.util.Optional;
 
 import static utils.exception.ExceptionEnum.MODEL_NOT_FOUND_IN_DB;
 
-public abstract class BaseRepository<T extends BaseModel> implements BaseInterface<T> {
+public abstract class ModelRepository<T extends BaseModel> implements BaseInterface<T> {
 
     private final String serverName;
 
-    public BaseRepository() {
+    public ModelRepository() {
         this.serverName = "default";
     }
 
-    public BaseRepository(String serverName) {
+    public ModelRepository(String serverName) {
         this.serverName = serverName;
     }
 

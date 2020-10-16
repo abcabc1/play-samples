@@ -1,21 +1,6 @@
 package utils.poi;
 
 import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.metadata.Head;
-import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
-import datas.DataListenerListener;
-import interfaces.base.ExcelErrorData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.libs.Json;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class EasyExcelListenerUtil {
 
@@ -24,8 +9,9 @@ public class EasyExcelListenerUtil {
      * <p>
      * 假设Consumer是一个DAO，当然有业务逻辑这个也可以是一个service。当然如果不用存储这个对象没用。
      */
-    public static <T> DataListenerListener<T> getListener(Consumer<List<T>> consumer, Function<T, String> getUniCode, int threshold) {
-        return new DataListenerListener<T>() {
+//    public static <T> DataListener<T> getListener(Consumer<List<T>> consumer, Function<T, String> getUniCode, int threshold) {
+//        return new DataListener<T>()
+                /*{
             Logger logger = LoggerFactory.getLogger(this.getClass());
             private final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
             private LinkedList<T> linkedList = new LinkedList<>();
@@ -35,12 +21,12 @@ public class EasyExcelListenerUtil {
             private List<ExcelErrorData> excelErrorDataList = new ArrayList<>();
             Set<String> uniSet = new HashSet<>();
 
-            /**
+            *//**
              * 这个每一条数据解析都会来调用
              *
              * @param data    one row value. Is is same as {@link AnalysisContext#readRowHolder()}
              * @param context
-             */
+             *//*
             @Override
             public void invoke(T data, AnalysisContext context) {
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
@@ -95,11 +81,11 @@ public class EasyExcelListenerUtil {
                 }
             }
 
-            /**
+            *//**
              * 所有数据解析完成了 都会来调用
              *
              * @param context
-             */
+             *//*
             @Override
             public void doAfterAllAnalysed(AnalysisContext context) {
                 if (linkedList.size() > 0) {
@@ -122,10 +108,10 @@ public class EasyExcelListenerUtil {
             public List<ExcelErrorData> getExcelErrorDataList() {
                 return excelErrorDataList;
             }
-        };
-    }
+        }*/;
+//    }
 
-    public static <T> DataListenerListener<T> getListener(Consumer<List<T>> consumer, Function<T, String> getUniCode) {
-        return getListener(consumer, getUniCode, 10);
-    }
+//    public static <T> DataListener<T> getListener(Consumer<List<T>> consumer, Function<T, String> getUniCode) {
+//        return getListener(consumer, getUniCode, 10);
+//    }
 }

@@ -1,4 +1,4 @@
-package interfaces.base;
+package interfaces;
 
 import io.ebean.Model;
 

@@ -2,9 +2,9 @@ package repository.word;
 
 import io.ebean.ExpressionList;
 import models.word.WordEnArticle;
-import repository.base.BaseRepository;
+import repository.base.ModelRepository;
 
-public class WordEnArticleRepository extends BaseRepository<WordEnArticle> {
+public class WordEnArticleRepository extends ModelRepository<WordEnArticle> {
 
     public WordEnArticleRepository() {
         super("word");

@@ -2,9 +2,9 @@ package repository.word;
 
 import io.ebean.ExpressionList;
 import models.word.WordEnQuestionChoice;
-import repository.base.BaseRepository;
+import repository.base.ModelRepository;
 
-public class WordEnQuestionChoiceRepository extends BaseRepository<WordEnQuestionChoice> {
+public class WordEnQuestionChoiceRepository extends ModelRepository<WordEnQuestionChoice> {
 
     public WordEnQuestionChoiceRepository() {
         super("default");

@@ -1,10 +1,14 @@
-package interfaces.base;
+package interfaces;
 
 import java.util.List;
 
 public interface ExcelDataListenerInterface<T> {
 
-    int getSuccessNum();
-    int getTotalNum();
-    List<ExcelErrorData> getExcelErrorDataList();
+    Integer getSuccessRowNum();
+
+    Integer getTotalRowNumber();
+
+    Integer getApproximateTotalRowNumber();
+
+    List<ExcelErrorData<T>> getExcelErrorDataList();
 }
