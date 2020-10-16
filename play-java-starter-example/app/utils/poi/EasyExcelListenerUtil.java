@@ -2,6 +2,7 @@ package utils.poi;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.metadata.Head;
+import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import datas.DataListenerListener;
 import interfaces.base.ExcelErrorData;
 import org.slf4j.Logger;
@@ -42,6 +43,9 @@ public class EasyExcelListenerUtil {
              */
             @Override
             public void invoke(T data, AnalysisContext context) {
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                //总行数
+                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
                 logger.debug("解析到" + context.readRowHolder().getRowIndex() + "条数据:{}", Json.prettyPrint(Json.toJson(data)));
                 totalNum = totalNum + 1;
                 boolean hasError = false;
