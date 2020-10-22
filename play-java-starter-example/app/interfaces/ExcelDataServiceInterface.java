@@ -6,7 +6,10 @@ import java.util.function.Function;
 
 public interface ExcelDataServiceInterface<T> {
 
-    Consumer<List<T>> handle();
+    Function<T, String> validHandler();
 
-    Function<T, String> getUniCode();
+    Function<T, String> uniqueHandler();
+
+    Consumer<List<T>> persistenceHandler();
+
 }

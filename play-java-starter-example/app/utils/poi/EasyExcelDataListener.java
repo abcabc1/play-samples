@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import services.base.EasyExcelDataService;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import javax.validation.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -28,21 +25,28 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
     private Integer successRowNum = 0;
     private Integer totalRowNumber = 0;
     private Integer approximateTotalRowNumber = 0;
+    private Integer limitNum;
+    private Integer batchNum;
+    private Integer headNum;
     private List<ExcelErrorData<T>> excelErrorDataList = new ArrayList<>();
     Set<String> uniSet = new HashSet<>();
-    Consumer<List<T>> consumer;
-    Function<T, String> getUniCode;
-    Integer threshold;
+    Consumer<LinkedList<T>> persistenceHandler;
+    Function<T, String> uniqueHandler;
+    Function<T, String> validHandler;
     EasyExcelDataService<T> easyExcelDataService;
+    String processFlag = "1";
+    String saveFlag = "1";
 
-    public EasyExcelDataListener(Consumer<List<T>> consumer, Function<T, String> getUniCode, Integer threshold) {
-        this.consumer = consumer;
-        this.getUniCode = getUniCode;
-        this.threshold = threshold;
+    public EasyExcelDataListener(Consumer<LinkedList<T>> persistenceHandler, Function<T, String> uniqueHandler, Integer limitNum, Integer headNum, String saveFlag) {
+        this.persistenceHandler = persistenceHandler;
+        this.uniqueHandler = uniqueHandler;
+        this.limitNum = limitNum;
+        this.headNum = headNum;
+        this.saveFlag = saveFlag;
     }
 
     public EasyExcelDataListener() {
-        this(null, null, 10);
+        this(null, null, 10, 1, "1");
     }
 
     public EasyExcelDataListener(EasyExcelDataService<T> easyExcelDataService) {
@@ -57,11 +61,22 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
      */
     @Override
     public void invoke(T data, AnalysisContext context) {
+        logger.debug("解析到第" + context.readRowHolder().getRowIndex() + "条数据:{}", Json.prettyPrint(Json.toJson(data)));
+        if ("0".equals(processFlag)) {
+            logger.info("手动取消, 终止数据处理。");
+            return;
+        }
         ReadSheetHolder readSheetHolder = context.readSheetHolder();
         //总行数
-        approximateTotalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
-        logger.debug("解析到大约{}条数据", approximateTotalRowNumber);
-        logger.debug("解析到第" + context.readRowHolder().getRowIndex() + "条数据:{}", Json.prettyPrint(Json.toJson(data)));
+        if (approximateTotalRowNumber == null || approximateTotalRowNumber == 0) {
+            approximateTotalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
+            logger.debug("解析到大约{}条数据", approximateTotalRowNumber);
+        }
+        if (approximateTotalRowNumber <= headNum || approximateTotalRowNumber > limitNum + headNum) {
+            processFlag = "0";
+            logger.info("数据条数超出范围(1, " + limitNum + "), 终止数据处理。");
+            return;
+        }
         totalRowNumber = totalRowNumber + 1;
         boolean hasError = false;
         if (headNameMap.size() == 0) {
@@ -76,16 +91,26 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
         if (result.size() != 0) {
             hasError = true;
             for (ConstraintViolation<T> constraintViolation : result) {
-                excelErrorData.addError(headNameMap.get(constraintViolation.getPropertyPath().toString())
+                Path propertyPath = constraintViolation.getPropertyPath();
+                Object invalidValue = constraintViolation.getPropertyPath();
+                String message = constraintViolation.getMessage();
+                excelErrorData.addError(headNameMap.get((propertyPath == null) ? "" : propertyPath.toString())
                         + " "
-                        + constraintViolation.getInvalidValue()
+                        + ((invalidValue == null) ? "" : invalidValue.toString())
                         + " "
-                        + constraintViolation.getMessage()
+                        + ((message == null) ? "" : message)
                 );
             }
         }
-        if (getUniCode != null) {
-            String uniCode = getUniCode.apply(data);
+        if (!hasError && validHandler != null) {
+            String validResult = validHandler.apply(data);
+            if (!"".equals(validResult)) {
+                hasError = true;
+                excelErrorData.addError(validResult);
+            }
+        }
+        if (!hasError && uniqueHandler != null) {
+            String uniCode = uniqueHandler.apply(data);
             if (uniSet.contains(uniCode)) {
                 hasError = true;
                 excelErrorData.addError("Duplicated Row Data");
@@ -99,14 +124,13 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
             successRowNum = successRowNum + 1;
             linkedList.add(data);
         }
-        // 达到threshold了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
-        if (linkedList.size() == threshold) {
+        // 达到batchNum了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
+        if (linkedList.size() == batchNum) {
             logger.debug("{}条数据，开始存储数据库！", linkedList.size());
-            if (consumer != null) {
-                consumer.accept(linkedList);
+            if (linkedList.size() > 0 && persistenceHandler != null && "1".equals(saveFlag)) {
+                persistenceHandler.accept(linkedList);
+                linkedList.clear();
             }
-            // 存储完成清理 linkedList
-            linkedList.clear();
         }
     }
 
@@ -117,12 +141,11 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
      */
     @Override
     public void doAfterAllAnalysed(AnalysisContext context) {
-        if (linkedList.size() > 0) {
-            // 这里也要保存数据，确保最后遗留的数据也存储到数据库
-            logger.debug("{}条数据，开始存储数据库！", linkedList.size());
-            if (consumer != null) {
-                consumer.accept(linkedList);
-            }
+        // 这里也要保存数据，确保最后遗留的数据也存储到数据库
+        logger.debug("{}条数据，开始存储数据库！", linkedList.size());
+        if (linkedList.size() > 0 && persistenceHandler != null && "1".equals(saveFlag)) {
+            persistenceHandler.accept(linkedList);
+            linkedList.clear();
         }
     }
 
@@ -142,15 +165,4 @@ public class EasyExcelDataListener<T> extends AnalysisEventListener<T> implement
         return excelErrorDataList;
     }
 
-    public void setConsumer(Consumer<List<T>> consumer) {
-        this.consumer = consumer;
-    }
-
-    public void setGetUniCode(Function<T, String> getUniCode) {
-        this.getUniCode = getUniCode;
-    }
-
-    public void setThreshold(Integer threshold) {
-        this.threshold = threshold;
-    }
 }

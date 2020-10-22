@@ -16,3 +16,6 @@ POST        /word/loadXiaShuoArticle           controllers.WordEnController.load
 POST        /word/loadChinaDailyArticle        controllers.WordEnController.loadChinaDailyArticle(request: Request)
 POST        /word/dictWordEn                   controllers.WordEnController.dictWordEn(request: Request)
 POST        /word/listWordEn                   controllers.WordEnController.listWordEn(request: Request)
+
+GET         /excel/singleRead                   controllers.ExcelController.singleRead(request: Request)
+GET         /excel/multiRead                   controllers.ExcelController.multiRead(request: Request)

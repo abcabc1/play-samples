@@ -7,9 +7,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class EasyExcelDataService<T> implements ExcelDataServiceInterface<T> {
-    public abstract Consumer<List<T>> handle();
 
-    public abstract Function<T, String> getUniCode();
+    protected Integer batchNum = 100;
 
-    Integer threshold = 10;
+    public abstract Function<T, String> validHandler();
+
+    public abstract Function<T, String> uniqueHandler();
+
+    public abstract Consumer<List<T>> persistenceHandler();
 }

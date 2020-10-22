@@ -5,22 +5,22 @@ import io.ebean.Model;
 
 public class Data2 extends Model {
 
-    @ExcelProperty(value = "商品中心id(新增为空)")
+    @ExcelProperty(value = "商品中心id(新增为空)", index = 1)
     public String id;
-    @ExcelProperty(value = "*商品名称")
+    @ExcelProperty(value = "*商品名称", index = 2)
     public String name;
-    @ExcelProperty(value = "*通用名")
+    @ExcelProperty(value = "*通用名", index = 3)
     public String localName;
-    @ExcelProperty(value = "*生产厂家")
+    @ExcelProperty(value = "*生产厂家", index = 4)
     public String factory;
-    @ExcelProperty(value = "*处方分类")
+    @ExcelProperty(value = "*处方分类", index = 5)
     public String type;
-    @ExcelProperty(value = "*规格")
+    @ExcelProperty(value = "*规格", index = 6)
     public String spec;
-    @ExcelProperty(value = "*包装单位")
+    @ExcelProperty(value = "*包装单位", index = 7)
     public String unit;
-    @ExcelProperty(value = "*商品条码")
+    @ExcelProperty(value = "*商品条码", index = 8)
     public String code;
-    @ExcelProperty(value = "*批准文号")
+    @ExcelProperty(value = "*批准文号", index = 9)
     public String approveNumber;
 }

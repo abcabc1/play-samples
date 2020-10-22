@@ -10,7 +10,6 @@ import play.Environment;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.easyexcel.Data11Service;
 import services.easyexcel.Data1Service;
 import services.easyexcel.Data2Service;
 import services.easyexcel.DataService;
@@ -21,7 +20,6 @@ import utils.poi.EasyExcelDataListener;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class ExcelController extends Controller {
 
@@ -37,7 +35,7 @@ public class ExcelController extends Controller {
     @Inject
     Data2Service data2Service;
 
-    private String poiPath = "/public/poi/simple/";
+    private String poiPath = "public/poi/simple/";
 
     public Result testEnvironmentPath(Http.Request request) {
         File image = environment.getFile("/public/images/bg.jpg");
@@ -62,17 +60,11 @@ public class ExcelController extends Controller {
         return list;
     }
 
-    public Result demoRead(Http.Request request) {
-        String path = "/public/poi/simple/";
-        String fileName = "测试.xls";
-        EasyExcelDataListener<Data> easyExcelDataListener = new EasyExcelDataListener<>();
-        EasyExcelDataListener<Data1> easyExcelDataListener1 = new EasyExcelDataListener<>();
-        Consumer consumer2 = System.out::println;
-//        Consumer<List<Data1>> consumer = Data11Service::handle;
-//        easyExcelDataListener1.setConsumer();
-
+    public Result singleRead(Http.Request request) {
+        String fileName = "test.xls";
+        EasyExcelDataListener<Data1> easyExcelDataListener = new EasyExcelDataListener<>();
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
-        EasyExcel.read(Constant.applicationPath + path + fileName, Data.class, easyExcelDataListener).sheet().doRead();
+        EasyExcel.read(poiPath + fileName, Data1.class, easyExcelDataListener).sheet(0).doRead();
         Map<String, Object> map = new HashMap<>();
         map.put("successRowNum", easyExcelDataListener.getSuccessRowNum());
         map.put("totalNum", easyExcelDataListener.getTotalRowNumber());
@@ -83,8 +75,8 @@ public class ExcelController extends Controller {
     public Result multiRead(Http.Request request) {
         String fileName = "test.xls";
         Data1Service data1Service = new Data1Service();
-        EasyExcelDataListener<Data1> dataDataListener = new EasyExcelDataListener<>(data1Service.handle(), data1Service.getUniCode(), 10);
-        EasyExcelDataListener<Data2> data1DataListener = new EasyExcelDataListener<>();//EasyExcelListenerUtil.getListener(data2Service.handle(), data2Service.getUniCode(), 2);
+        EasyExcelDataListener<Data1> dataDataListener = new EasyExcelDataListener<>(data1Service.persistenceHandler(), data1Service.uniqueHandler(), 10, 1);
+        EasyExcelDataListener<Data2> data1DataListener = new EasyExcelDataListener<>();
         ExcelReader excelReader = EasyExcel.read(Constant.applicationPath + poiPath + fileName).build();
         // 这里为了简单 所以注册了 同样的head 和Listener 自己使用功能必须不同的Listener
         ReadSheet readSheet1 =

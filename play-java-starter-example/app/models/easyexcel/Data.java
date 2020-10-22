@@ -16,57 +16,58 @@ import java.util.Date;
 
 public class Data extends Model {
 
-    @ExcelProperty("非null字符串标题")
+//    value用于写excel的标题，index从0开始，用于读取数据定位和headMap
+    @ExcelProperty(value = "非null字符串标题", index = 0)
     @NotNull(message = "非null字符串")
     public String notNullStringData;
 
-    @ExcelProperty("非空字符串标题")
+    @ExcelProperty(value = "非空字符串标题", index = 1)
     @NotNull(message = "名字不能为空字符串")
     public String notBlankStringData;
 
     @Future
-    @ExcelProperty("日期标题")
+    @ExcelProperty(value = "日期标题", index = 2)
 //    @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
 //    @DateTimeFormat("yyyy年MM月dd日HH时mm分ss秒")
     @DateTimeFormat("yyyy/m/d h:mm")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     public Date dateData;
 
-    @ExcelProperty("正数数字标题")
+    @ExcelProperty(value = "正数数字标题", index = 3)
     @Positive(message = "正数数字")
     public Double doubleData;
 
     @Digits(integer = 4, fraction = 2)
-    @ExcelProperty("浮点数字标题")
+    @ExcelProperty(value = "浮点数字标题", index = 4)
     public BigDecimal bigDecimalData;
 
-    @ExcelProperty("非负数数字标题")
+    @ExcelProperty(value = "非负数数字标题", index = 5)
     @DecimalMin(value = "0", inclusive = true, message = "非负数数字")
     public Long longData;
 
-    @ExcelProperty("布尔标题")
+    @ExcelProperty(value = "布尔标题", index = 6)
     public String booleanData;
 
-    @ExcelProperty("邮箱标题")
+    @ExcelProperty(value = "邮箱标题", index = 7)
     @Email(message = "邮箱")
     public String emailData;
 
-    @ExcelProperty("手机标题")
+    @ExcelProperty(value = "手机标题", index = 8)
     @Pattern(regexp = "^1(3|4|5|7|8)\\d{9}$", message = "手机")
     public String phoneData;
 
-    @ExcelProperty("身份证标题")
+    @ExcelProperty(value = "身份证标题", index = 9)
     @Length(min = 18, max = 18, message = "身份证")
     public String idData;
 
     /**
      * 自定义注解校验
      */
-    @ExcelProperty("自定义标题")
+    @ExcelProperty(value = "自定义标题", index = 10)
     @NameInclude(message = "类型必须是type value必须是HealerJean", type = "Mail")
     public String licensePlate;
 
-    @ExcelProperty(value = "性别标题", converter = GenderConverter.class)
+    @ExcelProperty(value = "性别标题", converter = GenderConverter.class, index = 11)
     @CheckGender(message = "性别")
     public String genderData;
 

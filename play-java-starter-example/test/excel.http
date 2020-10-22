@@ -1,0 +1,11 @@
+###
+GET http://{{host}}:{{port}}/excel/singleRead
+Content-Type: application/json
+
+{}
+
+###
+GET http://{{host}}:{{port}}/excel/multiRead
+Content-Type: application/json
+
+{}

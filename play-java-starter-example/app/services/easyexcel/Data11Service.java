@@ -8,13 +8,18 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Data11Service extends EasyExcelDataService<Data1> {
+
+    public Function<Data1, String> validHandler() {
+        return data -> "";
+    }
+
     @Override
-    public Consumer<List<Data1>> handle() {
+    public Function<Data1, String> uniqueHandler() {
         return null;
     }
 
     @Override
-    public Function<Data1, String> getUniCode() {
+    public Consumer<List<Data1>> persistenceHandler() {
         return null;
     }
 }

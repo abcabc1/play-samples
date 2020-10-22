@@ -19,6 +19,9 @@ lazy val root = (project in file("."))
       "org.jsoup" % "jsoup" % "1.12.1",
       "io.jsonwebtoken" % "jjwt" % "0.9.1",
       "com.alibaba" % "easyexcel" % "2.2.3",
+      // https://mvnrepository.com/artifact/javax.el/javax.el-api
+//      "javax.el" % "javax.el-api" % "3.0.0",
+      "org.glassfish" % "jakarta.el" % "3.0.3",
       "me.xdrop" % "fuzzywuzzy" % "1.2.0",
       "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.8.1",
       "org.elasticsearch" % "elasticsearch" % "6.8.1",

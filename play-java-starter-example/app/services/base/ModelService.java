@@ -9,6 +9,10 @@ import utils.Constant;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ *
+ * 废弃，baseService在实际场景中用不上，每张表都对应有一个service的做法是错误的
+ */
 public abstract class ModelService<T extends BaseModel> implements BaseInterface<T> {
 
     ModelRepository<T> repository;
