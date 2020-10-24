@@ -1,8 +1,23 @@
 ###
+GET http://{{host}}:{{port}}/excel/watch
+Content-Type: application/json
+
+{}
+###
 GET http://{{host}}:{{port}}/excel/singleRead
 Content-Type: application/json
 
 {}
+###
+GET http://{{host}}:{{port}}/excel/singleWrite
+Content-Type: application/json
+
+{}
+###
+GET http://{{host}}:{{port}}/excel/cancelRead
+Content-Type: application/json
+
+{"process": "2020-10-24 14:47:53"}
 
 ###
 GET http://{{host}}:{{port}}/excel/multiRead

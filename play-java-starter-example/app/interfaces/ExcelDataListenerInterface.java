@@ -4,11 +4,11 @@ import java.util.List;
 
 public interface ExcelDataListenerInterface<T> {
 
-    Integer getSuccessRowNum();
+    Integer getInvalidNum();
 
-    Integer getTotalRowNumber();
+    Integer getTotalNumber();
 
-    Integer getApproximateTotalRowNumber();
+    Integer getApproximateTotalNumber();
 
-    List<ExcelErrorData<T>> getExcelErrorDataList();
+    List<ExcelErrorData<T>> getInvalidList();
 }

@@ -22,6 +22,8 @@ public class Data1 extends Model {
     public String code;
     @ExcelProperty(value = "保质期", index = 7)
     public String valid;
+    @ExcelProperty(value = "备注", index = 8)
+    public String remark;
 
     //不输出在表格中的字段
     @ExcelIgnore
