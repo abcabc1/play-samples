@@ -75,23 +75,23 @@ public class ExcelController extends Controller {
     public Result multiRead(Http.Request request) {
         String fileName = "test.xls";
         Data1Service data1Service = new Data1Service();
-        EasyExcelDataListener<Data1> dataDataListener = new EasyExcelDataListener<>(data1Service.persistenceHandler(), data1Service.uniqueHandler(), 10, 1);
+//        EasyExcelDataListener<Data1> dataDataListener = new EasyExcelDataListener<Data1>(data1Service.persistenceHandler(), data1Service.uniqueHandler(), 10, 1);
         EasyExcelDataListener<Data2> data1DataListener = new EasyExcelDataListener<>();
         ExcelReader excelReader = EasyExcel.read(Constant.applicationPath + poiPath + fileName).build();
         // 这里为了简单 所以注册了 同样的head 和Listener 自己使用功能必须不同的Listener
         ReadSheet readSheet1 =
                 EasyExcel.readSheet("中西成药").head(Data2.class).registerReadListener(data1DataListener).build();
-        ReadSheet readSheet2 =
-                EasyExcel.readSheet("食品 保健食品").head(Data1.class).registerReadListener(dataDataListener).build();
+//        ReadSheet readSheet2 =
+//                EasyExcel.readSheet("食品 保健食品").head(Data1.class).registerReadListener(dataDataListener).build();
         // 这里注意 一定要把sheet1 sheet2 一起传进去，不然有个问题就是03版的excel 会读取多次，浪费性能
-        excelReader.read(readSheet1, readSheet2);
+//        excelReader.read(readSheet1, readSheet2);
         // 这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
         excelReader.finish();
 //        EasyExcel.read(Constant.applicationPath + poiPath + fileName, Test.class, dataDataListener).doReadAll();
         Map<String, Object> map = new HashMap<>();
-        map.put("successRowNum", dataDataListener.getSuccessRowNum());
-        map.put("totalNum", dataDataListener.getTotalRowNumber());
-        map.put("dataList", dataDataListener.getExcelErrorDataList());
+//        map.put("successRowNum", dataDataListener.getSuccessRowNum());
+//        map.put("totalNum", dataDataListener.getTotalRowNumber());
+//        map.put("dataList", dataDataListener.getExcelErrorDataList());
         return ok(ResultUtil.success(map));
     }
 }

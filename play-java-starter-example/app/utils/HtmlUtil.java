@@ -97,39 +97,47 @@ public class HtmlUtil {
         return map;
     }
 
-    public static List<String> extractXMLYXiaShuoTitle(String html) {
+    public static LinkedList<String> extractXMLYXiaShuoTitle(String html) {
         Document document = Jsoup.parse(html);
-//        List<String> titleList  = document.select(".title._Vc").eachText();
-        Set<String> titleSet = new HashSet<>();
-        List<String> titleList = new ArrayList<>();
+        LinkedHashSet<String> titleSet = new LinkedHashSet<>();
+        LinkedList<String> titleList = new LinkedList<>();
+        Elements indexElements = document.select(".num._Vc");
+        List<String> indexList = indexElements.eachText();
         Elements elements = document.select(".text._Vc");
+        int i = 0;
         for (Element element : elements) {
             String title = "";
             String text = element.text();
-            if (text.indexOf("（") != -1) {
+            if (text.contains("（")) {
+                String index = indexList.get(i);
                 title = text.substring(0, text.indexOf("（"));
                 String href = element.select("a").attr("href");
                 if (titleSet.add(title)) {
-                    titleList.add(title + "#" + href);
+                    titleList.add(index + "#" + title + "#" + href);
                 }
             }
+            i++;
         }
         return titleList;
     }
 
-    public static Set<String> extractXMLYChinaDailyTitle(String html) {
+    public static LinkedHashSet<String> extractXMLYChinaDailyTitle(String html) {
         Document document = Jsoup.parse(html);
-//        List<String> titleList  = document.select(".title._Vc").eachText();
-        Set<String> titleSet = new HashSet<>();
+        LinkedHashSet<String> titleSet = new LinkedHashSet<>();
+        Elements indexElements = document.select(".num._Vc");
+        List<String> indexList = indexElements.eachText();
         Elements elements = document.select(".text._Vc");
+        int i = 0;
         for (Element element : elements) {
             String title = "";
             String text = element.text();
-            if (text.indexOf("：") != -1) {
+            if (text.contains("热门：") || (text.contains("月") && text.contains("日"))) {
+                String index = indexList.get(i);
                 title = text.substring(text.indexOf("：") + 1);
                 String href = element.select("a").attr("href");
-                titleSet.add(title + "#" + href);
+                titleSet.add(index + "#" + title + "#" + href);
             }
+            i++;
         }
         return titleSet;
     }

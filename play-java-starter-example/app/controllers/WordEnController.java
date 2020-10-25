@@ -34,7 +34,7 @@ public class WordEnController extends Controller {
     }
 
     public Result loadChinaDailyArticle(Http.Request request) throws ExecutionException, InterruptedException {
-        String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/14804689");
+//        String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/14804689");
         ArticleParam articleParam = RequestUtil.getModel(request, "model", ArticleParam.class);
         wordEnService.loadChinaDailyArticle(articleParam);
         return ok(ResultUtil.success());
@@ -42,10 +42,6 @@ public class WordEnController extends Controller {
 
     public Result listWordEn(Http.Request request) {
         WordEn model = RequestUtil.getModel(request, WordEn.class);
-        ArticleParam articleParam = new ArticleParam();
-        articleParam.articleIndex = 1;
-        articleParam.articleStartPage = 2;
-        articleParam.articlePageLink = "link";
         List<WordEn> wordEnList = wordEnService.listWordEn(model);
         Map<String, Object> map = new HashMap<>();
         map.put("list", wordEnList);
