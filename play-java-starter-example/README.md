@@ -49,3 +49,23 @@ There are several demonstration files available in this template.
 - `ExampleFilter.java`:
 
   A simple filter that adds a header to every response.
+  
+  
+  sbt clean compile
+  
+  sbt test:compile
+  
+  sbt "testOnly word.WordTest"
+  
+  https://maven.aliyun.com/mvn/guide
+  ~/.sbt/repositories
+  [repositories]
+  local
+  osc: https://maven.aliyun.com/repository/public
+  typesafe: https://repo.typesafe.com/typesafe/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext], bootOnly
+  sonatype-oss-releases
+  maven-central
+  sonatype-oss-snapshots
+  
+  sbt JVM parameters
+  -Dsbt.override.build.repos=true

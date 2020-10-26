@@ -133,9 +133,9 @@ public class WordEnService {
                 }
             }
         }
-        /*for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
+        for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
             wordEnArticleRepository.insertAll(subList);
-        }*/
+        }
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

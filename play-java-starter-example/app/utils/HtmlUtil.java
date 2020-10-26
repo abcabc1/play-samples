@@ -149,10 +149,10 @@ public class HtmlUtil {
         int startIndex = 0, endIndex = 0;
         for (int i = 0; i < pTextList.size(); i++) {
             String pText = pTextList.get(i);
-            if (pText.indexOf("原文") != -1) {
+            if (pText.contains("原文")) {
                 startIndex = i;
             }
-            if (pText.indexOf("语言点") != -1) {
+            if (pText.contains("语言点")) {
                 endIndex = i;
                 break;
             }
@@ -246,6 +246,7 @@ public class HtmlUtil {
         String content = "";
         String contentNote = "";
         boolean contentFlag = false;
+        int contentTicket = 0;
         List<String> contentList = new ArrayList<>();
         List<String> contentNoteList = new ArrayList<>();
         List<String> pTextList = document.select("p").eachText();
@@ -277,8 +278,7 @@ public class HtmlUtil {
                     titleTicket--;
                     contentFlag = true;
                 }
-                int contentTicket = 0;
-                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || text.charAt(0) == '\'' || text.charAt(0) == '\"') && contentFlag;
+                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || text.charAt(0) == '\'' || text.charAt(0) == '\"') && !StringUtil.hasChinese(text) && contentFlag;
                 if (isContent) {
                     contentTicket = 2;
                 } else if (!content.isEmpty() && contentTicket == 0) {
@@ -333,7 +333,6 @@ public class HtmlUtil {
                     contentFlag = true;
                     continue;
                 }
-                int contentTicket = 0;
                 boolean isContent = StringUtil.isAlpha(text.charAt(0));
                 if (isContent) {
                     indexOfChinese = StringUtil.indexOfChinese(text);

@@ -42,9 +42,9 @@ public class ExcelController extends Controller {
     @Inject
     Data2Service data2Service;
 
-    private String poiPath = "public/poi/simple/";
+    private final String poiPath = "public/poi/simple/";
 
-    public Result testEnvironmentPath(Http.Request request) {
+    public Result testEnvironmentPath() {
         File image = environment.getFile("/public/images/bg.jpg");
         return ok(image);
     }
