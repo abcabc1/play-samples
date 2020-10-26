@@ -99,13 +99,13 @@ public class WordEnService {
                 String title = titleStr[1];
                 String link = titleStr[2];
                 boolean isSingle = !StringUtil.hasChinese(title) || title.isEmpty();
-                System.out.print(title);
                 if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
                     continue;
                 }
                 if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
                     continue;
                 }
+                System.out.print(title);
                 System.out.print(" [");
                 List<String> articleList = dictService.getXMLYChinaDailyArticle(isSingle, link).toCompletableFuture().get();
                 if (articleList != null && !articleList.isEmpty()) {
@@ -114,14 +114,15 @@ public class WordEnService {
                     articleSize += articleList.size();
                     System.out.println(articleList.size() + " single=" + singleArticleSize + " multi=" + multiArticleSize + " total=" + articleSize + "]");
                     for (String s : articleList) {
-                        String[] ss = s.split("#");
                         Config config = new Config();
                         config.node = "china_daily";
                         WordEnArticle wordEnArticle = new WordEnArticle();
-                        wordEnArticle.title = ss[0];
                         if (isSingle) {
-                            wordEnArticle.content = ss[1];
+                            wordEnArticle.title = title;
+                            wordEnArticle.content = s;
                         } else {
+                            String[] ss = s.split("#");
+                            wordEnArticle.title = ss[0];
                             wordEnArticle.titleNote = ss[1];
                             wordEnArticle.content = ss[2];
                             wordEnArticle.contentNote = ss[3];
@@ -134,7 +135,7 @@ public class WordEnService {
             }
         }
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
-            wordEnArticleRepository.insertAll(subList);
+//            wordEnArticleRepository.insertAll(subList);
         }
     }
 

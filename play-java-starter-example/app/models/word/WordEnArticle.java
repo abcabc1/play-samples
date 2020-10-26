@@ -15,13 +15,13 @@ public class WordEnArticle extends BaseModel {
     @Id
     public Long id;
 
-    @Column(nullable = true, columnDefinition = "varchar(64) default '' comment '标题'")
+    @Column(nullable = true, columnDefinition = "varchar(128) default '' comment '标题'")
     public String title;
 
-    @Column(nullable = true, columnDefinition = "varchar(64) default '' comment '标题翻译'")
+    @Column(nullable = true, columnDefinition = "varchar(128) default '' comment '标题翻译'")
     public String titleNote;
 
-    @Column(nullable = true, columnDefinition = "varchar(2048) default '' comment '内容'")
+    @Column(nullable = true, columnDefinition = "text comment '内容'")
     public String content;
 
     @Column(nullable = true, columnDefinition = "varchar(1024) default '' comment '翻译'")

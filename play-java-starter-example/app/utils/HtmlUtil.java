@@ -169,55 +169,29 @@ public class HtmlUtil {
 
     public static List<String> extractXMLYChinaDailyArticleSingle(String html) {
         Document document = Jsoup.parse(html);
-        List<String> titleList = new ArrayList<>();
-        boolean titleFlag = false;
-        List<String> bTextList = document.select("b").eachText();
-        for (String text : bTextList) {
-            boolean isTitle = StringUtil.isAlpha(text.charAt(0));
-            if (isTitle) {
-                titleFlag = true;
-            }
-            if (titleFlag) {
-                titleList.add(text);
-            } else {
-                if (titleFlag) {
-                    titleFlag = false;
-                }
-            }
-        }
         List<String> contentList = new ArrayList<>();
-        boolean contentFlag = false;
         String content = "";
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
             if (text.isEmpty()) continue;
+            if (text.contains("Xinhua") || text.contains("Photo") || text.contains("CHINA DAILY")) continue;
             if (text.contains("Find more audio news")) {
                 if (!content.isEmpty()) {
-                    contentList.add(content);
+                    content += text;
                 }
                 break;
             }
-            boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == '"' && StringUtil.isAlpha(text.charAt(1))))
-                    && !titleList.contains(text)
-                    && !text.contains("Photo")
-                    && !text.contains("CHINA DAILY");
+            boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == '"' && StringUtil.isAlpha(text.charAt(1))));
             if (isContent) {
-                contentFlag = true;
-            } else {
-                if (contentFlag) {
-                    contentFlag = false;
-                    contentList.add(content);
+                if (!text.substring(text.length() - 1).contains(".")) {
+                    text = text + ".";
                 }
-            }
-            if (contentFlag) {
                 content += text;
             }
         }
         List<String> articleList = new ArrayList<>();
-        for (int i = 0; i < titleList.size(); i++) {
-            articleList.add(titleList.get(i) + "#" + contentList.get(i));
-        }
+        articleList.add(content);
         return articleList;
     }
 
@@ -280,7 +254,7 @@ public class HtmlUtil {
                     titleTicket--;
                     contentFlag = true;
                 }
-                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || text.charAt(0) == '\'' || text.charAt(0) == '\"') && !StringUtil.hasChinese(text) && contentFlag;
+                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || text.charAt(0) == '\'' || text.charAt(0) == 34) && !StringUtil.hasChinese(text) && contentFlag;
                 if (isContent) {
                     contentTicket = 2;
                 } else if (!content.isEmpty() && contentTicket == 0) {
@@ -321,7 +295,7 @@ public class HtmlUtil {
                     }
                     continue;
                 }
-                boolean isAlpha = StringUtil.isAlpha(text.charAt(0));
+                boolean isAlpha = StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == 34 && StringUtil.isAlpha(text.charAt(1)));
                 boolean isChinese = StringUtil.isChineseByScript(text.charAt(0));
                 int indexOfChinese = StringUtil.indexOfChinese(text);
                 if (isAlpha && indexOfChinese > 0) {
@@ -335,7 +309,17 @@ public class HtmlUtil {
                     contentFlag = true;
                     continue;
                 }
-                boolean isContent = StringUtil.isAlpha(text.charAt(0));
+                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == 34 && StringUtil.isAlpha(text.charAt(1))))
+                        && !text.contains("vt.")
+                        && !text.contains("n.")
+                        && !text.contains("vi.")
+                        && !text.contains("adj.")
+                        && !text.contains("prep.")
+                        && !text.contains("conj.")
+                        && !text.contains("v.")
+                        && !text.contains("adv.")
+                        && !text.contains("art.")
+                        && !text.contains("adj.");
                 if (isContent) {
                     indexOfChinese = StringUtil.indexOfChinese(text);
                     if (indexOfChinese > 0) {

@@ -39,7 +39,7 @@ public class WordTest extends WithApplication {
         articleParam.articleLink = "/waiyu/14804689";
         articleParam.articleStartPage = 1;
         articleParam.articleEndPage = 1;
-        articleParam.articleIndexList = Arrays.asList(898, 897);
+        articleParam.articleIndexList = Arrays.asList(871);
 //        articleParam.articleTitleList = Arrays.asList("");
         wordEnService.loadChinaDailyArticle(articleParam);
     }
