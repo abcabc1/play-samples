@@ -35,29 +35,41 @@ public class WordEnService {
     @Inject
     WordEnSentenceRepository wordEnSentenceRepository;
 
-    @Transactional
-    public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
-        Config config = new Config();
-        config.node = "xia_shuo";
-        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+    public List<String> getPageLinkList(ArticleParam articleParam) {
         List<String> pageLinkList = new ArrayList<>();
         articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
         articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
         for (int p = articleParam.articleStartPage; p <= articleParam.articleEndPage; p++) {
-            pageLinkList.add(articleParam.articlePageLink + "/p" + p);
+            pageLinkList.add(articleParam.articleLink + "/p" + p);
         }
         pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
+        return pageLinkList;
+    }
+
+    @Transactional
+    public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+        if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
+            return;
+        }
+        List<String> pageLinkList = getPageLinkList(articleParam);
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (String pageLink : pageLinkList) {
-            List<String> titleList = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
-            for (String titleText: titleList) {
+            LinkedList<String> titleList = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
+            for (String titleText : titleList) {
                 System.out.println(titleText);
                 String[] titleStr = titleText.split("#");
-                String title = titleStr[0];
+                Integer index = Integer.parseInt(titleStr[0]);
+                String title = titleStr[1];
+                if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
+                    continue;
+                }
                 if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
                     continue;
                 }
-                List<String> articleList = dictService.getXMLYXiaShuoArticle(titleStr[1]).toCompletableFuture().get();
+                List<String> articleList = dictService.getXMLYXiaShuoArticle(titleStr[2]).toCompletableFuture().get();
                 String article = String.join(" ", articleList);
+                Config config = new Config();
+                config.node = "xia_shuo";
                 WordEnArticle wordEnArticle = new WordEnArticle();
                 wordEnArticle.titleNote = title;
                 wordEnArticle.content = article;
@@ -71,28 +83,26 @@ public class WordEnService {
 
     @Transactional
     public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
-        Config config = new Config();
-        config.node = "china_daily";
-        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
-        List<String> pageLinkList = new ArrayList<>();
-        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
-        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
-        for (int i = articleParam.articleStartPage; i <= articleParam.articleEndPage; i++) {
-            pageLinkList.add(articleParam.articlePageLink + "/p" + i);
+        if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
+            return;
         }
-        pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
+        List<String> pageLinkList = getPageLinkList(articleParam);
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         int articleSize = 0;
         int singleArticleSize = 0;
         int multiArticleSize = 0;
         for (String pageLink : pageLinkList) {
-            Set<String> titleSet = dictService.getXMLYChinaDailyTitle(pageLink).toCompletableFuture().get();
+            LinkedHashSet<String> titleSet = dictService.getXMLYChinaDailyTitle(pageLink).toCompletableFuture().get();
             for (String titleText : titleSet) {
                 String[] titleStr = titleText.split("#");
-                String title = titleStr[0];
-                String link = titleStr[1];
+                Integer index = Integer.parseInt(titleStr[0]);
+                String title = titleStr[1];
+                String link = titleStr[2];
                 boolean isSingle = !StringUtil.hasChinese(title) || title.isEmpty();
-                if (!title.equals("Nation honors UN, multilateralism pledge")) continue;
                 System.out.print(title);
+                if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
+                    continue;
+                }
                 if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
                     continue;
                 }
@@ -105,6 +115,8 @@ public class WordEnService {
                     System.out.println(articleList.size() + " single=" + singleArticleSize + " multi=" + multiArticleSize + " total=" + articleSize + "]");
                     for (String s : articleList) {
                         String[] ss = s.split("#");
+                        Config config = new Config();
+                        config.node = "china_daily";
                         WordEnArticle wordEnArticle = new WordEnArticle();
                         wordEnArticle.title = ss[0];
                         if (isSingle) {
@@ -121,9 +133,9 @@ public class WordEnService {
                 }
             }
         }
-        for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
+        /*for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
             wordEnArticleRepository.insertAll(subList);
-        }
+        }*/
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

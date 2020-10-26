@@ -6,6 +6,7 @@ import org.junit.Test;
 import play.test.WithApplication;
 import services.word.WordEnService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +27,7 @@ public class WordTest extends WithApplication {
     @Test
     public void xiaShuo() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
-        articleParam.articlePageLink = "/waiyu/3240558";
+        articleParam.articleLink = "/waiyu/3240558";
         articleParam.articleStartPage = 1;
         articleParam.articleEndPage = 1;
         wordEnService.loadXiaShuoArticle(articleParam);
@@ -35,10 +36,12 @@ public class WordTest extends WithApplication {
     @Test
     public void chinaDaily() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
-        articleParam.articlePageLink = "/waiyu/14804689";
+        articleParam.articleLink = "/waiyu/14804689";
         articleParam.articleStartPage = 1;
         articleParam.articleEndPage = 1;
-        wordEnService.loadXiaShuoArticle(articleParam);
+        articleParam.articleIndexList = Arrays.asList(898, 897);
+//        articleParam.articleTitleList = Arrays.asList("");
+        wordEnService.loadChinaDailyArticle(articleParam);
     }
 
     @Test

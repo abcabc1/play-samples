@@ -5,9 +5,10 @@ import play.libs.ws.WSResponse;
 import utils.HtmlUtil;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import static utils.Constant.*;
@@ -37,11 +38,11 @@ public class DictService {
         return ws.url(HOST_DICT + "/" + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictPhraseEn);
     }
 
-    public CompletionStage<List<String>> getXMLYXiaShuoTitle(String pageLink) {
+    public CompletionStage<LinkedList<String>> getXMLYXiaShuoTitle(String pageLink) {
         return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYXiaShuoTitle);
     }
 
-    public CompletionStage<Set<String>> getXMLYChinaDailyTitle(String pageLink) {
+    public CompletionStage<LinkedHashSet<String>> getXMLYChinaDailyTitle(String pageLink) {
         return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyTitle);
     }
 
