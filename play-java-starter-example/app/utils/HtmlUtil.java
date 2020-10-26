@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -199,7 +200,8 @@ public class HtmlUtil {
             }
             boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == '"' && StringUtil.isAlpha(text.charAt(1))))
                     && !titleList.contains(text)
-                    && !text.contains("Photo");
+                    && !text.contains("Photo")
+                    && !text.contains("CHINA DAILY");
             if (isContent) {
                 contentFlag = true;
             } else {
@@ -231,7 +233,7 @@ public class HtmlUtil {
                 break;
             }
             String text = bTextList.get(i);
-            isTitle = StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == '\'' && StringUtil.isAlpha(text.charAt(1)));
+            isTitle = !StringUtil.hasChinese(StringUtils.trimAllWhitespace(text)) && !text.contains("No.") && !text.contains("、");
             if (isTitle) {
                 titleTicket = 2;
             }
