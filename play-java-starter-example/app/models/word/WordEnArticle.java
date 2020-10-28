@@ -15,6 +15,8 @@ public class WordEnArticle extends BaseModel {
     @Id
     public Long id;
 
+    public Integer articleIndex;
+
     @Column(nullable = true, columnDefinition = "varchar(128) default '' comment '标题'")
     public String title;
 
