@@ -117,6 +117,7 @@ public class WordEnService {
                         Config config = new Config();
                         config.node = "china_daily";
                         WordEnArticle wordEnArticle = new WordEnArticle();
+                        wordEnArticle.articleIndex = index;
                         if (isSingle) {
                             wordEnArticle.title = title;
                             wordEnArticle.content = s;
@@ -135,7 +136,7 @@ public class WordEnService {
             }
         }
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
-//            wordEnArticleRepository.insertAll(subList);
+            wordEnArticleRepository.insertAll(subList);
         }
     }
 
