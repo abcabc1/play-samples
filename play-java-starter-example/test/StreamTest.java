@@ -4,8 +4,10 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class StreamTest {
@@ -20,9 +22,9 @@ public class StreamTest {
 //        Duplicate key error
 //        Map<Object, Object> map = subDataList.stream().collect(Collectors.toMap(v->v.getParent().getId(), v->v));
 //        1 parent - many sub
-        Map<Object, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId()));
+        Map<Object, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v -> v.getParent().getId()));
 
-        dataList.forEach(v->{
+        dataList.forEach(v -> {
             if (map.get(v.getId()) != null) {
                 //        1 parent - many sub
                 v.setSubList(map.get(v.getId()));
@@ -33,6 +35,20 @@ public class StreamTest {
         dataList.forEach(System.out::println);
     }
 
+    @Before
+    public void create() throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Data data1 = new Data(1L, "name1", 3, 1, simpleDateFormat.parse("2000-01-01"));
+        Data data2 = new Data(2L, "name2", 2, 1, simpleDateFormat.parse("2000-01-02"));
+        Data data3 = new Data(3L, "name3", 3, 1, simpleDateFormat.parse("2000-01-01"));
+        Data data11 = new Data(11L, "name11", 4, 1, simpleDateFormat.parse("2000-01-04"), new Data(1L));
+        Data data12 = new Data(12L, "name12", 5, 1, simpleDateFormat.parse("2000-01-05"), new Data(1L));
+        Data data21 = new Data(21L, "name21", 6, 1, simpleDateFormat.parse("2000-01-06"), new Data(2L));
+
+        dataList = Arrays.asList(new Data[]{data1, data2, data3});
+        subDataList = Arrays.asList(new Data[]{data11, data12, data21});
+    }
+
     @Test
     public void group() {
 //        simple
@@ -40,56 +56,46 @@ public class StreamTest {
 //        complex
 //        Map<Integer, Map<Date, IntSummaryStatistics>> map = dataList.stream().collect(Collectors.groupingBy(Data::getAge, Collectors.groupingBy(Data::getDate, Collectors.summarizingInt(Data::getAge))));
 
-        subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId()))
+        // handle again with entrySet toMap raw key
+        Map<Data, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId()))
                 .entrySet().stream()
                 .collect(Collectors.toMap(x -> {
-                    int sumAmount = x.getValue().stream().mapToInt(Data::getAge).sum();
-                    int sumPrice= x.getValue().stream().mapToInt(Data::getMark).sum();
-                    return new Data(x.getKey(), sumAmount, sumPrice);
-                }, Entry::getValue));
-        subDataList.size();
-        Map<Foo, List<Foo>> map = fooList.stream()
-                .collect(Collectors.groupingBy(Foo::getCategory))
+                    int sumAge = x.getValue().stream().mapToInt(Data::getAge).sum();
+                    int sumMark= x.getValue().stream().mapToInt(Data::getMark).sum();
+                    String concatName = x.getValue().stream().map(Data::getName).distinct().collect(Collectors.joining(","));
+                    return new Data(x.getKey(), sumAge, sumMark, concatName);
+                }, Map.Entry::getValue));
+        // handle again with entrySet toMap reduce key
+        /*Map<Data, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId()))
                 .entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getValue().stream().collect(
-                        Collectors.reducing((l, r) -> new Foo(l.getCategory(),
-                                l.getAmount() + r.getAmount(),
-                                l.getPrice() + r.getPrice())))
+                        Collectors.reducing((l, r) -> new Data(l.getId(),
+                                l.getAge() + r.getAge(),
+                                l.getMark() + r.getMark())))
                                 .get(),
-                        e -> e.getValue()));
+                        e -> e.getValue()));*/
 
-        public Foo(Foo that) { // not a copy constructor!!!
-            this.category = that.category;
-            this.amount = 0;
-            this.price = 0;
-        }
-
-        public int hashCode() {
-            return Objects.hashCode(category);
-        }
-
-        public boolean equals(Object another) {
-            if (another == this) return true;
-            if (!(another instanceof Foo)) return false;
-            Foo that = (Foo) another;
-            return Objects.equals(this.category, that.category);
-        }
-        public void aggregate(Foo that) {
-            this.amount += that.amount;
-            this.price += that.price;
-        }
-        Map<Foo, List<Foo>> result = fooList.stream().collect(
+        // uncompleted
+        /*Map<Data, List<Data>> result = subDataList.stream().collect(
                 Collectors.collectingAndThen(
-                        Collectors.groupingBy(Foo::new), // works: special ctor, hashCode & equals
-                        m -> { m.forEach((k, v) -> v.forEach(k::aggregate)); return m; }));
-        Map<String, String> productsByNameCategoryType = products.stream()
-                .collect(Collectors.groupingBy(p
-                                -> p.getName() + '-' + p.getCategory() + '-' + p.getType(),
-                        Collectors.collectingAndThen(
-                                Collectors.summarizingDouble(Product::getCost),
-                                dss -> String.format("%7.2f%3d",
-                                        dss.getSum(), dss.getCount()))));
+                        Collectors.groupingBy(d -> d.getParent().getId()),
+                        m -> {
+                            m.forEach((k, v) -> v.forEach(k::aggregate));
+                            return m;
+                        }));*/
 
+        // single summarizing
+        /*Map<Long, String> map = subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId(),
+                        Collectors.collectingAndThen(
+                                Collectors.summarizingInt(Data::getAge),
+                                dss -> String.format("%7d %3d", dss.getSum(), dss.getCount()))));*/
+
+        // single string concat
+//        Map<Long, String> map = subDataList.stream().collect(Collectors.groupingBy(v -> v.getParent().getId(), Collectors.mapping(Data::getName, Collectors.joining(","))));
+
+        subDataList.size();
+
+/*
         TaxLine = title:"New York Tax", rate:0.20, price:20.00
         TaxLine = title:"New York Tax", rate:0.20, price:20.00
         TaxLine = title:"County Tax", rate:0.10, price:10.00
@@ -204,15 +210,7 @@ public class StreamTest {
         edited Jul 24 '18 at 5:32
         answered Jul 21 '18 at 5:38
 
-        Pankaj Singhal
-        11.6k77 gold badges3434 silver badges6868 bronze badges
-        Note this mutates the objects in the Stream - which you may not want. You'd be better of with a custom Collector that creates a new Customer. – Boris the Spider Jul 21 '18 at 9:19
-        I really don't like the usage of toMap here, rather than groupingBy. – Boris the Spider Jul 21 '18 at 9:37
-        add a comment
-
-        3
-
-        The other answers here are great, but they mutate the Customer instances in the input, which may be unexpected.
+                The other answers here are great, but they mutate the Customer instances in the input, which may be unexpected.
 
                 To avoid this, use a custom Collector.
 
@@ -240,22 +238,7 @@ public class StreamTest {
                 .values();
 
         https://stackoverflow.com/questions/51452737/java-groupingby-sum-multiple-fields
-        https://docs.oracle.com/javase/tutorial/collections/streams/reduction.html
-    }
-
-    @Before
-    public void create() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Data data1 = new Data(1L, "name1", 3, 1, simpleDateFormat.parse("2000-01-01"));
-        Data data2 = new Data(2L, "name2", 2, 1, simpleDateFormat.parse("2000-01-02"));
-        Data data3 = new Data(3L, "name3", 3, 1, simpleDateFormat.parse("2000-01-01"));
-        Data data11 = new Data(11L, "name11", 4, 1, simpleDateFormat.parse("2000-01-04"), new Data(1L));
-        Data data12 = new Data(12L, "name12", 5, 1, simpleDateFormat.parse("2000-01-05"), new Data(1L) );
-        Data data21 = new Data(21L, "name21", 6, 1, simpleDateFormat.parse("2000-01-06"), new Data(2L) );
-
-        dataList = Arrays.asList(new Data[]{data1, data2, data3});
-        subDataList = Arrays.asList(new Data[]{data11, data12, data21});
-
+        https://docs.oracle.com/javase/tutorial/collections/streams/reduction.html*/
     }
 
     @After
@@ -272,13 +255,21 @@ public class StreamTest {
         private Data parent;
         private List<Data> subList;
         private Data singleSub;
-        private Integer ageSum;
-        private Integer markSub;
+        private Integer sumAge;
+        private Integer sumMark;
+        private String concatName;
 
-        public Data(Long id, Integer ageSum, Integer markSub) {
+        public Data(Long id, Integer sumAge, Integer sumMark, String concatName) {
             this.id = id;
-            this.ageSum = ageSum;
-            this.markSub = markSub;
+            this.sumAge = sumAge;
+            this.sumMark = sumMark;
+            this.concatName = concatName;
+        }
+
+        public Data(Long id, Integer sumAge, Integer sumMark) {
+            this.id = id;
+            this.sumAge = sumAge;
+            this.sumMark = sumMark;
         }
 
         public Data(Long id, String name, Integer age, Integer mark, Date date) {
@@ -378,6 +369,12 @@ public class StreamTest {
                     ", singleSub=" + singleSub +
                     ", subList=" + subList +
                     '}';
+        }
+
+        public void aggregate(Data data) {
+            this.age += data.age;
+            this.mark += data.mark;
+            this.name = this.name.concat(",").concat(data.name);
         }
     }
 }
