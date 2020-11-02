@@ -4,11 +4,10 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class StreamTest {
 
@@ -35,20 +34,6 @@ public class StreamTest {
         dataList.forEach(System.out::println);
     }
 
-    @Before
-    public void create() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Data data1 = new Data(1L, "name1", 3, 1, simpleDateFormat.parse("2000-01-01"));
-        Data data2 = new Data(2L, "name2", 2, 1, simpleDateFormat.parse("2000-01-02"));
-        Data data3 = new Data(3L, "name3", 3, 1, simpleDateFormat.parse("2000-01-01"));
-        Data data11 = new Data(11L, "name11", 4, 1, simpleDateFormat.parse("2000-01-04"), new Data(1L));
-        Data data12 = new Data(12L, "name12", 5, 1, simpleDateFormat.parse("2000-01-05"), new Data(1L));
-        Data data21 = new Data(21L, "name21", 6, 1, simpleDateFormat.parse("2000-01-06"), new Data(2L));
-
-        dataList = Arrays.asList(new Data[]{data1, data2, data3});
-        subDataList = Arrays.asList(new Data[]{data11, data12, data21});
-    }
-
     @Test
     public void group() {
 //        simple
@@ -57,11 +42,11 @@ public class StreamTest {
 //        Map<Integer, Map<Date, IntSummaryStatistics>> map = dataList.stream().collect(Collectors.groupingBy(Data::getAge, Collectors.groupingBy(Data::getDate, Collectors.summarizingInt(Data::getAge))));
 
         // handle again with entrySet toMap raw key
-        Map<Data, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v->v.getParent().getId()))
+        Map<Data, List<Data>> map = subDataList.stream().collect(Collectors.groupingBy(v -> v.getParent().getId()))
                 .entrySet().stream()
                 .collect(Collectors.toMap(x -> {
                     int sumAge = x.getValue().stream().mapToInt(Data::getAge).sum();
-                    int sumMark= x.getValue().stream().mapToInt(Data::getMark).sum();
+                    int sumMark = x.getValue().stream().mapToInt(Data::getMark).sum();
                     String concatName = x.getValue().stream().map(Data::getName).distinct().collect(Collectors.joining(","));
                     return new Data(x.getKey(), sumAge, sumMark, concatName);
                 }, Map.Entry::getValue));
@@ -239,6 +224,46 @@ public class StreamTest {
 
         https://stackoverflow.com/questions/51452737/java-groupingby-sum-multiple-fields
         https://docs.oracle.com/javase/tutorial/collections/streams/reduction.html*/
+    }
+
+    @Test
+    public void filter() {
+        String s = "1,3";
+        String[] ss = s.split(",");
+        Set<Long> sset = Arrays.stream(ss).map(Long::valueOf).collect(Collectors.toSet());
+        List<Data> list = dataList.stream().filter(v -> sset.contains(v.id)).collect(Collectors.toList());
+        dataList.size();
+    }
+
+    @Test
+    public void transform() {
+        int[] intArr = IntStream.of(1, 2, 3, 4, 5).toArray();
+        Integer[] integerArr = Stream.of(1, 2, 3, 4, 5).toArray(Integer[]::new);
+        List<String> list = Arrays.asList("1", "2", "3");
+        String[] sArr = list.toArray(new String[0]);
+        Map<Integer, Object> map = dataList.stream().collect(Collectors.toMap(Data::getAge, m -> m, (k1, k2) -> k2)); /** 去重策略,如果有多个相同的key,保留第一个*/
+        dataList.size();
+    }
+
+    @Test
+    public void sort() {
+        List<Data> list = dataList.stream().sorted(Comparator.comparing(Data::getAge).thenComparing(Data::getName).reversed()).collect(Collectors.toList());
+//        List<Data> list = dataList.stream().sorted(Comparator.comparing(Data::getAge).reversed()).collect(Collectors.toList());
+        dataList.size();
+    }
+
+    @Before
+    public void create() throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Data data1 = new Data(1L, "name1", 3, 1, simpleDateFormat.parse("2000-01-01"));
+        Data data2 = new Data(2L, "name2", 2, 1, simpleDateFormat.parse("2000-01-02"));
+        Data data3 = new Data(3L, "name3", 3, 1, simpleDateFormat.parse("2000-01-01"));
+        Data data11 = new Data(11L, "name11", 4, 1, simpleDateFormat.parse("2000-01-04"), new Data(1L));
+        Data data12 = new Data(12L, "name12", 5, 1, simpleDateFormat.parse("2000-01-05"), new Data(1L));
+        Data data21 = new Data(21L, "name21", 6, 1, simpleDateFormat.parse("2000-01-06"), new Data(2L));
+
+        dataList = Arrays.asList(new Data[]{data1, data2, data3});
+        subDataList = Arrays.asList(new Data[]{data11, data12, data21});
     }
 
     @After

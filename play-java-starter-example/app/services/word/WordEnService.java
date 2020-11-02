@@ -4,12 +4,16 @@ import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
+import models.word.vo.ArticlePageTitle;
 import models.word.vo.ArticleParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.word.WordEnArticleRepository;
 import repository.word.WordEnExtendRepository;
 import repository.word.WordEnRepository;
 import repository.word.WordEnSentenceRepository;
 import services.dict.DictService;
+import utils.Paginator;
 import utils.StringUtil;
 
 import javax.inject.Inject;
@@ -35,16 +39,7 @@ public class WordEnService {
     @Inject
     WordEnSentenceRepository wordEnSentenceRepository;
 
-    public List<String> getPageLinkList(ArticleParam articleParam) {
-        List<String> pageLinkList = new ArrayList<>();
-        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
-        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
-        for (int p = articleParam.articleStartPage; p <= articleParam.articleEndPage; p++) {
-            pageLinkList.add(articleParam.articleLink + "/p" + p);
-        }
-        pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
-        return pageLinkList;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(WordEnService.class);
 
     @Transactional
     public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
@@ -81,12 +76,39 @@ public class WordEnService {
         wordEnArticleRepository.insertAll(wordEnArticleList);
     }
 
+    public List<String> getPageLinkList(ArticleParam articleParam) {
+        List<String> pageLinkList = new ArrayList<>();
+        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
+        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
+        for (int p = articleParam.articleStartPage; p <= articleParam.articleEndPage; p++) {
+            pageLinkList.add(articleParam.articleLink + "/p" + p);
+        }
+        pageLinkList.forEach(v -> System.out.println(HOST_XMLY + v));
+        return pageLinkList;
+    }
+
     @Transactional
     public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
             return;
         }
         List<String> pageLinkList = getPageLinkList(articleParam);
+        List<ArticlePageTitle> articlePageTitleList = new ArrayList<>();
+        for (String pageTitle: pageLinkList) {
+            if (pageTitle == null || pageTitle.isEmpty()) {
+                logger.error("title is missing");
+                continue;
+            }
+            ArticlePageTitle articlePageTitle = new ArticlePageTitle();
+            String[] temp = pageTitle.split("#");
+            articlePageTitle.articlePage = Integer.parseInt(temp[0]);
+            articlePageTitle.articleIndex = Integer.parseInt(temp[1]);
+            articlePageTitle.articleType = Integer.parseInt(temp[2]);
+            articlePageTitle.articlePageTitle = temp[3];
+            articlePageTitle.articlePageLink = temp[4];
+            articlePageTitleList.add(articlePageTitle);
+        }
+
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         int articleSize = 0;
         int singleArticleSize = 0;
