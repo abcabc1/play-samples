@@ -1,5 +1,8 @@
 package services.dict;
 
+import models.word.vo.ArticleLink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import utils.HtmlUtil;
@@ -16,6 +19,8 @@ import static utils.Constant.*;
 public class DictService {
 
     private static WSClient ws;
+
+    private static final Logger logger = LoggerFactory.getLogger(DictService.class);
 
     @Inject
     public DictService(WSClient ws) {
@@ -50,11 +55,19 @@ public class DictService {
         return ws.url(HOST_XMLY + page).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYXiaShuoArticle);
     }
 
-    public CompletionStage<List<String>> getXMLYChinaDailyArticle(boolean isSingle, String pageLink) {
+    /*public CompletionStage<List<String>> getXMLYChinaDailyArticle(boolean isSingle, String pageLink) {
         if (isSingle) {
             return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleSingle);
         } else {
             return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleMulti);
         }
+    }*/
+
+    public CompletionStage<String> getXMLYChinaDailyArticleSingle(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleSingle);
+    }
+
+    public CompletionStage<List<String>> getXMLYChinaDailyArticleMulti(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleMulti);
     }
 }

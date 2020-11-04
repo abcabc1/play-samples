@@ -28,8 +28,8 @@ public class WordTest extends WithApplication {
     public void xiaShuo() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
         articleParam.articleLink = "/waiyu/3240558";
-        articleParam.articleStartPage = 1;
-        articleParam.articleEndPage = 1;
+        articleParam.articleStartPage = 31;
+        articleParam.articleEndPage = 31;
         wordEnService.loadXiaShuoArticle(articleParam);
     }
 
@@ -37,9 +37,9 @@ public class WordTest extends WithApplication {
     public void chinaDaily() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
         articleParam.articleLink = "/waiyu/14804689";
-        articleParam.articleStartPage = 1;
-        articleParam.articleEndPage = 1;
-        articleParam.articleIndexList = Arrays.asList(871);
+        articleParam.articleStartPage = 31;
+        articleParam.articleEndPage = 31;
+//        articleParam.articleIndexList = Arrays.asList(871);
 //        articleParam.articleTitleList = Arrays.asList("");
         wordEnService.loadChinaDailyArticle(articleParam);
     }

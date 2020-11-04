@@ -124,7 +124,7 @@ public class HtmlUtil {
 
     public static LinkedHashSet<String> extractXMLYChinaDailyTitle(String html) {
         Document document = Jsoup.parse(html);
-        LinkedHashSet<String> titleSet = new LinkedHashSet<>();
+        LinkedHashSet<String> pageArticleTitleSet = new LinkedHashSet<>();
         Elements indexElements = document.select(".num._Vc");
         List<String> indexList = indexElements.eachText();
         Elements elements = document.select(".text._Vc");
@@ -136,11 +136,11 @@ public class HtmlUtil {
                 String index = indexList.get(i);
                 title = text.substring(text.indexOf("：") + 1);
                 String href = element.select("a").attr("href");
-                titleSet.add(index + "#" + title + "#" + href);
+                pageArticleTitleSet.add(index + "#" + title + "#" + href);
             }
             i++;
         }
-        return titleSet;
+        return pageArticleTitleSet;
     }
 
     public static List<String> extractXMLYXiaShuoArticle(String html) {
@@ -167,9 +167,8 @@ public class HtmlUtil {
         return articleList;
     }
 
-    public static List<String> extractXMLYChinaDailyArticleSingle(String html) {
+    public static String extractXMLYChinaDailyArticleSingle(String html) {
         Document document = Jsoup.parse(html);
-        List<String> contentList = new ArrayList<>();
         String content = "";
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
@@ -190,9 +189,7 @@ public class HtmlUtil {
                 content += text;
             }
         }
-        List<String> articleList = new ArrayList<>();
-        articleList.add(content);
-        return articleList;
+        return content;
     }
 
     public static List<String> extractXMLYChinaDailyArticleMulti(String html) {
@@ -207,7 +204,14 @@ public class HtmlUtil {
                 break;
             }
             String text = bTextList.get(i);
-            isTitle = !StringUtil.hasChinese(StringUtils.trimAllWhitespace(text)) && !text.contains("No.") && !text.contains("、");
+            String textTemp = text.replaceAll("\\?", "")
+                    .replaceAll("\\'", "")
+                    .replaceAll(":", "")
+                    .replaceAll("'", "");
+            if (textTemp.trim().isEmpty()) {
+                continue;
+            }
+            isTitle = StringUtil.isAlpha(StringUtils.trimAllWhitespace(textTemp).charAt(0)) && !textTemp.contains("No.") && !textTemp.contains("、");
             if (isTitle) {
                 titleTicket = 2;
             }
@@ -226,7 +230,7 @@ public class HtmlUtil {
         List<String> contentList = new ArrayList<>();
         List<String> contentNoteList = new ArrayList<>();
         List<String> pTextList = document.select("p").eachText();
-        if (titleList.size() == 0) {
+        /*{
             for (int i = 0; i < pTextList.size(); i++) {
                 String text = pTextList.get(i);
                 if (text.isEmpty()) {
@@ -272,76 +276,99 @@ public class HtmlUtil {
                     contentTicket--;
                 }
             }
-        } else {
-            for (int i = 0; i < pTextList.size(); i++) {
-                String text = pTextList.get(i);
-                if (text.isEmpty()) {
-                    continue;
+        }*/
+        for (int i = 0; i < pTextList.size(); i++) {
+            String text = pTextList.get(i);
+            if (text.isEmpty() || StringUtils.trimAllWhitespace(text).toLowerCase().contains("chinadaily")) {
+                continue;
+            }
+            if (StringUtils.trimAllWhitespace(text).toLowerCase().contains("findmoreaudionews") || contentList.size() == 4) {
+                if (!content.isEmpty()) {
+                    contentList.add(content);
+                    contentNoteList.add(contentNote);
                 }
-                if (text.contains("Find more audio news") || contentList.size() == 4) {
-                    if (!content.isEmpty()) {
-                        contentList.add(content);
-                        contentNoteList.add(contentNote);
-                    }
-                    break;
-                }
-                if (text.contains("重点词汇")) {
-                    contentFlag = false;
-                    if (!content.isEmpty()) {
-                        contentList.add(content);
-                        contentNoteList.add(contentNote);
-                        content = "";
-                        contentNote = "";
-                    }
-                    continue;
-                }
-                boolean isAlpha = StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == 34 && StringUtil.isAlpha(text.charAt(1)));
-                boolean isChinese = StringUtil.isChineseByScript(text.charAt(0));
-                int indexOfChinese = StringUtil.indexOfChinese(text);
-                if (isAlpha && indexOfChinese > 0) {
-                    isTitle = titleList.contains(text.substring(0, indexOfChinese - 1));
-                } else if (isAlpha) {
-                    isTitle = titleList.contains(text);
-                } else if (isChinese) {
-                    isTitle = titleNoteList.contains(text);
-                }
-                if (isTitle) {
-                    contentFlag = true;
-                    continue;
-                }
-                boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || (text.charAt(0) == 34 && StringUtil.isAlpha(text.charAt(1))))
-                        && !text.contains("vt.")
-                        && !text.contains("n.")
-                        && !text.contains("vi.")
-                        && !text.contains("adj.")
-                        && !text.contains("prep.")
-                        && !text.contains("conj.")
-                        && !text.contains("v.")
-                        && !text.contains("adv.")
-                        && !text.contains("art.")
-                        && !text.contains("adj.");
-                if (isContent) {
-                    indexOfChinese = StringUtil.indexOfChinese(text);
-                    if (indexOfChinese > 0) {
-                        content += text.substring(0, indexOfChinese - 1);
-                        contentNote += text.substring(indexOfChinese - 1);
-                        contentFlag = false;
-                    } else if (contentFlag) {
-                        contentTicket = 2;
-                    }
-                } else if (!content.isEmpty() && contentTicket == 0) {
+                break;
+            }
+            if (text.contains("重点词汇")) {
+                contentFlag = false;
+                if (!content.isEmpty()) {
                     contentList.add(content);
                     contentNoteList.add(contentNote);
                     content = "";
                     contentNote = "";
                 }
-                if (contentTicket == 2) {
-                    content += text;
-                    contentTicket--;
-                } else if (contentTicket == 1) {
-                    contentNote += text;
-                    contentTicket--;
+                continue;
+            }
+            String textTemp = text.replaceAll("\\?", "")
+                    .replaceAll("\\'", "")
+                    .replaceAll(":", "")
+                    .replaceAll("'", "")
+                    .replaceAll(">", "");
+            boolean isAlphaFirst = StringUtil.isAlpha(textTemp.charAt(0));
+            boolean isChineseFirst = StringUtil.isChineseByScript(textTemp.charAt(0));
+            int indexOfChinese = StringUtil.indexOfChinese(text);
+            if (titleList.size() == 4) {
+                if (isAlphaFirst && indexOfChinese > 0) {
+                    isTitle = titleList.contains(text.substring(0, indexOfChinese - 1));
+                } else if (isAlphaFirst) {
+                    isTitle = titleList.contains(text);
+                } else if (isChineseFirst) {
+                    isTitle = titleNoteList.contains(text);
                 }
+            } else {
+                isTitle = (isAlphaFirst || StringUtil.isNumber(textTemp.charAt(0))) && !contentFlag;
+                int indexOfAlpha = StringUtil.indexOfAlpha(text);
+            }
+            if (isTitle) {
+                titleTicket = 2;
+            }
+            if (titleTicket == 2) {
+                titleList.add(textTemp);
+                /*if (indexOfAlpha > 0) {
+                    titleList.add(text.substring(indexOfAlpha - 1));
+                }*/
+                titleTicket--;
+            } else if (titleTicket == 1) {
+                titleNoteList.add(textTemp);
+                titleTicket--;
+                contentFlag = true;
+                continue;
+                /*if (!contentNote.isEmpty() && contentTicket == 0) {
+                    contentList.add(content);
+                    contentNoteList.add(contentNote);
+                    content = "";
+                    contentNote = "";
+                }
+                continue;*/
+            }
+            boolean isContent = StringUtil.isAlpha(textTemp.charAt(0)) && contentFlag
+                    && !text.contains("vt.")
+                    && !text.contains("n.")
+                    && !text.contains("vi.")
+                    && !text.contains("adj.")
+                    && !text.contains("prep.")
+                    && !text.contains("conj.")
+                    && !text.contains("v.")
+                    && !text.contains("adv.")
+                    && !text.contains("art.")
+                    && !text.contains("adj.");
+            if (isContent) {
+                indexOfChinese = StringUtil.indexOfChinese(text);
+                if (indexOfChinese > 0) {
+                    content += text.substring(0, indexOfChinese - 1);
+                    contentNote += text.substring(indexOfChinese - 1);
+                    contentFlag = false;
+
+                } else if (contentFlag) {
+                    contentTicket = 2;
+                }
+            }
+            if (contentTicket == 2) {
+                content += text;
+                contentTicket--;
+            } else if (contentTicket == 1) {
+                contentNote += text;
+                contentTicket--;
             }
         }
         List<String> articleList = new ArrayList<>();
