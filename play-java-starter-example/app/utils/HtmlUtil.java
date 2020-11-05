@@ -279,7 +279,8 @@ public class HtmlUtil {
         }*/
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
-            if (text.isEmpty() || StringUtils.trimAllWhitespace(text).toLowerCase().contains("chinadaily")) {
+            if (text.isEmpty() || text.contains("上传") || text.contains("创作中心") || text.contains("有声出版") || text.contains("小雅音箱")
+                    || StringUtils.trimAllWhitespace(text).toLowerCase().contains("chinadaily")) {
                 continue;
             }
             if (StringUtils.trimAllWhitespace(text).toLowerCase().contains("findmoreaudionews") || contentList.size() == 4) {
@@ -319,7 +320,7 @@ public class HtmlUtil {
                 isTitle = (isAlphaFirst || StringUtil.isNumber(textTemp.charAt(0))) && !contentFlag;
                 int indexOfAlpha = StringUtil.indexOfAlpha(text);
             }
-            if (isTitle) {
+            if (titleList.size() == 0 && isTitle) {
                 titleTicket = 2;
             }
             if (titleTicket == 2) {
@@ -355,10 +356,14 @@ public class HtmlUtil {
             if (isContent) {
                 indexOfChinese = StringUtil.indexOfChinese(text);
                 if (indexOfChinese > 0) {
-                    content += text.substring(0, indexOfChinese - 1);
-                    contentNote += text.substring(indexOfChinese - 1);
-                    contentFlag = false;
-
+                    int nextIndexOfAlpha = StringUtil.indexOfAlpha(text.substring(indexOfChinese));
+                    if (nextIndexOfAlpha == -1) {
+                        content += text.substring(0, indexOfChinese - 1);
+                        contentNote += text.substring(indexOfChinese - 1);
+                        contentFlag = false;
+                    } else if (contentFlag) {
+                        contentTicket = 2;
+                    }
                 } else if (contentFlag) {
                     contentTicket = 2;
                 }
@@ -369,6 +374,9 @@ public class HtmlUtil {
             } else if (contentTicket == 1) {
                 contentNote += text;
                 contentTicket--;
+                contentList.add(content);
+                contentNoteList.add(contentNote);
+                contentFlag = false;
             }
         }
         List<String> articleList = new ArrayList<>();

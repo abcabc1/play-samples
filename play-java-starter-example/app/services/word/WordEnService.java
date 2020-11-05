@@ -86,13 +86,25 @@ public class WordEnService {
         articlePageList.forEach(v -> System.out.println(HOST_XMLY + v));
         return articlePageList;
     }
-
+    /**
+     * @startuml
+     * (*)  --> "获取参数 ArticleParam"
+     * If "参数链接是否存在" then
+     * --> [Yes] "获取页码地址"
+     * --> "run command"
+     * else
+     * --> (*)
+     * Endif
+     * -->(*)
+     * @enduml
+     */
     @Transactional
     public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
             logger.error("article link is mission");
             return;
         }
+        // list all pages of link
         List<String> pageList = listArticlePage(articleParam);
         List<ArticleLink> articleLinkList = new ArrayList<>();
         for (String page : pageList) {
@@ -100,6 +112,7 @@ public class WordEnService {
                 logger.error("page is missing");
                 continue;
             }
+            // list article links of current page
             LinkedHashSet<String> pageTitleSet = dictService.getXMLYChinaDailyTitle(page).toCompletableFuture().get();
             for (String pageTitle : pageTitleSet) {
                 ArticleLink articleLink = new ArticleLink();
@@ -121,6 +134,7 @@ public class WordEnService {
                 }
                 articleLinkList.add(articleLink);
             }
+            // collect articles
             List<WordEnArticle> wordEnArticleList = new ArrayList<>();
             for (ArticleLink articleLink : articleLinkList) {
                 Config config = new Config();
