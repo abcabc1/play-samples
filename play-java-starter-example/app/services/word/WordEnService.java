@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
+import models.word.vo.Article;
 import models.word.vo.ArticleLink;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
@@ -159,20 +160,19 @@ public class WordEnService {
                 } else if (2 == articleLink.articleType) {
                     logger.info(articleLink.articleLinkText);
                     System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
-                    List<String> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
+                    List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                     if (articleList.size() == 4) {
-                        for (String article : articleList) {
-                            String[] temp = article.split("#");
+                        for (Article article : articleList) {
                             WordEnArticle wordEnArticle = new WordEnArticle();
                             wordEnArticle.source = config;
-                            wordEnArticle.articleIndex = articleLink.articleIndex;
-                            wordEnArticle.linkTitle = articleLink.articleLinkText;
+                            wordEnArticle.articleIndex = article.articleLink.articleIndex;
+                            wordEnArticle.linkTitle = article.articleLink.articleLinkText;
+                            wordEnArticle.linkTitle = article.articleLink.articleLinkText;
                             wordEnArticle.answer = "";
-                            wordEnArticle.linkTitle = articleLink.articleLinkText;
-                            wordEnArticle.title = temp[0];
-                            wordEnArticle.titleNote = temp[1];
-                            wordEnArticle.content = temp[2];
-                            wordEnArticle.contentNote = temp[3];
+                            wordEnArticle.title = article.title;
+                            wordEnArticle.titleNote = article.titleNote;
+                            wordEnArticle.content = article.content;
+                            wordEnArticle.contentNote = article.contentNote;
                             wordEnArticleList.add(wordEnArticle);
                         }
                     } else {

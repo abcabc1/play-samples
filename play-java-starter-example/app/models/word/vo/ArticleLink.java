@@ -7,4 +7,13 @@ public class ArticleLink {
     public String articleLinkText;
     public String articleLinkHref;
     public Integer articleType;
+
+    @Override
+    public String toString() {
+        return "ArticleLink{" +
+                "articleIndex=" + articleIndex +
+                ", articleLinkText='" + articleLinkText + '\'' +
+                ", articleType=" + articleType +
+                '}';
+    }
 }

@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HtmlUtil {
 
@@ -202,9 +203,7 @@ public class HtmlUtil {
     }
 
     private static List<Article> extractXMLYChinaDailyArticleContent(Document document, List<Article> articleList) {
-        Article preArticle = null;
-        String content = "";
-        String contentNote = "";
+        Article currentArticle = null;
         int contentTicket = 0;
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
@@ -224,39 +223,19 @@ public class HtmlUtil {
                 continue;
             }
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
-                if (!content.isEmpty()) {
-                    contentList.add(titleList.size() - 1, content);
-                }
-                if (!contentNote.isEmpty()) {
-                    contentNoteList.add(titleNoteList.size() - 1, contentNote);
-                }
                 break;
             }
-            for (Article article: articleList) {
+            for (Article article : articleList) {
                 if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    preArticle = article;
-                    if (!content.isEmpty()) {
-                        preArticle.content = content;
-                        content = "";
-                    }
-                    if (!contentNote.isEmpty()) {
-                        preArticle.contentNote = contentNote;
-                        contentNote = "";
-                    }
+                    currentArticle = article;
                     continue;
                 }
                 if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    if (!content.isEmpty()) {
-                        preArticle.content = content;
-                        content = "";
-                    }
+                    currentArticle = article;
                     continue;
                 }
                 if (article.titleNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    if (!contentNote.isEmpty()) {
-                        article.contentNote = contentNote;
-                        contentNote = "";
-                    }
+                    currentArticle = article;
                     continue;
                 }
             }
@@ -265,10 +244,22 @@ public class HtmlUtil {
                 contentTicket = 2;
             }
             if (contentTicket == 2) {
-                content += text;
+                if (currentArticle != null) {
+                    if (currentArticle.content == null) {
+                        currentArticle.content = text;
+                    } else {
+                        currentArticle.content += text;
+                    }
+                }
                 contentTicket--;
             } else if (contentTicket == 1) {
-                contentNote += text;
+                if (currentArticle != null) {
+                    if (currentArticle.contentNote == null) {
+                        currentArticle.contentNote = text;
+                    } else {
+                        currentArticle.contentNote += text;
+                    }
+                }
                 contentTicket--;
             }
         }
@@ -280,10 +271,11 @@ public class HtmlUtil {
         Article article = null;
         List<String> bTextList = document.select("b").eachText();
         int titleTicket = 0;
-        boolean isTitle = false;
+        boolean isTitle;
+        boolean isTitleContent;
         String titleAndNote = "";
         for (int i = 0; i < bTextList.size(); i++) {
-            if (articleList.size() == 4) {
+            if (articleList.size() == 4 && titleTicket == 0) {
                 break;
             }
             String text = bTextList.get(i);
@@ -295,30 +287,43 @@ public class HtmlUtil {
             if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、")) {
                 continue;
             }
-            isTitle = StringUtil.isAlpha(textTemp.replaceAll("\\d", "").charAt(0)) && titleTicket == 0;
+            String checkString = StringUtils.trimAllWhitespace(
+                    textTemp.replaceAll("\\d", "")
+                            .replaceAll("%", ""));
+            if (checkString.isEmpty()) {
+                continue;
+            }
+            isTitle = StringUtil.isAlpha(checkString.charAt(0)) && titleTicket == 0;
+            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
             if (isTitle) {
                 titleTicket = 2;
-                isTitle = false;
+            } else if (isTitleContent) {
+                titleTicket = 1;
             }
             if (titleTicket == 2) {
-                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
                 article = new Article(articleLink);
+                articleList.add(article);
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
                 article.title = textTemp;
                 titleTicket--;
             } else if (titleTicket == 1) {
-                if (article != null) {
-                    titleAndNote += StringUtils.trimAllWhitespace(textTemp);
-                    article.titleNote = textTemp;
-                    article.titleAndNote = titleAndNote;
+                if (article == null) {
+                    article = new Article(articleLink);
                     articleList.add(article);
-                    titleTicket--;
-                    titleAndNote = "";
                 }
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                article.titleNote = textTemp;
+                article.titleAndNote = titleAndNote;
+                titleTicket--;
+                titleAndNote = "";
             }
         }
         if (articleList.size() == 4) {
             return articleList;
         }
+        List<String> titleList = articleList.stream().map(v -> v.title).collect(Collectors.toList());
+        List<String> titleNoteList = articleList.stream().map(v -> v.titleNote).collect(Collectors.toList());
+        List<String> titleAndNoteList = articleList.stream().map(v -> v.titleAndNote).collect(Collectors.toList());
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
@@ -340,34 +345,44 @@ public class HtmlUtil {
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
-            if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
+            if (titleAndNoteList.contains(StringUtils.trimAllWhitespace(textTemp))) {
                 continue;
             }
-            if (article.title.contains(textTemp)) {
+            if (titleList.contains(textTemp)) {
                 continue;
             }
-            if (article.titleNote.contains(textTemp)) {
+            if (titleNoteList.contains(textTemp)) {
                 continue;
             }
-            isTitle = StringUtil.isAlpha(textTemp.replaceAll("\\d", "").charAt(0));
+            String checkString = StringUtils.trimAllWhitespace(
+                    textTemp.replaceAll("\\d", "")
+                            .replaceAll("%", ""));
+            if (checkString.isEmpty()) {
+                continue;
+            }
+            isTitle = StringUtil.isAlpha(checkString.charAt(0)) && titleTicket == 0;
+            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
             if (isTitle) {
                 titleTicket = 2;
-                isTitle = false;
+            } else if (isTitleContent) {
+                titleTicket = 1;
             }
             if (titleTicket == 2) {
-                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
                 article = new Article(articleLink);
+                articleList.add(article);
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
                 article.title = textTemp;
                 titleTicket--;
             } else if (titleTicket == 1) {
-                if (article != null) {
-                    titleAndNote += StringUtils.trimAllWhitespace(textTemp);
-                    article.titleNote = textTemp;
-                    article.titleAndNote = titleAndNote;
+                if (article == null) {
+                    article = new Article(articleLink);
                     articleList.add(article);
-                    titleTicket--;
-                    titleAndNote = "";
                 }
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                article.titleNote = textTemp;
+                article.titleAndNote = titleAndNote;
+                titleTicket--;
+                titleAndNote = "";
             }
         }
         return articleList;

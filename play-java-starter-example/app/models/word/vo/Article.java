@@ -12,4 +12,12 @@ public class Article {
     public Article(ArticleLink articleLink) {
         this.articleLink = articleLink;
     }
+
+    @Override
+    public String toString() {
+        return "Article{" +
+                "title='" + title + '\'' +
+                ", titleNote='" + titleNote + '\'' +
+                '}';
+    }
 }
