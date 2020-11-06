@@ -41,4 +41,14 @@ public class WordEnArticle extends BaseModel {
 
     @Column(columnDefinition = "varchar(64) not null default '' comment '答案'")
     public String answer;
+
+    @Override
+    public String toString() {
+        return "WordEnArticle{" +
+                "articleIndex=" + articleIndex +
+                ", linkTitle='" + linkTitle + '\'' +
+                ", title='" + title + '\'' +
+                ", titleNote='" + titleNote + '\'' +
+                '}';
+    }
 }

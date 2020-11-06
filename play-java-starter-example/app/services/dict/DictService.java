@@ -1,5 +1,6 @@
 package services.dict;
 
+import models.word.vo.Article;
 import models.word.vo.ArticleLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class DictService {
         return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleSingle);
     }
 
-    public CompletionStage<List<String>> getXMLYChinaDailyArticleMulti(ArticleLink articleLink) {
-        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleMulti);
+    public CompletionStage<List<Article>> getXMLYChinaDailyArticleMulti(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(v -> HtmlUtil.extractXMLYChinaDailyArticleMulti(v, articleLink));
     }
 }

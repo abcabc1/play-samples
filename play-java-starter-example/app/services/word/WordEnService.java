@@ -86,9 +86,9 @@ public class WordEnService {
         articlePageList.forEach(v -> System.out.println(HOST_XMLY + v));
         return articlePageList;
     }
+
     /**
-     * @startuml
-     * (*)  --> "获取参数 ArticleParam"
+     * @startuml (*)  --> "获取参数 ArticleParam"
      * If "参数链接是否存在" then
      * --> [Yes] "获取页码地址"
      * --> "run command"
@@ -121,9 +121,14 @@ public class WordEnService {
                 articleLink.articleIndex = Integer.parseInt(temp[0]);
                 articleLink.articleLinkText = temp[1];
                 articleLink.articleLinkHref = temp[2];
-                if (StringUtil.isAlpha(articleLink.articleLinkText.charAt(0))) {
+                String articleLinkText = articleLink.articleLinkText;
+                String articleLinkTextTemp = articleLinkText.replaceAll("'", "")
+                        .replaceAll("\\?", "")
+                        .replaceAll("\"", "")
+                        .replaceAll("\\d", "");
+                if (StringUtil.isAlpha(StringUtils.trimAllWhitespace(articleLinkTextTemp))) {
                     articleLink.articleType = 1;
-                } else if (StringUtil.isChineseByScript(articleLink.articleLinkText.charAt(0))) {
+                } else {
                     articleLink.articleType = 2;
                 }
                 if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(articleLink.articleIndex)) {
@@ -160,6 +165,8 @@ public class WordEnService {
                             String[] temp = article.split("#");
                             WordEnArticle wordEnArticle = new WordEnArticle();
                             wordEnArticle.source = config;
+                            wordEnArticle.articleIndex = articleLink.articleIndex;
+                            wordEnArticle.linkTitle = articleLink.articleLinkText;
                             wordEnArticle.answer = "";
                             wordEnArticle.linkTitle = articleLink.articleLinkText;
                             wordEnArticle.title = temp[0];
@@ -168,6 +175,8 @@ public class WordEnService {
                             wordEnArticle.contentNote = temp[3];
                             wordEnArticleList.add(wordEnArticle);
                         }
+                    } else {
+                        System.out.println("------------------fail:" + articleLink.articleIndex + ":" + articleLink.articleLinkText);
                     }
                 }
             }

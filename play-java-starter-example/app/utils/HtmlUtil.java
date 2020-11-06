@@ -1,5 +1,7 @@
 package utils;
 
+import models.word.vo.Article;
+import models.word.vo.ArticleLink;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -192,39 +194,22 @@ public class HtmlUtil {
         return content;
     }
 
-    public static List<String> extractXMLYChinaDailyArticleMulti(String html) {
+    public static List<Article> extractXMLYChinaDailyArticleMulti(String html, ArticleLink articleLink) {
         Document document = Jsoup.parse(html);
-        Map<String, List<String>> titleMap = extractXMLYChinaDailyArticleTitle(document);
-        Map<String, List<String>> contentMap = extractXMLYChinaDailyArticleContent(document, titleMap);
-        List<String> titleList = titleMap.get("title");
-        List<String> titleNoteList = titleMap.get("titleNote");
-        List<String> contentList = contentMap.get("content");
-        List<String> contentNoteList = contentMap.get("contentNote");
-        List<String> articleList = new ArrayList<>();
-        if (titleList.size() != 4 || titleNoteList.size() != 4 || contentList.size() != 4 || contentNoteList.size() != 4) {
-            return articleList;
-        }
-        for (int i = 0; i < 4; i++) {
-            articleList.add(titleList.get(i) + "#" + titleNoteList.get(i) + "#" + contentList.get(i) + "#" + contentNoteList.get(i));
-        }
+        List<Article> articleList = extractXMLYChinaDailyArticleTitle(document, articleLink);
+        articleList = extractXMLYChinaDailyArticleContent(document, articleList);
         return articleList;
     }
 
-    private static Map<String, List<String>> extractXMLYChinaDailyArticleContent(Document document, Map<String, List<String>> titleMap) {
-        List<String> titleList = titleMap.get("title");
-        List<String> titleNoteList = titleMap.get("titleNote");
-        List<String> contentList = new ArrayList<>();
-        List<String> contentNoteList = new ArrayList<>();
+    private static List<Article> extractXMLYChinaDailyArticleContent(Document document, List<Article> articleList) {
+        Article preArticle = null;
         String content = "";
         String contentNote = "";
-        boolean contentFlag = false;
         int contentTicket = 0;
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
-            String textTemp =
-                    StringUtils.trimAllWhitespace(text).toLowerCase();
-            textTemp = textTemp
+            String textTemp = text
                     .replaceAll("\\?", "")
                     .replaceAll(":", "")
                     .replaceAll("'", "")
@@ -234,36 +219,42 @@ public class HtmlUtil {
                     || textTemp.contains("创作中心")
                     || textTemp.contains("有声出版")
                     || textTemp.contains("小雅音箱")
-                    || textTemp.contains("chinadaily")
+                    || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
                     || textTemp.contains("重点词汇")) {
                 continue;
             }
-            if (textTemp.contains("findmoreaudionews")) {
+            if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
+                if (!content.isEmpty()) {
+                    contentList.add(titleList.size() - 1, content);
+                }
+                if (!contentNote.isEmpty()) {
+                    contentNoteList.add(titleNoteList.size() - 1, contentNote);
+                }
                 break;
             }
-            boolean isAlphaFirst = StringUtil.isAlpha(textTemp.charAt(0));
-            boolean isChineseFirst = StringUtil.isChineseByScript(textTemp.charAt(0));
-            int indexOfChinese = StringUtil.indexOfChinese(textTemp);
-            if (isAlphaFirst && indexOfChinese > 0) {
-                if (titleList.contains(textTemp.substring(0, indexOfChinese - 1))) {
+            for (Article article: articleList) {
+                if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
+                    preArticle = article;
                     if (!content.isEmpty()) {
-                        contentList.add(content);
+                        preArticle.content = content;
                         content = "";
                     }
-                    continue;
-                }
-            } else if (isAlphaFirst) {
-                if (titleList.contains(text)) {
-                    if (!content.isEmpty()) {
-                        contentList.add(content);
-                        content = "";
-                    }
-                    continue;
-                }
-            } else if (isChineseFirst) {
-                if (titleNoteList.contains(text)) {
                     if (!contentNote.isEmpty()) {
-                        contentNoteList.add(contentNote);
+                        preArticle.contentNote = contentNote;
+                        contentNote = "";
+                    }
+                    continue;
+                }
+                if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
+                    if (!content.isEmpty()) {
+                        preArticle.content = content;
+                        content = "";
+                    }
+                    continue;
+                }
+                if (article.titleNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
+                    if (!contentNote.isEmpty()) {
+                        article.contentNote = contentNote;
                         contentNote = "";
                     }
                     continue;
@@ -280,58 +271,19 @@ public class HtmlUtil {
                 contentNote += text;
                 contentTicket--;
             }
-
-            /*boolean isContent = (StringUtil.isAlpha(text.charAt(0)) || text.charAt(0) == '\'' || text.charAt(0) == 34) && !StringUtil.hasChinese(text) && contentFlag;
-            if (isContent) {
-                contentTicket = 2;
-            } else if (!content.isEmpty() && contentTicket == 0) {
-                contentList.add(content);
-                contentNoteList.add(contentNote);
-                content = "";
-                contentNote = "";
-                contentFlag = false;
-            }
-            if (contentTicket == 2) {
-                content += text;
-                contentTicket--;
-            } else if (contentTicket == 1) {
-                contentNote += text;
-                contentTicket--;
-            }
-            if (isContent) {
-                indexOfChinese = StringUtil.indexOfChinese(text);
-                if (indexOfChinese > 0) {
-                    content += text.substring(0, indexOfChinese - 1);
-                    contentNote += text.substring(indexOfChinese - 1);
-                    contentFlag = false;
-
-                } else if (contentFlag) {
-                    contentTicket = 2;
-                }
-            }
-            if (contentTicket == 2) {
-                content += text;
-                contentTicket--;
-            } else if (contentTicket == 1) {
-                contentNote += text;
-                contentTicket--;
-            }
-*/
         }
-        return null;
+        return articleList;
     }
 
-    private static Map<String, List<String>> extractXMLYChinaDailyArticleTitle(Document document) {
-        Map<String, List<String>> map = new HashMap<>();
-        List<String> titleList = new ArrayList<>();
-        List<String> titleNoteList = new ArrayList<>();
-        map.put("title", titleList);
-        map.put("titleNote", titleNoteList);
+    private static List<Article> extractXMLYChinaDailyArticleTitle(Document document, ArticleLink articleLink) {
+        List<Article> articleList = new ArrayList<>();
+        Article article = null;
         List<String> bTextList = document.select("b").eachText();
         int titleTicket = 0;
         boolean isTitle = false;
+        String titleAndNote = "";
         for (int i = 0; i < bTextList.size(); i++) {
-            if (titleList.size() == 4 && titleNoteList.size() == 4) {
+            if (articleList.size() == 4) {
                 break;
             }
             String text = bTextList.get(i);
@@ -340,30 +292,37 @@ public class HtmlUtil {
                     .replaceAll(":", "")
                     .replaceAll("'", "")
                     .replaceAll(">", "");
-            if (textTemp.trim().isEmpty() || !textTemp.contains("No.") || textTemp.contains("、")) {
+            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、")) {
                 continue;
             }
-            isTitle = StringUtil.isAlpha(textTemp.charAt(0));
+            isTitle = StringUtil.isAlpha(textTemp.replaceAll("\\d", "").charAt(0)) && titleTicket == 0;
             if (isTitle) {
                 titleTicket = 2;
+                isTitle = false;
             }
             if (titleTicket == 2) {
-                titleList.add(textTemp);
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                article = new Article(articleLink);
+                article.title = textTemp;
                 titleTicket--;
             } else if (titleTicket == 1) {
-                titleNoteList.add(textTemp);
-                titleTicket--;
+                if (article != null) {
+                    titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                    article.titleNote = textTemp;
+                    article.titleAndNote = titleAndNote;
+                    articleList.add(article);
+                    titleTicket--;
+                    titleAndNote = "";
+                }
             }
         }
-        if (titleList.size() == 4 && titleNoteList.size() == 4) {
-            return map;
+        if (articleList.size() == 4) {
+            return articleList;
         }
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
-            String textTemp =
-                    StringUtils.trimAllWhitespace(text).toLowerCase();
-            textTemp = textTemp
+            String textTemp = text
                     .replaceAll("\\?", "")
                     .replaceAll(":", "")
                     .replaceAll("'", "")
@@ -373,62 +332,44 @@ public class HtmlUtil {
                     || textTemp.contains("创作中心")
                     || textTemp.contains("有声出版")
                     || textTemp.contains("小雅音箱")
-                    || textTemp.contains("chinadaily")
-                    || textTemp.contains("重点词汇")) {
+                    || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
+                    || textTemp.contains("重点词汇")
+                    || textTemp.length() > 50) {
                 continue;
             }
-            if (textTemp.contains("findmoreaudionews")) {
+            if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
-            boolean isAlphaFirst = StringUtil.isAlpha(textTemp.charAt(0));
-            boolean isChineseFirst = StringUtil.isChineseByScript(textTemp.charAt(0));
-            int indexOfChinese = StringUtil.indexOfChinese(textTemp);
-            if (isAlphaFirst && indexOfChinese > 0) {
-                if (titleList.contains(textTemp.substring(0, indexOfChinese - 1))) {
-                    continue;
-                } else {
-                    titleList.add(textTemp);
-                }
-            } else if (isAlphaFirst) {
-                if (titleList.contains(text)) {
-                    continue;
-                } else {
-                    titleList.add(textTemp);
-                }
-            } else if (isChineseFirst) {
-                if (titleNoteList.contains(text)) {
-                    continue;
-                } else {
-                    titleNoteList.add(textTemp);
+            if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
+                continue;
+            }
+            if (article.title.contains(textTemp)) {
+                continue;
+            }
+            if (article.titleNote.contains(textTemp)) {
+                continue;
+            }
+            isTitle = StringUtil.isAlpha(textTemp.replaceAll("\\d", "").charAt(0));
+            if (isTitle) {
+                titleTicket = 2;
+                isTitle = false;
+            }
+            if (titleTicket == 2) {
+                titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                article = new Article(articleLink);
+                article.title = textTemp;
+                titleTicket--;
+            } else if (titleTicket == 1) {
+                if (article != null) {
+                    titleAndNote += StringUtils.trimAllWhitespace(textTemp);
+                    article.titleNote = textTemp;
+                    article.titleAndNote = titleAndNote;
+                    articleList.add(article);
+                    titleTicket--;
+                    titleAndNote = "";
                 }
             }
         }
-        return map;
+        return articleList;
     }
-            /*} else {
-                isTitle = isAlphaFirst || StringUtil.isNumber(textTemp.charAt(0));
-                int indexOfAlpha = StringUtil.indexOfAlpha(text);
-            }*/
-            /*if (titleList.size() == 0 && isTitle) {
-                titleTicket = 2;
-            }
-            if (titleTicket == 2) {
-                titleList.add(textTemp);
-                *//*if (indexOfAlpha > 0) {
-                    titleList.add(text.substring(indexOfAlpha - 1));
-                }*//*
-                titleTicket--;
-            } else if (titleTicket == 1) {
-                titleNoteList.add(textTemp);
-                titleTicket--;
-                contentFlag = true;
-                continue;
-                *//*if (!contentNote.isEmpty() && contentTicket == 0) {
-                    contentList.add(content);
-                    contentNoteList.add(contentNote);
-                    content = "";
-                    contentNote = "";
-                }
-                continue;*//*
-            }*/
 }
