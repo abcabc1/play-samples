@@ -20,6 +20,8 @@ import utils.StringUtil;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static utils.Constant.HOST_XMLY;
 
@@ -162,6 +164,12 @@ public class WordEnService {
                     System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
                     List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                     if (articleList.size() == 4) {
+                        if (articleList.stream().map(v->v.title).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
+                        || articleList.stream().map(v->v.titleNote).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
+                        || articleList.stream().map(v->v.titleAndNote).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
+                            System.out.println("------------------fail:" + articleLink.articleIndex + ":" + articleLink.articleLinkText);
+                            continue;
+                        }
                         for (Article article : articleList) {
                             WordEnArticle wordEnArticle = new WordEnArticle();
                             wordEnArticle.source = config;

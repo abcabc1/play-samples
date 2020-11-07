@@ -2,6 +2,10 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class StringTest {
 
     @Test
@@ -23,11 +27,15 @@ public class StringTest {
 
     @Test
     public void split() {
-        String s = ",";
-        if (s.trim().length() != 0) {
-            TestCase.assertEquals(1, s.trim().split(",").length);
-        } else {
-            TestCase.assertEquals(1, s.trim().split(",").length);
-        }
+        String s = "";
+        Set<Integer> ss = Arrays.stream(s.trim().split(",")).map(s1 -> {
+            try {
+                return Integer.valueOf(s1);
+            }catch (Exception e) {
+                return -1;
+            }
+        }).collect(Collectors.toSet());
+        TestCase.assertEquals(1, s.trim().split(",").length);
+//        TestCase.assertEquals(1, s.trim().split(",").length);
     }
 }

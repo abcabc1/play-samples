@@ -205,6 +205,7 @@ public class HtmlUtil {
     private static List<Article> extractXMLYChinaDailyArticleContent(Document document, List<Article> articleList) {
         Article currentArticle = null;
         int contentTicket = 0;
+        boolean isTitle = false;
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
@@ -219,36 +220,60 @@ public class HtmlUtil {
                     || textTemp.contains("有声出版")
                     || textTemp.contains("小雅音箱")
                     || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
-                    || textTemp.contains("重点词汇")) {
+                    || textTemp.contains("重点词汇")
+                    || textTemp.contains("各位听众")) {
                 continue;
             }
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
             for (Article article : articleList) {
+                if (article.titleAndNote == null || article.title == null || article.titleNote == null
+                || article.titleAndNote.isEmpty() || article.title.isEmpty() || article.titleNote.isEmpty()) {
+                    return articleList;
+                }
                 if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
                     currentArticle = article;
-                    continue;
+                    isTitle = true;
+                    break;
                 }
                 if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
                     currentArticle = article;
-                    continue;
+                    isTitle = true;
+                    break;
                 }
                 if (article.titleNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
                     currentArticle = article;
-                    continue;
+                    isTitle = true;
+                    break;
                 }
+                break;
+            }
+            if (isTitle) {
+                isTitle = false;
+                continue;
             }
             boolean isContent = StringUtil.isAlpha(textTemp.charAt(0));
+            int indexOfChinese = StringUtil.indexOfChinese(textTemp);
             if (isContent) {
                 contentTicket = 2;
             }
             if (contentTicket == 2) {
                 if (currentArticle != null) {
                     if (currentArticle.content == null) {
-                        currentArticle.content = text;
+                        if (indexOfChinese > 0) {
+                            currentArticle.content = text.substring(0, indexOfChinese);
+                            currentArticle.contentNote = text.substring(indexOfChinese, text.length());
+                        } else {
+                            currentArticle.content = text;
+                        }
                     } else {
-                        currentArticle.content += text;
+                        if (indexOfChinese > 0) {
+                            currentArticle.content += text.substring(0, indexOfChinese);
+                            currentArticle.contentNote += text.substring(indexOfChinese, text.length());
+                        } else {
+                            currentArticle.content += text;
+                        }
                     }
                 }
                 contentTicket--;
@@ -284,22 +309,23 @@ public class HtmlUtil {
                     .replaceAll(":", "")
                     .replaceAll("'", "")
                     .replaceAll(">", "");
-            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、")) {
+            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、") || textTemp.contains("各位听众")) {
                 continue;
             }
             String checkString = StringUtils.trimAllWhitespace(
                     textTemp.replaceAll("\\d", "")
-                            .replaceAll("%", ""));
+                            .replaceAll("%", "")
+                            .replaceAll("￡", ""));
             if (checkString.isEmpty()) {
                 continue;
             }
             isTitle = StringUtil.isAlpha(checkString.charAt(0)) && titleTicket == 0;
-            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
+//            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
             if (isTitle) {
                 titleTicket = 2;
-            } else if (isTitleContent) {
+            } /*else if (isTitleContent) {
                 titleTicket = 1;
-            }
+            }*/
             if (titleTicket == 2) {
                 article = new Article(articleLink);
                 articleList.add(article);
@@ -339,6 +365,7 @@ public class HtmlUtil {
                     || textTemp.contains("小雅音箱")
                     || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
                     || textTemp.contains("重点词汇")
+                    || textTemp.contains("各位听众")
                     || textTemp.length() > 50) {
                 continue;
             }
@@ -383,6 +410,9 @@ public class HtmlUtil {
                 article.titleAndNote = titleAndNote;
                 titleTicket--;
                 titleAndNote = "";
+            }
+            if (articleList.size() == 4) {
+                break;
             }
         }
         return articleList;
