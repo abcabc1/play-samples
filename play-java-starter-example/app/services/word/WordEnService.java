@@ -14,6 +14,7 @@ import repository.word.WordEnArticleRepository;
 import repository.word.WordEnExtendRepository;
 import repository.word.WordEnRepository;
 import repository.word.WordEnSentenceRepository;
+import scala.Predef;
 import services.dict.DictService;
 import utils.StringUtil;
 
@@ -143,13 +144,15 @@ public class WordEnService {
                 articleLinkList.add(articleLink);
             }
             // collect articles
+            int totle = 0;
+            int success = 0;
+            int fail = 0;
             List<WordEnArticle> wordEnArticleList = new ArrayList<>();
             for (ArticleLink articleLink : articleLinkList) {
                 Config config = new Config();
                 config.node = "china_daily";
                 if (1 == articleLink.articleType) {
                     logger.info(articleLink.articleLinkText);
-                    System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
                     WordEnArticle wordEnArticle = new WordEnArticle();
                     wordEnArticle.source = config;
                     wordEnArticle.answer = "";
@@ -161,15 +164,9 @@ public class WordEnService {
                     wordEnArticleList.add(wordEnArticle);
                 } else if (2 == articleLink.articleType) {
                     logger.info(articleLink.articleLinkText);
-                    System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
                     List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                     if (articleList.size() == 4) {
-                        if (articleList.stream().map(v->v.title).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
-                        || articleList.stream().map(v->v.titleNote).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
-                        || articleList.stream().map(v->v.titleAndNote).filter(v1->(v1==null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
-                            System.out.println("------------------fail:" + articleLink.articleIndex + ":" + articleLink.articleLinkText);
-                            continue;
-                        }
+                        System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
                         for (Article article : articleList) {
                             WordEnArticle wordEnArticle = new WordEnArticle();
                             wordEnArticle.source = config;
@@ -183,11 +180,15 @@ public class WordEnService {
                             wordEnArticle.contentNote = article.contentNote;
                             wordEnArticleList.add(wordEnArticle);
                         }
+                        success++;
                     } else {
-                        System.out.println("------------------fail:" + articleLink.articleIndex + ":" + articleLink.articleLinkText);
+                        System.out.println("------------------fail size " + articleLink.articleIndex + ":" + articleLink.articleLinkText);
+                        fail++;
                     }
+                    totle++;
                 }
             }
+            System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}", totle, success, fail));
             for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
 //                wordEnArticleRepository.insertAll(subList);
             }

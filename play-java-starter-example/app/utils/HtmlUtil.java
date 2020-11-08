@@ -203,6 +203,11 @@ public class HtmlUtil {
     }
 
     private static List<Article> extractXMLYChinaDailyArticleContent(Document document, List<Article> articleList) {
+        if (articleList.stream().map(v -> v.title).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
+                || articleList.stream().map(v -> v.titleNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
+                || articleList.stream().map(v -> v.titleAndNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
+            return new ArrayList<>();
+        }
         Article currentArticle = null;
         int contentTicket = 0;
         boolean isTitle = false;
@@ -229,7 +234,7 @@ public class HtmlUtil {
             }
             for (Article article : articleList) {
                 if (article.titleAndNote == null || article.title == null || article.titleNote == null
-                || article.titleAndNote.isEmpty() || article.title.isEmpty() || article.titleNote.isEmpty()) {
+                        || article.titleAndNote.isEmpty() || article.title.isEmpty() || article.titleNote.isEmpty()) {
                     return articleList;
                 }
                 if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
@@ -237,7 +242,7 @@ public class HtmlUtil {
                     isTitle = true;
                     break;
                 }
-                if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
+                /*if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
                     currentArticle = article;
                     isTitle = true;
                     break;
@@ -246,8 +251,7 @@ public class HtmlUtil {
                     currentArticle = article;
                     isTitle = true;
                     break;
-                }
-                break;
+                }*/
             }
             if (isTitle) {
                 isTitle = false;
@@ -288,6 +292,10 @@ public class HtmlUtil {
                 contentTicket--;
             }
         }
+        if (articleList.stream().map(v -> v.content).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
+                || articleList.stream().map(v -> v.contentNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
+            return new ArrayList<>();
+        }
         return articleList;
     }
 
@@ -300,33 +308,38 @@ public class HtmlUtil {
         boolean isTitleContent;
         String titleAndNote = "";
         for (int i = 0; i < bTextList.size(); i++) {
-            if (articleList.size() == 4 && titleTicket == 0) {
-                break;
-            }
             String text = bTextList.get(i);
             String textTemp = text
                     .replaceAll("\\?", "")
                     .replaceAll(":", "")
                     .replaceAll("'", "")
-                    .replaceAll(">", "");
+                    .replaceAll(">", "")
+                    .replaceAll("\"", "");
+            if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
+                break;
+            }
             if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、") || textTemp.contains("各位听众")) {
                 continue;
             }
             String checkString = StringUtils.trimAllWhitespace(
                     textTemp.replaceAll("\\d", "")
                             .replaceAll("%", "")
-                            .replaceAll("￡", ""));
+                            .replaceAll("￡", "")
+                            .replaceAll("\\$", ""));
             if (checkString.isEmpty()) {
                 continue;
             }
             isTitle = StringUtil.isAlpha(checkString.charAt(0)) && titleTicket == 0;
-//            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
+            isTitleContent = StringUtil.isChineseByScript(checkString.charAt(0)) && titleTicket == 0;
             if (isTitle) {
                 titleTicket = 2;
-            } /*else if (isTitleContent) {
+            } else if (isTitleContent) {
                 titleTicket = 1;
-            }*/
+            }
             if (titleTicket == 2) {
+                if (articleList.size() == 4) {
+                    break;
+                }
                 article = new Article(articleLink);
                 articleList.add(article);
                 titleAndNote += StringUtils.trimAllWhitespace(textTemp);
@@ -338,8 +351,8 @@ public class HtmlUtil {
                     articleList.add(article);
                 }
                 titleAndNote += StringUtils.trimAllWhitespace(textTemp);
-                article.titleNote = textTemp;
-                article.titleAndNote = titleAndNote;
+                article.titleNote = Optional.ofNullable(article.titleNote).orElse("") + textTemp;
+                article.titleAndNote = Optional.ofNullable(article.titleAndNote).orElse("") + titleAndNote;
                 titleTicket--;
                 titleAndNote = "";
             }
@@ -357,7 +370,8 @@ public class HtmlUtil {
                     .replaceAll("\\?", "")
                     .replaceAll(":", "")
                     .replaceAll("'", "")
-                    .replaceAll(">", "");
+                    .replaceAll(">", "")
+                    .replaceAll("\"", "");
             if (textTemp.isEmpty()
                     || textTemp.contains("上传")
                     || textTemp.contains("创作中心")
@@ -383,7 +397,8 @@ public class HtmlUtil {
             }
             String checkString = StringUtils.trimAllWhitespace(
                     textTemp.replaceAll("\\d", "")
-                            .replaceAll("%", ""));
+                            .replaceAll("%", "")
+                            .replaceAll("￡", ""));
             if (checkString.isEmpty()) {
                 continue;
             }
@@ -411,7 +426,7 @@ public class HtmlUtil {
                 titleTicket--;
                 titleAndNote = "";
             }
-            if (articleList.size() == 4) {
+            if (articleList.size() == 4 && titleTicket == 0) {
                 break;
             }
         }
