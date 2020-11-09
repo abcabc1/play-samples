@@ -49,7 +49,7 @@ public class DictService {
     }
 
     public CompletionStage<LinkedHashSet<String>> getXMLYChinaDailyTitle(String pageLink) {
-        return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyTitle);
+        return ws.url(HOST_XMLY + "/" + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyTitle);
     }
 
     public CompletionStage<List<String>> getXMLYXiaShuoArticle(String page) {

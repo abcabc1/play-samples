@@ -22,4 +22,5 @@ public class Constant {
     public static final String ALI_BUYER_ID = "2088102180995993";
     public static final int MAX_PAGE_SIZE = 1000;
     public static ActorRef actorRef;
+    public static final String[] ABBR = {"num.","int.","n.","v.","vi.","vt.","adj.","adv.","conj.","aux.","pron.","prep.","int."};
 }

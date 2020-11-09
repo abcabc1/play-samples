@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static utils.Constant.ABBR;
+
 public class HtmlUtil {
 
 //    public static Map extractFile(String path) {
@@ -214,19 +216,8 @@ public class HtmlUtil {
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
-            String textTemp = text
-                    .replaceAll("\\?", "")
-                    .replaceAll(":", "")
-                    .replaceAll("'", "")
-                    .replaceAll(">", "");
-            if (textTemp.isEmpty()
-                    || textTemp.contains("上传")
-                    || textTemp.contains("创作中心")
-                    || textTemp.contains("有声出版")
-                    || textTemp.contains("小雅音箱")
-                    || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
-                    || textTemp.contains("重点词汇")
-                    || textTemp.contains("各位听众")) {
+            String textTemp = replace(text);
+            if (checkText4Content(textTemp)) {
                 continue;
             }
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
@@ -318,7 +309,8 @@ public class HtmlUtil {
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
-            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、") || textTemp.contains("各位听众")) {
+            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、")
+                    || textTemp.contains("各位听众") || textTemp.contains("中国日报") || textTemp.contains("China Daily") || textTemp.contains("不错过世界上发生的趣事")) {
                 continue;
             }
             String checkString = StringUtils.trimAllWhitespace(
@@ -366,24 +358,11 @@ public class HtmlUtil {
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
-            String textTemp = text
-                    .replaceAll("\\?", "")
-                    .replaceAll(":", "")
-                    .replaceAll("'", "")
-                    .replaceAll(">", "")
-                    .replaceAll("\"", "");
-            if (textTemp.isEmpty()
-                    || textTemp.contains("上传")
-                    || textTemp.contains("创作中心")
-                    || textTemp.contains("有声出版")
-                    || textTemp.contains("小雅音箱")
-                    || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("thisischinadaily")
-                    || textTemp.contains("重点词汇")
-                    || textTemp.contains("各位听众")
-                    || textTemp.length() > 50) {
+            String textTemp = replace(text);
+            if (checkText4Title(textTemp)) {
                 continue;
             }
-            if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
+            if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews") || StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("重点单词怎么读")) {
                 break;
             }
             if (titleAndNoteList.contains(StringUtils.trimAllWhitespace(textTemp))) {
@@ -431,5 +410,49 @@ public class HtmlUtil {
             }
         }
         return articleList;
+    }
+
+    private static String replace(String text) {
+        return text
+                .replaceAll("\\?", "")
+                .replaceAll(":", "")
+                .replaceAll("'", "")
+                .replaceAll(">", "")
+                .replaceAll("\"", "")
+                .replaceAll("/", "")
+                .replaceAll("《", "")
+                .replaceAll("》", "");
+    }
+
+    private static boolean checkText4Title(String text) {
+        return text.isEmpty()
+                || text.contains("上传")
+                || text.contains("创作中心")
+                || text.contains("有声出版")
+                || text.contains("小雅音箱")
+                || text.contains("中国日报")
+                || StringUtils.trimAllWhitespace(text).toLowerCase().contains("thisischinadaily")
+                || text.contains("重点词汇")
+                || text.contains("各位听众")
+                || (text.contains("英") && text.contains("美"))
+                || Arrays.stream(ABBR).anyMatch(text::contains)
+                || StringUtil.isAlpha(text)
+                || (StringUtil.isAlpha(text.charAt(0)) && text.length() > 50)
+                || (StringUtil.isChineseByScript(text.charAt(0)) && text.length() > 20);
+    }
+
+    private static boolean checkText4Content(String text) {
+        return text.isEmpty()
+                || text.contains("上传")
+                || text.contains("创作中心")
+                || text.contains("有声出版")
+                || text.contains("小雅音箱")
+                || text.contains("中国日报")
+                || StringUtils.trimAllWhitespace(text).toLowerCase().contains("thisischinadaily")
+                || text.contains("重点词汇")
+                || text.contains("各位听众")
+                || (text.contains("英") && text.contains("美"))
+                || Arrays.stream(ABBR).anyMatch(text::contains)
+                || StringUtil.isAlpha(text);
     }
 }

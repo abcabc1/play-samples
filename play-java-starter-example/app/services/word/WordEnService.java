@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
-import models.word.vo.Article;
 import models.word.vo.ArticleLink;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
@@ -14,15 +13,12 @@ import repository.word.WordEnArticleRepository;
 import repository.word.WordEnExtendRepository;
 import repository.word.WordEnRepository;
 import repository.word.WordEnSentenceRepository;
-import scala.Predef;
 import services.dict.DictService;
 import utils.StringUtil;
 
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static utils.Constant.HOST_XMLY;
 
@@ -47,13 +43,13 @@ public class WordEnService {
 
     @Transactional
     public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
-        if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
+        if (articleParam.link == null || articleParam.link.isEmpty()) {
             return;
         }
-        List<String> pageList = listArticlePage(articleParam);
+        List<Integer> pageList = listArticlePage(articleParam);
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
-        for (String pageLink : pageList) {
-            LinkedList<String> titleList = dictService.getXMLYXiaShuoTitle(pageLink).toCompletableFuture().get();
+        for (Integer page : pageList) {
+            LinkedList<String> titleList = dictService.getXMLYXiaShuoTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
             for (String titleText : titleList) {
                 System.out.println(titleText);
                 String[] titleStr = titleText.split("#");
@@ -80,15 +76,14 @@ public class WordEnService {
         wordEnArticleRepository.insertAll(wordEnArticleList);
     }
 
-    public List<String> listArticlePage(ArticleParam articleParam) {
-        List<String> articlePageList = new ArrayList<>();
-        articleParam.articleStartPage = Math.max(articleParam.articleStartPage, 1);
-        articleParam.articleEndPage = Math.max(articleParam.articleEndPage, 1);
-        for (int p = articleParam.articleStartPage; p <= articleParam.articleEndPage; p++) {
-            articlePageList.add(articleParam.articleLink + "/p" + p);
+    private List<Integer> listArticlePage(ArticleParam articleParam) {
+        List<Integer> pageList = new ArrayList<>();
+        articleParam.startPage = Math.max(articleParam.startPage, 1);
+        articleParam.endPage = Math.max(articleParam.endPage, 1);
+        for (int page = articleParam.startPage; page <= articleParam.endPage; page++) {
+            pageList.add(page);
         }
-        articlePageList.forEach(v -> System.out.println(HOST_XMLY + v));
-        return articlePageList;
+        return pageList;
     }
 
     /**
@@ -104,20 +99,24 @@ public class WordEnService {
      */
     @Transactional
     public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
-        if (articleParam.articleLink == null || articleParam.articleLink.isEmpty()) {
-            logger.error("article link is mission");
+        if (articleParam.link == null || articleParam.link.isEmpty()) {
+            logger.error("link is mission");
             return;
+        } else {
+            logger.info(articleParam.link);
         }
         // list all pages of link
-        List<String> pageList = listArticlePage(articleParam);
+        List<Integer> pageList = new ArrayList<>();
+        articleParam.startPage = Math.max(articleParam.startPage, 1);
+        articleParam.endPage = Math.max(articleParam.endPage, 1);
+        for (int page = articleParam.startPage; page <= articleParam.endPage; page++) {
+            pageList.add(page);
+        }
         List<ArticleLink> articleLinkList = new ArrayList<>();
-        for (String page : pageList) {
-            if (page == null || page.isEmpty()) {
-                logger.error("page is missing");
-                continue;
-            }
+        int sum = 0, successSum = 0, failSum = 0, singleSum = 0;
+        for (Integer page : pageList) {
             // list article links of current page
-            LinkedHashSet<String> pageTitleSet = dictService.getXMLYChinaDailyTitle(page).toCompletableFuture().get();
+            LinkedHashSet<String> pageTitleSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
             for (String pageTitle : pageTitleSet) {
                 ArticleLink articleLink = new ArticleLink();
                 String[] temp = pageTitle.split("#");
@@ -126,10 +125,13 @@ public class WordEnService {
                 articleLink.articleLinkText = temp[1];
                 articleLink.articleLinkHref = temp[2];
                 String articleLinkText = articleLink.articleLinkText;
-                String articleLinkTextTemp = articleLinkText.replaceAll("'", "")
-                        .replaceAll("\\?", "")
+                String articleLinkTextTemp = articleLinkText
+                        .replaceAll("'", "")
                         .replaceAll("\"", "")
-                        .replaceAll("\\d", "");
+                        .replaceAll("\\?", "")
+                        .replaceAll("\\d", "")
+                        .replaceAll(":", "")
+                        .replaceAll(",", "");
                 if (StringUtil.isAlpha(StringUtils.trimAllWhitespace(articleLinkTextTemp))) {
                     articleLink.articleType = 1;
                 } else {
@@ -143,30 +145,35 @@ public class WordEnService {
                 }
                 articleLinkList.add(articleLink);
             }
-            // collect articles
-            int totle = 0;
-            int success = 0;
-            int fail = 0;
-            List<WordEnArticle> wordEnArticleList = new ArrayList<>();
-            for (ArticleLink articleLink : articleLinkList) {
-                Config config = new Config();
-                config.node = "china_daily";
-                if (1 == articleLink.articleType) {
-                    logger.info(articleLink.articleLinkText);
-                    WordEnArticle wordEnArticle = new WordEnArticle();
-                    wordEnArticle.source = config;
-                    wordEnArticle.answer = "";
-                    wordEnArticle.linkTitle = articleLink.articleLinkText;
-                    String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
-                    wordEnArticle.articleIndex = articleLink.articleIndex;
-                    wordEnArticle.title = articleLink.articleLinkText;
-                    wordEnArticle.content = articleContent;
-                    wordEnArticleList.add(wordEnArticle);
-                } else if (2 == articleLink.articleType) {
-                    logger.info(articleLink.articleLinkText);
+        }
+        // collect articles
+        int total = 0, success = 0, fail = 0, single = 0;
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+        for (ArticleLink articleLink : articleLinkList) {
+            Config config = new Config();
+            config.node = "china_daily";
+            if (1 == articleLink.articleType) {
+                String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+                if (articleContent == null || articleContent.isEmpty()) {
+                    System.out.println("---------------------------fail " + articleLink);
+                    fail++;
+                    continue;
+                }
+                WordEnArticle wordEnArticle = new WordEnArticle();
+                wordEnArticle.source = config;
+                wordEnArticle.answer = "";
+                wordEnArticle.linkTitle = articleLink.articleLinkText;
+                wordEnArticle.articleIndex = articleLink.articleIndex;
+                wordEnArticle.title = articleLink.articleLinkText;
+                wordEnArticle.content = articleContent;
+                wordEnArticleList.add(wordEnArticle);
+                single++;
+                total++;
+                logger.info(articleLink.toString());
+                System.out.println(articleLink);
+            } else if (2 == articleLink.articleType) {/*
                     List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                     if (articleList.size() == 4) {
-                        System.out.println(articleLink.articleIndex + ":" + articleLink.articleLinkText);
                         for (Article article : articleList) {
                             WordEnArticle wordEnArticle = new WordEnArticle();
                             wordEnArticle.source = config;
@@ -181,70 +188,24 @@ public class WordEnService {
                             wordEnArticleList.add(wordEnArticle);
                         }
                         success++;
+                        logger.info(articleLink.toString());
+                        System.out.println(articleLink);
                     } else {
-                        System.out.println("------------------fail size " + articleLink.articleIndex + ":" + articleLink.articleLinkText);
+                        System.out.println("------------------fail " + articleLink.toString());
                         fail++;
                     }
-                    totle++;
-                }
+                    total++;*/
             }
-            System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}", totle, success, fail));
-            for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
-//                wordEnArticleRepository.insertAll(subList);
-            }
-        }
-
-        /*List<WordEnArticle> wordEnArticleList = new ArrayList<>();
-        int articleSize = 0;
-        int singleArticleSize = 0;
-        int multiArticleSize = 0;
-        for (String pageLink : pageLinkList) {
-            LinkedHashSet<String> titleSet = dictService.getXMLYChinaDailyTitle(pageLink).toCompletableFuture().get();
-            for (String titleText : titleSet) {
-                String[] titleStr = titleText.split("#");
-                Integer index = Integer.parseInt(titleStr[0]);
-                String title = titleStr[1];
-                String link = titleStr[2];
-                boolean isSingle = !StringUtil.hasChinese(title) || title.isEmpty();
-                if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
-                    continue;
-                }
-                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(title)) {
-                    continue;
-                }
-                System.out.print(title);
-                System.out.print(" [");
-                List<String> articleList = dictService.getXMLYChinaDailyArticle(isSingle, link).toCompletableFuture().get();
-                if (articleList != null && !articleList.isEmpty()) {
-                    if (isSingle) singleArticleSize += articleList.size();
-                    if (!isSingle) multiArticleSize += articleList.size();
-                    articleSize += articleList.size();
-                    System.out.println(articleList.size() + " single=" + singleArticleSize + " multi=" + multiArticleSize + " total=" + articleSize + "]");
-                    for (String s : articleList) {
-                        Config config = new Config();
-                        config.node = "china_daily";
-                        WordEnArticle wordEnArticle = new WordEnArticle();
-                        wordEnArticle.articleIndex = index;
-                        if (isSingle) {
-                            wordEnArticle.title = title;
-                            wordEnArticle.content = s;
-                        } else {
-                            String[] ss = s.split("#");
-                            wordEnArticle.title = ss[0];
-                            wordEnArticle.titleNote = ss[1];
-                            wordEnArticle.content = ss[2];
-                            wordEnArticle.contentNote = ss[3];
-                        }
-                        wordEnArticle.source = config;
-                        wordEnArticle.answer = "";
-                        wordEnArticleList.add(wordEnArticle);
-                    }
-                }
-            }
+            sum += total;
+            successSum += success;
+            failSum += fail;
+            singleSum += single;
+            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail));
         }
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
-            wordEnArticleRepository.insertAll(subList);
-        }*/
+//                wordEnArticleRepository.insertAll(subList);
+        }
+        System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", sum, successSum, failSum, singleSum));
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

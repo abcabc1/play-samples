@@ -5,11 +5,11 @@ import io.ebean.Model;
 import java.util.List;
 
 public class ArticleParam extends Model {
-    public String articleLink;
+    public String link;
 
-    public Integer articleStartPage;
+    public Integer startPage;
 
-    public Integer articleEndPage;
+    public Integer endPage;
 
     public List<Integer> articleIndexList;
 
