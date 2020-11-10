@@ -8,7 +8,7 @@ Content-Type: application/json
 POST http://{{host}}:{{port}}/word/loadChinaDailyArticle
 Content-Type: application/json
 
-{ "model": { "link":"waiyu/14804689", "startPage": 1, "endPage": 31, "articleIndexList": []} }
+{ "model": { "link":"waiyu/14804689", "startPage": 1, "endPage": 1, "articleIndexList": [923]} }
 
 ###
 POST http://{{host}}:{{port}}/word/dictWordEn

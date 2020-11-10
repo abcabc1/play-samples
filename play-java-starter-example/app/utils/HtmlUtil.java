@@ -421,7 +421,8 @@ public class HtmlUtil {
                 .replaceAll("\"", "")
                 .replaceAll("/", "")
                 .replaceAll("《", "")
-                .replaceAll("》", "");
+                .replaceAll("》", "")
+                .replaceAll("-", "");
     }
 
     private static boolean checkText4Title(String text) {

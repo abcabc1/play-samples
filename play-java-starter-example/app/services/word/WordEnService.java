@@ -156,7 +156,7 @@ public class WordEnService {
             Config config = new Config();
             config.node = "china_daily";
             if (articleLink.articleType == 1) {
-                String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+                /*String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
                 if (articleContent == null || articleContent.isEmpty()) {
                     System.out.println("---------------------------fail " + articleLink);
                     fail++;
@@ -169,9 +169,9 @@ public class WordEnService {
                     wordEnArticle.title = articleLink.articleLinkText;
                     wordEnArticle.content = articleContent;
                     wordEnArticleList.add(wordEnArticle);
-                    single++;
                     System.out.println(articleLink);
-                }
+                }*/
+                single++;
             } else if (articleLink.articleType == 2) {
                 List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                 if (articleList.size() == 4) {
@@ -189,7 +189,6 @@ public class WordEnService {
                         wordEnArticleList.add(wordEnArticle);
                     }
                     success++;
-                    logger.info(articleLink.toString());
                     System.out.println(articleLink);
                 } else {
                     System.out.println("------------------fail " + articleLink.toString());
