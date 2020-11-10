@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
+import models.word.vo.Article;
 import models.word.vo.ArticleLink;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
@@ -172,30 +173,28 @@ public class WordEnService {
                     System.out.println(articleLink);
                 }
             } else if (articleLink.articleType == 2) {
-                /*
-                    List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
-                    if (articleList.size() == 4) {
-                        for (Article article : articleList) {
-                            WordEnArticle wordEnArticle = new WordEnArticle();
-                            wordEnArticle.source = config;
-                            wordEnArticle.articleIndex = article.articleLink.articleIndex;
-                            wordEnArticle.linkTitle = article.articleLink.articleLinkText;
-                            wordEnArticle.linkTitle = article.articleLink.articleLinkText;
-                            wordEnArticle.answer = "";
-                            wordEnArticle.title = article.title;
-                            wordEnArticle.titleNote = article.titleNote;
-                            wordEnArticle.content = article.content;
-                            wordEnArticle.contentNote = article.contentNote;
-                            wordEnArticleList.add(wordEnArticle);
-                        }
-                        success++;
-                        logger.info(articleLink.toString());
-                        System.out.println(articleLink);
-                    } else {
-                        System.out.println("------------------fail " + articleLink.toString());
-                        fail++;
+                List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
+                if (articleList.size() == 4) {
+                    for (Article article : articleList) {
+                        WordEnArticle wordEnArticle = new WordEnArticle();
+                        wordEnArticle.source = config;
+                        wordEnArticle.articleIndex = article.articleLink.articleIndex;
+                        wordEnArticle.linkTitle = article.articleLink.articleLinkText;
+                        wordEnArticle.linkTitle = article.articleLink.articleLinkText;
+                        wordEnArticle.answer = "";
+                        wordEnArticle.title = article.title;
+                        wordEnArticle.titleNote = article.titleNote;
+                        wordEnArticle.content = article.content;
+                        wordEnArticle.contentNote = article.contentNote;
+                        wordEnArticleList.add(wordEnArticle);
                     }
-                    total++;*/
+                    success++;
+                    logger.info(articleLink.toString());
+                    System.out.println(articleLink);
+                } else {
+                    System.out.println("------------------fail " + articleLink.toString());
+                    fail++;
+                }
             }
             total++;
 //            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}, single:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail, single));
