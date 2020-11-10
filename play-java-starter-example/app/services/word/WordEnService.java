@@ -20,8 +20,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static utils.Constant.HOST_XMLY;
-
 public class WordEnService {
 
     @Inject
@@ -106,14 +104,9 @@ public class WordEnService {
             logger.info(articleParam.link);
         }
         // list all pages of link
-        List<Integer> pageList = new ArrayList<>();
-        articleParam.startPage = Math.max(articleParam.startPage, 1);
-        articleParam.endPage = Math.max(articleParam.endPage, 1);
-        for (int page = articleParam.startPage; page <= articleParam.endPage; page++) {
-            pageList.add(page);
-        }
         List<ArticleLink> articleLinkList = new ArrayList<>();
         int sum = 0, successSum = 0, failSum = 0, singleSum = 0;
+        List<Integer> pageList = listArticlePage(articleParam);
         for (Integer page : pageList) {
             // list article links of current page
             LinkedHashSet<String> pageTitleSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
@@ -131,9 +124,14 @@ public class WordEnService {
                         .replaceAll("\\?", "")
                         .replaceAll("\\d", "")
                         .replaceAll(":", "")
-                        .replaceAll(",", "");
-                if (StringUtil.isAlpha(StringUtils.trimAllWhitespace(articleLinkTextTemp))) {
+                        .replaceAll(",", "")
+                        .replaceAll("-", "")
+                        .replaceAll("\\|", "");
+                if (StringUtil.isAlpha(StringUtils.trimAllWhitespace(articleLinkTextTemp)) || articleLinkTextTemp.contains("英文播报")) {
                     articleLink.articleType = 1;
+                    if (articleLinkText.contains("英文播报")) {
+                        articleLink.articleLinkText = StringUtils.trimLeadingWhitespace(articleLinkTextTemp.substring(articleLinkTextTemp.indexOf("英文播报") + 4));
+                    }
                 } else {
                     articleLink.articleType = 2;
                 }
@@ -147,31 +145,34 @@ public class WordEnService {
             }
         }
         // collect articles
-        int total = 0, success = 0, fail = 0, single = 0;
+        int total = 0, success = 0, fail = 0, single = 0, page = 1;
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (ArticleLink articleLink : articleLinkList) {
+            if (articleLink.page != page) {
+                System.out.println(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.page - 1, total, success, fail, single));
+                page = articleLink.page;
+            }
             Config config = new Config();
             config.node = "china_daily";
-            if (1 == articleLink.articleType) {
+            if (articleLink.articleType == 1) {
                 String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
                 if (articleContent == null || articleContent.isEmpty()) {
                     System.out.println("---------------------------fail " + articleLink);
                     fail++;
-                    continue;
+                } else {
+                    WordEnArticle wordEnArticle = new WordEnArticle();
+                    wordEnArticle.source = config;
+                    wordEnArticle.answer = "";
+                    wordEnArticle.linkTitle = articleLink.articleLinkText;
+                    wordEnArticle.articleIndex = articleLink.articleIndex;
+                    wordEnArticle.title = articleLink.articleLinkText;
+                    wordEnArticle.content = articleContent;
+                    wordEnArticleList.add(wordEnArticle);
+                    single++;
+                    System.out.println(articleLink);
                 }
-                WordEnArticle wordEnArticle = new WordEnArticle();
-                wordEnArticle.source = config;
-                wordEnArticle.answer = "";
-                wordEnArticle.linkTitle = articleLink.articleLinkText;
-                wordEnArticle.articleIndex = articleLink.articleIndex;
-                wordEnArticle.title = articleLink.articleLinkText;
-                wordEnArticle.content = articleContent;
-                wordEnArticleList.add(wordEnArticle);
-                single++;
-                total++;
-                logger.info(articleLink.toString());
-                System.out.println(articleLink);
-            } else if (2 == articleLink.articleType) {/*
+            } else if (articleLink.articleType == 2) {
+                /*
                     List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                     if (articleList.size() == 4) {
                         for (Article article : articleList) {
@@ -196,16 +197,13 @@ public class WordEnService {
                     }
                     total++;*/
             }
-            sum += total;
-            successSum += success;
-            failSum += fail;
-            singleSum += single;
-            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail));
+            total++;
+//            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}, single:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail, single));
         }
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
 //                wordEnArticleRepository.insertAll(subList);
         }
-        System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", sum, successSum, failSum, singleSum));
+        System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", total, success, fail, single));
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

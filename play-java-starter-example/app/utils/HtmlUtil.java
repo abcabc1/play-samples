@@ -179,7 +179,7 @@ public class HtmlUtil {
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
             if (text.isEmpty()) continue;
-            if (text.contains("Xinhua") || text.contains("Photo") || text.contains("CHINA DAILY")) continue;
+            if (text.contains("上传") || text.contains("创作中心") || text.contains("有声出版") || text.contains("小雅音箱") || text.contains("欢迎订阅") || text.contains("音频") || text.contains("Xinhua") || text.contains("Photo") || text.contains("CHINA DAILY")) continue;
             if (text.contains("Find more audio news")) {
                 if (!content.isEmpty()) {
                     content += text;
