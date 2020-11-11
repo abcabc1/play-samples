@@ -16,7 +16,10 @@ public enum ExceptionEnum {
     ALI_PAY_PASS_TEMPLATE_ADD_FAILURE("104", "Ali pass template add fail"),
     ALI_PAY_PASS_INSTANCE_ADD_FAILURE("105", "Ali pass instance add fail"),
     ALI_PAY_SYSTEM_OAUTH_TOKEN_FAILURE("103", "Ali pay system oauth token fail"),
-    EXCEL_PROCESS_FAILURE("601", "Excel processing, Waiting for stop");
+    EXCEL_PROCESS_FAILURE("601", "Excel processing, Waiting for stop"),
+    MISSING_ARTICLE_TITLE_FAILURE("word", "Missing article title"),
+    FINAL_ARTICLE_FAILURE("word", "Final article extract fail"),
+    MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE("word", "Match article title fail");
 
     // 成员变量
     private String code;

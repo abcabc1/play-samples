@@ -97,16 +97,17 @@ public class WordEnService {
      * @enduml
      */
     @Transactional
-    public void loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+    public String loadChinaDailyArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+        String result;
         if (articleParam.link == null || articleParam.link.isEmpty()) {
-            logger.error("link is mission");
-            return;
+            result = "link is mission";
+            logger.error(result);
+            return result;
         } else {
             logger.info(articleParam.link);
         }
         // list all pages of link
         List<ArticleLink> articleLinkList = new ArrayList<>();
-        int sum = 0, successSum = 0, failSum = 0, singleSum = 0;
         List<Integer> pageList = listArticlePage(articleParam);
         for (Integer page : pageList) {
             // list article links of current page
@@ -150,7 +151,7 @@ public class WordEnService {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (ArticleLink articleLink : articleLinkList) {
             if (articleLink.page != page) {
-                System.out.println(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.page - 1, total, success, fail, single));
+                logger.info(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.page - 1, total, success, fail, single));
                 page = articleLink.page;
             }
             Config config = new Config();
@@ -201,7 +202,9 @@ public class WordEnService {
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
 //                wordEnArticleRepository.insertAll(subList);
         }
-        System.out.println(String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", total, success, fail, single));
+        result = String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", total, success, fail, single);
+        logger.info(result);
+        return result;
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

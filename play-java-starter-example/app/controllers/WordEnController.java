@@ -34,10 +34,11 @@ public class WordEnController extends Controller {
     }
 
     public Result loadChinaDailyArticle(Http.Request request) throws ExecutionException, InterruptedException {
-//        String pageLink = RequestUtil.getString(request, "pageLink", "/waiyu/14804689");
+        Map<String, Object> map = new HashMap<>();
         ArticleParam articleParam = RequestUtil.getModel(request, "model", ArticleParam.class);
-        wordEnService.loadChinaDailyArticle(articleParam);
-        return ok(ResultUtil.success());
+        String result = wordEnService.loadChinaDailyArticle(articleParam);
+        map.put("result", result);
+        return ok(ResultUtil.success(map));
     }
 
     public Result listWordEn(Http.Request request) {

@@ -30,9 +30,15 @@
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>
 
 </configuration>
+        <!--OFF - Used to turn off logging, not as a message classification.
+        ERROR - Runtime errors, or unexpected conditions.
+        WARN - Use of deprecated APIs, poor use of API, ‘almost’ errors, other runtime situations that are undesirable or unexpected, but not necessarily “wrong”.
+        INFO - Interesting runtime events such as application startup and shutdown.
+        DEBUG - Detailed information on the flow through the system.
+        TRACE - Most detailed information.-->

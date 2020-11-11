@@ -6,12 +6,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import utils.exception.InternalException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static utils.Constant.ABBR;
+import static utils.exception.ExceptionEnum.FINAL_ARTICLE_FAILURE;
+import static utils.exception.ExceptionEnum.MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE;
 
 public class HtmlUtil {
 
@@ -26,6 +31,8 @@ public class HtmlUtil {
 //        }
 //        return null;
 //    }
+
+    private static final Logger logger = LoggerFactory.getLogger(HtmlUtil.class);
 
     public static Map<String, List<String>> extractDictEn(String html) {
         Document document = Jsoup.parse(html);
@@ -179,7 +186,8 @@ public class HtmlUtil {
         for (int i = 0; i < pTextList.size(); i++) {
             String text = pTextList.get(i);
             if (text.isEmpty()) continue;
-            if (text.contains("上传") || text.contains("创作中心") || text.contains("有声出版") || text.contains("小雅音箱") || text.contains("欢迎订阅") || text.contains("音频") || text.contains("Xinhua") || text.contains("Photo") || text.contains("CHINA DAILY")) continue;
+            if (text.contains("上传") || text.contains("创作中心") || text.contains("有声出版") || text.contains("小雅音箱") || text.contains("欢迎订阅") || text.contains("音频") || text.contains("Xinhua") || text.contains("Photo") || text.contains("CHINA DAILY"))
+                continue;
             if (text.contains("Find more audio news")) {
                 if (!content.isEmpty()) {
                     content += text;
@@ -210,11 +218,11 @@ public class HtmlUtil {
                 || articleList.stream().map(v -> v.titleAndNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
             return new ArrayList<>();
         }
-        Article currentArticle = null;
         int contentTicket = 0;
         boolean isTitle = false;
         List<String> pTextList = document.select("p").eachText();
         for (int i = 0; i < pTextList.size(); i++) {
+            Article currentArticle = null;
             String text = pTextList.get(i);
             String textTemp = replace(text);
             if (checkText4Content(textTemp)) {
@@ -223,26 +231,11 @@ public class HtmlUtil {
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
-            for (Article article : articleList) {
-                if (article.titleAndNote == null || article.title == null || article.titleNote == null
-                        || article.titleAndNote.isEmpty() || article.title.isEmpty() || article.titleNote.isEmpty()) {
-                    return articleList;
-                }
-                if (article.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    currentArticle = article;
-                    isTitle = true;
-                    break;
-                }
-                /*if (article.title.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    currentArticle = article;
-                    isTitle = true;
-                    break;
-                }
-                if (article.titleNote.contains(StringUtils.trimAllWhitespace(textTemp))) {
-                    currentArticle = article;
-                    isTitle = true;
-                    break;
-                }*/
+            currentArticle = articleList.stream().filter(v -> v.titleAndNote.contains(StringUtils.trimAllWhitespace(textTemp))).findFirst().orElse(null);
+            if (currentArticle == null) {
+                logger.error(InternalException.build(MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE).getMessage());
+            } else {
+                isTitle = true;
             }
             if (isTitle) {
                 isTitle = false;
@@ -254,37 +247,21 @@ public class HtmlUtil {
                 contentTicket = 2;
             }
             if (contentTicket == 2) {
-                if (currentArticle != null) {
-                    if (currentArticle.content == null) {
-                        if (indexOfChinese > 0) {
-                            currentArticle.content = text.substring(0, indexOfChinese);
-                            currentArticle.contentNote = text.substring(indexOfChinese, text.length());
-                        } else {
-                            currentArticle.content = text;
-                        }
-                    } else {
-                        if (indexOfChinese > 0) {
-                            currentArticle.content += text.substring(0, indexOfChinese);
-                            currentArticle.contentNote += text.substring(indexOfChinese, text.length());
-                        } else {
-                            currentArticle.content += text;
-                        }
-                    }
+                if (indexOfChinese > 0) {
+                    currentArticle.content = Optional.ofNullable(currentArticle.content).orElse("") + text.substring(0, indexOfChinese);
+                    currentArticle.contentNote = Optional.ofNullable(currentArticle.contentNote).orElse("") + text.substring(indexOfChinese, text.length());
+                } else {
+                    currentArticle.content = text;
                 }
                 contentTicket--;
             } else if (contentTicket == 1) {
-                if (currentArticle != null) {
-                    if (currentArticle.contentNote == null) {
-                        currentArticle.contentNote = text;
-                    } else {
-                        currentArticle.contentNote += text;
-                    }
-                }
+                currentArticle.contentNote = Optional.ofNullable(currentArticle.contentNote).orElse("") + text;
                 contentTicket--;
             }
         }
         if (articleList.stream().map(v -> v.content).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
                 || articleList.stream().map(v -> v.contentNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
+            logger.error(InternalException.build(FINAL_ARTICLE_FAILURE).getMessage());
             return new ArrayList<>();
         }
         return articleList;
@@ -309,8 +286,7 @@ public class HtmlUtil {
             if (StringUtils.trimAllWhitespace(textTemp).toLowerCase().contains("findmoreaudionews")) {
                 break;
             }
-            if (textTemp.trim().isEmpty() || textTemp.contains("No.") || textTemp.contains("、")
-                    || textTemp.contains("各位听众") || textTemp.contains("中国日报") || textTemp.contains("China Daily") || textTemp.contains("不错过世界上发生的趣事")) {
+            if (checkText4Title(textTemp)) {
                 continue;
             }
             String checkString = StringUtils.trimAllWhitespace(
@@ -435,6 +411,9 @@ public class HtmlUtil {
                 || StringUtils.trimAllWhitespace(text).toLowerCase().contains("thisischinadaily")
                 || text.contains("重点词汇")
                 || text.contains("各位听众")
+                || text.contains("China Daily")
+                || text.contains("不错过世界上发生的趣事")
+                || text.contains("No.")
                 || (text.contains("英") && text.contains("美"))
                 || Arrays.stream(ABBR).anyMatch(text::contains)
                 || StringUtil.isAlpha(text)
