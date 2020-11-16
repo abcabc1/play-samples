@@ -137,20 +137,22 @@ public class HtmlUtil {
     public static LinkedHashSet<String> extractXMLYChinaDailyTitle(String html) {
         Document document = Jsoup.parse(html);
         LinkedHashSet<String> pageArticleTitleSet = new LinkedHashSet<>();
-        Elements indexElements = document.select(".num._Vc");
+        String indexClass = ".num.lF_";
+        String titleClass = ".text.lF_";
+        Elements indexElements = document.select(indexClass);
         List<String> indexList = indexElements.eachText();
-        Elements elements = document.select(".text._Vc");
-        int i = 0;
-        for (Element element : elements) {
+        Elements titleElements = document.select(titleClass);
+        for (int i = 0; i < titleElements.size(); i++) {
+            Element element = titleElements.get(i);
             String title = "";
             String text = element.text();
-            if (text.contains("热门：") || (text.contains("月") && text.contains("日"))) {
+            if ((text.contains("月") && text.contains("日"))
+                    || text.contains("热门：")) {
                 String index = indexList.get(i);
                 title = text.substring(text.indexOf("：") + 1);
                 String href = element.select("a").attr("href");
                 pageArticleTitleSet.add(index + "#" + title + "#" + href);
             }
-            i++;
         }
         return pageArticleTitleSet;
     }

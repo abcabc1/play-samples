@@ -6,10 +6,11 @@ import services.base.ModelService;
 
 import javax.inject.Inject;
 
-public class WordEnArticleService extends ModelService<WordEnArticle> {
+public class WordEnArticleServiceImpl extends ModelService<WordEnArticle> {
 
     @Inject
-    public WordEnArticleService(WordEnArticleRepository repository) {
+    public WordEnArticleServiceImpl(WordEnArticleRepository repository) {
         super(repository);
     }
+
 }

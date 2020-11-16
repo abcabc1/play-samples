@@ -157,9 +157,9 @@ public class WordEnService {
             Config config = new Config();
             config.node = "china_daily";
             if (articleLink.articleType == 1) {
-                /*String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+                String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
                 if (articleContent == null || articleContent.isEmpty()) {
-                    System.out.println("---------------------------fail " + articleLink);
+                    logger.error("---------------------------fail " + articleLink);
                     fail++;
                 } else {
                     WordEnArticle wordEnArticle = new WordEnArticle();
@@ -170,8 +170,8 @@ public class WordEnService {
                     wordEnArticle.title = articleLink.articleLinkText;
                     wordEnArticle.content = articleContent;
                     wordEnArticleList.add(wordEnArticle);
-                    System.out.println(articleLink);
-                }*/
+                    logger.info(articleLink.toString());
+                }
                 single++;
             } else if (articleLink.articleType == 2) {
                 List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
@@ -190,9 +190,9 @@ public class WordEnService {
                         wordEnArticleList.add(wordEnArticle);
                     }
                     success++;
-                    System.out.println(articleLink);
+                    logger.info(articleLink.toString());
                 } else {
-                    System.out.println("------------------fail " + articleLink.toString());
+                    logger.error("------------------fail " + articleLink.toString());
                     fail++;
                 }
             }
@@ -200,7 +200,7 @@ public class WordEnService {
 //            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}, single:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail, single));
         }
         for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
-//                wordEnArticleRepository.insertAll(subList);
+                wordEnArticleRepository.insertAll(subList);
         }
         result = String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", total, success, fail, single);
         logger.info(result);

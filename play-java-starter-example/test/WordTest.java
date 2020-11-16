@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import play.test.WithApplication;
 import services.word.WordEnService;
+import services.word.WordService;
+import services.word.impl.WordServiceImpl;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -12,15 +14,16 @@ import java.util.concurrent.ExecutionException;
 public class WordTest extends WithApplication {
 
     WordEnService wordEnService;
+    WordService wordService;
 
-    @Before
-    public void create() {
-        wordEnService = app.injector().instanceOf(WordEnService.class);
-    }
-
-    @After
-    public void shutdown() {
-        wordEnService = null;
+    @Test
+    public void listChinaDailyTitle() throws ExecutionException, InterruptedException {
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.link = "waiyu/14804689";
+        articleParam.startPage = 31;
+        articleParam.endPage = 31;
+        String s = wordService.listWordEnArticleTitle4XMLY(articleParam);
+        System.out.println(s);
     }
 
     @Test
@@ -48,5 +51,17 @@ public class WordTest extends WithApplication {
         WordEn wordEn = new WordEn();
         List<WordEn> wordEnList = wordEnService.listWordEn(wordEn);
         wordEnList.size();
+    }
+
+    @Before
+    public void create() {
+        wordEnService = app.injector().instanceOf(WordEnService.class);
+        wordService = app.injector().instanceOf(WordServiceImpl.class);
+    }
+
+    @After
+    public void shutdown() {
+        wordEnService = null;
+        wordService = null;
     }
 }
