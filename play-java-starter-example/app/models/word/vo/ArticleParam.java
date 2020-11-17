@@ -14,4 +14,13 @@ public class ArticleParam extends Model {
     public List<Integer> articleIndexList;
 
     public List<String> articleTitleList;
+
+    @Override
+    public String toString() {
+        return "ArticleParam{" +
+                "link='" + link + '\'' +
+                ", startPage=" + startPage +
+                ", endPage=" + endPage +
+                '}';
+    }
 }

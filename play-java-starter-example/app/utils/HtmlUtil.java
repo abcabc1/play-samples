@@ -144,15 +144,10 @@ public class HtmlUtil {
         Elements titleElements = document.select(titleClass);
         for (int i = 0; i < titleElements.size(); i++) {
             Element element = titleElements.get(i);
-            String title = "";
             String text = element.text();
-            if ((text.contains("月") && text.contains("日"))
-                    || text.contains("热门：")) {
-                String index = indexList.get(i);
-                title = text.substring(text.indexOf("：") + 1);
-                String href = element.select("a").attr("href");
-                pageArticleTitleSet.add(index + "#" + title + "#" + href);
-            }
+            String index = indexList.get(i);
+            String href = element.select("a").attr("href");
+            pageArticleTitleSet.add(index + "#" + text + "#" + href);
         }
         return pageArticleTitleSet;
     }

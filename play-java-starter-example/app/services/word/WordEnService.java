@@ -115,7 +115,7 @@ public class WordEnService {
             for (String pageTitle : pageTitleSet) {
                 ArticleLink articleLink = new ArticleLink();
                 String[] temp = pageTitle.split("#");
-                articleLink.page = page;
+                articleLink.articlePage.page = page;
                 articleLink.articleIndex = Integer.parseInt(temp[0]);
                 articleLink.articleLinkText = temp[1];
                 articleLink.articleLinkHref = temp[2];
@@ -150,9 +150,9 @@ public class WordEnService {
         int total = 0, success = 0, fail = 0, single = 0, page = 1;
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (ArticleLink articleLink : articleLinkList) {
-            if (articleLink.page != page) {
-                logger.info(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.page - 1, total, success, fail, single));
-                page = articleLink.page;
+            if (articleLink.articlePage.page != page) {
+                logger.info(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.articlePage.page - 1, total, success, fail, single));
+                page = articleLink.articlePage.page;
             }
             Config config = new Config();
             config.node = "china_daily";

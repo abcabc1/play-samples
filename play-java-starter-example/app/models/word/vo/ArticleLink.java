@@ -2,7 +2,7 @@ package models.word.vo;
 
 public class ArticleLink {
 
-    public Integer page;
+    public ArticlePage articlePage;
     public Integer articleIndex;
     public String articleLinkText;
     public String articleLinkHref;
@@ -11,7 +11,7 @@ public class ArticleLink {
     @Override
     public String toString() {
         return "ArticleLink{" +
-                "page=" + page +
+                "page=" + articlePage.page +
                 ", articleIndex=" + articleIndex +
                 ", articleLinkText='" + articleLinkText + '\'' +
                 ", articleType=" + articleType +

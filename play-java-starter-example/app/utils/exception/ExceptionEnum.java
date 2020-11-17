@@ -19,7 +19,8 @@ public enum ExceptionEnum {
     EXCEL_PROCESS_FAILURE("601", "Excel processing, Waiting for stop"),
     MISSING_ARTICLE_TITLE_FAILURE("word", "Missing article title"),
     FINAL_ARTICLE_FAILURE("word", "Final article extract fail"),
-    MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE("word", "Match article title fail");
+    MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE("word", "Match article title fail"),
+    INVALID_ARTICLE_PARAM("word", "invalid article param {0}");
 
     // 成员变量
     private String code;
