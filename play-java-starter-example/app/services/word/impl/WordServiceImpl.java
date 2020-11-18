@@ -64,14 +64,14 @@ public class WordServiceImpl implements WordService {
                 } else if (temp[1].contains("24节气英语说") || temp[1].contains("今日立冬！话说中国节")/*|| temp[1].contains("英文视频") || temp[1].contains("新课试听")
                         || temp[1].contains("独家视频")*/) {
                     articleLink.articleType = 3;
-                } else if (temp[1].contains("独家视频")) {
+                } else if (temp[1].contains("独家视频") || temp[1].contains("【新课试听】") || temp[1].contains("中国日报独家视频：深圳，四十而已")) {
                     articleLink.articleType = 4;
-                } else if (temp[1].contains("：")) {
+                }/* else if (temp[1].contains("：")) {
                     String s = StringUtils.trimLeadingWhitespace(temp[1]).substring(temp[1].indexOf("：") + 1);
                     if (!s.isEmpty() && StringUtil.isChineseByScript(s.charAt(0))) {
                         articleLink.articleType = 2;
                     }
-                }
+                }*/
                 if (articleLink.articleType == null) {
                     articleLink.articleType = 4;
                 }
