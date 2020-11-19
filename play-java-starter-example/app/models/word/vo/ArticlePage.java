@@ -6,8 +6,8 @@ import java.util.List;
 
 public class ArticlePage {
     public Integer page;
-    public List<String> errorArticleList= new ArrayList<>();
-    public List<String> todoArticleList= new ArrayList<>();
+    public List<ArticleLink> errorArticleList= new ArrayList<>();
+    public List<ArticleLink> todoArticleList= new ArrayList<>();
     public LinkedList<ArticleLink> articleLinkList = new LinkedList<>();
     public LinkedList<ArticleLink> singleArticleLinkList = new LinkedList<>();
     public LinkedList<ArticleLink> multiArticleLinkList = new LinkedList<>();

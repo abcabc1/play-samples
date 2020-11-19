@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import services.dict.DictService;
 import services.word.WordService;
-import utils.StringUtil;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
@@ -51,58 +50,73 @@ public class WordServiceImpl implements WordService {
         for (ArticlePage articlePage : pageList) {
             LinkedHashSet<String> linkedHashSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + articlePage.page).toCompletableFuture().get();
             for (String pageTitle : linkedHashSet) {
-                ArticleLink articleLink = new ArticleLink();
                 String[] temp = pageTitle.split("#");
+                Integer index = Integer.parseInt(temp[0]);
+                String linkText = temp[1];
+                String href = temp[2];
+                if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
+                    continue;
+                }
+                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(linkText)) {
+                    continue;
+                }
+                ArticleLink articleLink = new ArticleLink();
                 articleLink.articlePage = articlePage;
-                articleLink.articleIndex = Integer.parseInt(temp[0]);
-                articleLink.articleLinkHref = temp[2];
-                if (temp[1].contains("早间英文播报") || temp[1].contains("早间英文播播报") || temp[1].contains("头条英文播报") || temp[1].contains("英语新闻音频")
-                        || temp[1].contains("早间英文新闻") || temp[1].contains("早间英语新闻播报") || temp[1].contains("早间英语播报") || temp[1].contains("早间英文")/* || temp[1].contains("新闻音频") || temp[1].contains("英语播报")*/) {
-                    articleLink.articleType = 1;
-                } else if (temp[1].contains("午间双语播报") || temp[1].contains("午间双语新闻") || temp[1].contains("双语") || temp[1].contains("双语精选") || temp[1].contains("热门")/*|| temp[1].contains("英语新闻")  || temp[1].contains("英文新闻")*/) {
-                    articleLink.articleType = 2;
-                } else if (temp[1].contains("24节气英语说") || temp[1].contains("今日立冬！话说中国节")/*|| temp[1].contains("英文视频") || temp[1].contains("新课试听")
-                        || temp[1].contains("独家视频")*/) {
-                    articleLink.articleType = 3;
-                } else if (temp[1].contains("独家视频") || temp[1].contains("【新课试听】") || temp[1].contains("中国日报独家视频：深圳，四十而已")) {
-                    articleLink.articleType = 4;
-                }/* else if (temp[1].contains("：")) {
-                    String s = StringUtils.trimLeadingWhitespace(temp[1]).substring(temp[1].indexOf("：") + 1);
+                articleLink.articleIndex = index;
+                articleLink.articleLinkHref = href;
+                linkText = linkText.replaceAll("｜", "：");
+                linkText = linkText.replaceAll(":", "：");
+                if (linkText.contains("：")) {
+                    String titlePrefix = linkText.replaceAll("^\\d{1,2}\\.\\d{1,2}", "").replaceAll("^\\d{1,2}月\\d{1,2}日", "").replaceAll("^[Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec]\\s\\d{1,2}","");
+                    titlePrefix = StringUtils.trimLeadingWhitespace(titlePrefix.substring(0, titlePrefix.indexOf("：")));
+                    if (titlePrefix.equals("早间英文播报") || titlePrefix.equals("早间英文播播报") || titlePrefix.equals("早间英文新闻") || titlePrefix.equals("英语新闻音频")/* || titlePrefix.equals("头条英文播报")
+                             || titlePrefix.equals("早间英语新闻播报") || titlePrefix.equals("早间英语播报") || titlePrefix.equals("早间英文")*//* || titlePrefix.equals("新闻音频") || titlePrefix.equals("英语播报")*/) {
+                        articleLink.articleType = 1;
+                    } else if (titlePrefix.equals("午间双语播报") || titlePrefix.equals("午间双语新闻") || titlePrefix.equals("热门")/*  || titlePrefix.equals("双语") || titlePrefix.equals("双语精选") || titlePrefix.equals("热门") || titlePrefix.equals("英语新闻") *//*|| titlePrefix.equals("英文新闻")*/) {
+                        articleLink.articleType = 2;
+                    } else if (titlePrefix.contains("24节气英语说") || titlePrefix.equals("今日立冬！话说中国节")/*|| titlePrefix.equals("英文视频") || titlePrefix.equals("新课试听")
+                        || titlePrefix.equals("独家视频")*/) {
+                        articleLink.articleType = 3;
+                    } else if (titlePrefix.equals("独家视频") || titlePrefix.equals("【新课试听】") || titlePrefix.equals("中国日报独家视频：深圳，四十而已")) {
+                        articleLink.articleType = 4;
+                    }/* else if (titlePrefix.equals("：")) {
+                    String s = StringUtils.trimLeadingWhitespace(titlePrefix).substring(titlePrefix.indexOf("：") + 1);
                     if (!s.isEmpty() && StringUtil.isChineseByScript(s.charAt(0))) {
                         articleLink.articleType = 2;
                     }
                 }*/
+                }
                 if (articleLink.articleType == null) {
-                    articleLink.articleType = 4;
+                    articleLink.articleType = 3;
                 }
                 switch (articleLink.articleType) {
                     case 1:
-                        if (temp[1].contains("：")) {
-                            articleLink.articleLinkText = temp[1].substring(temp[1].indexOf("：") + 1);
-                        } else if (temp[1].contains(":")) {
-                            articleLink.articleLinkText = temp[1].substring(temp[1].indexOf(":") + 1);
-                        }
-//                        articleLink.articleLinkText = replacePageTitle(articleLink.articleLinkText);
+                        articleLink.articleLinkText = pageTitle;
+                        /*if (titlePrefix.equals("：")) {
+                            articleLink.articletitlePrefix = titlePrefix.substring(titlePrefix.indexOf("：") + 1);
+                        } else if (titlePrefix.equals(":")) {
+                            articleLink.articletitlePrefix = titlePrefix.substring(titlePrefix.indexOf(":") + 1);
+                        }*/
                         articlePage.singleArticleLinkList.add(articleLink);
                         articleLinkLinkedList.add(articleLink);
                         break;
                     case 2:
-                        if (temp[1].contains("：")) {
-                            articleLink.articleLinkText = temp[1].substring(temp[1].indexOf("：") + 1);
-                        } else if (temp[1].contains(":")) {
-                            articleLink.articleLinkText = temp[1].substring(temp[1].indexOf(":") + 1);
-                        }
-//                        articleLink.articleLinkText = replacePageTitle(articleLink.articleLinkText);
+                        articleLink.articleLinkText = pageTitle;
+                        /*if (titlePrefix.equals("：")) {
+                            articleLink.articletitlePrefix = titlePrefix.substring(titlePrefix.indexOf("：") + 1);
+                        } else if (titlePrefix.equals(":")) {
+                            articleLink.articleLinkText = titlePrefix.substring(titlePrefix.indexOf(":") + 1);
+                        }*/
                         articlePage.multiArticleLinkList.add(articleLink);
                         articleLinkLinkedList.add(articleLink);
                         break;
                     case 3:
-                        articleLink.articleLinkText = temp[1];
-                        articlePage.todoArticleList.add(pageTitle);
+                        articleLink.articleLinkText = pageTitle;
+                        articlePage.todoArticleList.add(articleLink);
                         break;
                     case 4:
-                        articleLink.articleLinkText = temp[1];
-                        articlePage.errorArticleList.add(pageTitle);
+                        articleLink.articleLinkText = pageTitle;
+                        articlePage.errorArticleList.add(articleLink);
                         break;
                 }
                 articlePage.articleLinkList.add(articleLink);
