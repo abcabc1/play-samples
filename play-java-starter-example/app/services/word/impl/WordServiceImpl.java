@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import services.dict.DictService;
 import services.word.WordService;
+import utils.StringUtil;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
@@ -57,34 +58,57 @@ public class WordServiceImpl implements WordService {
                 if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(index)) {
                     continue;
                 }
-                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(linkText)) {
+                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && articleParam.articleTitleList.stream().noneMatch(linkText::contains)) {
                     continue;
                 }
                 ArticleLink articleLink = new ArticleLink();
                 articleLink.articlePage = articlePage;
                 articleLink.articleIndex = index;
                 articleLink.articleLinkHref = href;
-                linkText = linkText.replaceAll("｜", "：");
+                linkText = linkText.replaceAll("｜", "：").replaceAll("\\|","：");
                 linkText = linkText.replaceAll(":", "：");
                 if (linkText.contains("：")) {
-                    String titlePrefix = linkText.replaceAll("^\\d{1,2}\\.\\d{1,2}", "").replaceAll("^\\d{1,2}月\\d{1,2}日", "").replaceAll("^[Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec]\\s\\d{1,2}","");
-                    titlePrefix = StringUtils.trimLeadingWhitespace(titlePrefix.substring(0, titlePrefix.indexOf("：")));
-                    if (titlePrefix.equals("早间英文播报") || titlePrefix.equals("早间英文播播报") || titlePrefix.equals("早间英文新闻") || titlePrefix.equals("英语新闻音频")/* || titlePrefix.equals("头条英文播报")
-                             || titlePrefix.equals("早间英语新闻播报") || titlePrefix.equals("早间英语播报") || titlePrefix.equals("早间英文")*//* || titlePrefix.equals("新闻音频") || titlePrefix.equals("英语播报")*/) {
+                    linkText = linkText.replaceAll("^\\d{1,2}\\.\\d{1,2}", "").replaceAll("^\\d{1,2}月\\d{1,2}[日月号]", "").replaceAll("Jan\\s\\d{1,2}|Feb\\s\\d{1,2}|Mar\\s\\d{1,2}|Apr\\s\\d{1,2}|May\\s\\d{1,2}|Jun\\s\\d{1,2}|July\\s\\d{1,2}|Aug\\s\\d{1,2}|Sep\\s\\d{1,2}|Oct\\s\\d{1,2}|Nov\\s\\d{1,2}|Dec\\s\\d{1,2}", "");
+                    String titlePrefix = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(linkText.substring(0, linkText.indexOf("："))));
+                    if (titlePrefix.equals("早间英文播报") || titlePrefix.equals("早间英文播播报") || titlePrefix.equals("早间英文新闻")
+                            || titlePrefix.equals("英语新闻音频") || titlePrefix.equals("早间英文") || titlePrefix.equals("早间英语播报")
+                            || titlePrefix.equals("头条英文播报") || titlePrefix.equals("早间英语新闻播报")/*
+                     *//* || titlePrefix.equals("新闻音频") || titlePrefix.equals("英语播报")*/) {
                         articleLink.articleType = 1;
-                    } else if (titlePrefix.equals("午间双语播报") || titlePrefix.equals("午间双语新闻") || titlePrefix.equals("热门")/*  || titlePrefix.equals("双语") || titlePrefix.equals("双语精选") || titlePrefix.equals("热门") || titlePrefix.equals("英语新闻") *//*|| titlePrefix.equals("英文新闻")*/) {
+                    } else if (titlePrefix.equals("午间双语播报") || titlePrefix.equals("午间双语新闻") || titlePrefix.equals("热门")
+                            || titlePrefix.equals("双语精选") || titlePrefix.equals("双语") || titlePrefix.equals("双语新闻精选")
+                            || titlePrefix.equals("热门双语") || titlePrefix.equals("双语热门") || titlePrefix.equals("双语新闻")
+                            || titlePrefix.equals("热门音频") || titlePrefix.equals("午间英语新闻") || titlePrefix.equals("英语新闻精选")
+                            || titlePrefix.equals("精选")) {
                         articleLink.articleType = 2;
                     } else if (titlePrefix.contains("24节气英语说") || titlePrefix.equals("今日立冬！话说中国节")/*|| titlePrefix.equals("英文视频") || titlePrefix.equals("新课试听")
                         || titlePrefix.equals("独家视频")*/) {
-                        articleLink.articleType = 3;
-                    } else if (titlePrefix.equals("独家视频") || titlePrefix.equals("【新课试听】") || titlePrefix.equals("中国日报独家视频：深圳，四十而已")) {
                         articleLink.articleType = 4;
-                    }/* else if (titlePrefix.equals("：")) {
+                    } else if (titlePrefix.contains("【新课试听】") || titlePrefix.equals("中国日报独家视频") || titlePrefix.contains("中秋特别节目")) {
+                        articleLink.articleType = 4;
+                    } else if (titlePrefix.equals("英语")) {
+                        String title = StringUtils.trimLeadingWhitespace(linkText.substring(linkText.indexOf("：") + 1));
+                        if (StringUtil.isAlpha(title.charAt(0))) {
+                            articleLink.articleType = 1;
+                        } else if (StringUtil.isChineseByScript(title.charAt(0))) {
+                            articleLink.articleType = 2;
+                        }
+                    } else if (titlePrefix.equals("英语新闻")) {
+                        String title = linkText.substring(linkText.indexOf("：") + 1);
+                        if (StringUtil.isAlpha(title.charAt(0))) {
+                            articleLink.articleType = 1;
+                        } else if (StringUtil.isChineseByScript(title.charAt(0))) {
+                            articleLink.articleType = 2;
+                        }
+                    }
+                    /* else if (titlePrefix.equals("：")) {
                     String s = StringUtils.trimLeadingWhitespace(titlePrefix).substring(titlePrefix.indexOf("：") + 1);
                     if (!s.isEmpty() && StringUtil.isChineseByScript(s.charAt(0))) {
                         articleLink.articleType = 2;
                     }
                 }*/
+                } else {
+                    articleLink.articleType = 4;
                 }
                 if (articleLink.articleType == null) {
                     articleLink.articleType = 3;

@@ -25,16 +25,16 @@ public class WordTest extends WithApplication {
         articleParam.startPage = 1;
         articleParam.endPage = 31;
 //        articleParam.articleTitleList = Arrays.asList("【新课试听】刑责年龄调低：是惩罚，也是挽救");
-//        articleParam.articleIndexList = Arrays.asList(750);
+//        articleParam.articleIndexList = Arrays.asList(324);
         List<ArticlePage> articlePageList = wordService.listWordEnArticleTitle4XMLY(articleParam);
         System.out.println("error");
-        articlePageList.stream().map(v -> v.errorArticleList).forEach(System.out::println);
+//        articlePageList.stream().map(v -> v.errorArticleList).forEach(System.out::println);
         System.out.println("to do");
         articlePageList.stream().map(v -> v.todoArticleList).forEach(System.out::println);
         System.out.println("single");
         articlePageList.stream().map(v -> v.singleArticleLinkList).forEach(System.out::println);
         System.out.println("multi");
-        articlePageList.stream().map(v -> v.multiArticleLinkList).forEach(System.out::println);
+//        articlePageList.stream().map(v -> v.multiArticleLinkList).forEach(System.out::println);
     }
 
     @Test
