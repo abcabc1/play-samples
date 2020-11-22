@@ -1,7 +1,7 @@
 package services.dict;
 
 import models.word.vo.Article;
-import models.word.vo.ArticleLink;
+import models.word.ArticleLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;

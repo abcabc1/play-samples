@@ -5,7 +5,7 @@ import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
 import models.word.vo.Article;
-import models.word.vo.ArticleLink;
+import models.word.ArticleLink;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,11 +115,11 @@ public class WordEnService {
             for (String pageTitle : pageTitleSet) {
                 ArticleLink articleLink = new ArticleLink();
                 String[] temp = pageTitle.split("#");
-                articleLink.articlePage.page = page;
+//                articleLink.articlePage.page = page;
                 articleLink.articleIndex = Integer.parseInt(temp[0]);
-                articleLink.articleLinkText = temp[1];
+                articleLink.articleLinkTitle = temp[1];
                 articleLink.articleLinkHref = temp[2];
-                String articleLinkText = articleLink.articleLinkText;
+                String articleLinkText = articleLink.articleLinkTitle;
                 String articleLinkTextTemp = articleLinkText
                         .replaceAll("'", "")
                         .replaceAll("\"", "")
@@ -132,7 +132,7 @@ public class WordEnService {
                 if (StringUtil.isAlpha(StringUtils.trimAllWhitespace(articleLinkTextTemp)) || articleLinkTextTemp.contains("英文播报")) {
                     articleLink.articleType = 1;
                     if (articleLinkText.contains("英文播报")) {
-                        articleLink.articleLinkText = StringUtils.trimLeadingWhitespace(articleLinkTextTemp.substring(articleLinkTextTemp.indexOf("英文播报") + 4));
+                        articleLink.articleLinkTitle = StringUtils.trimLeadingWhitespace(articleLinkTextTemp.substring(articleLinkTextTemp.indexOf("英文播报") + 4));
                     }
                 } else {
                     articleLink.articleType = 2;
@@ -140,7 +140,7 @@ public class WordEnService {
                 if (articleParam.articleIndexList != null && !articleParam.articleIndexList.isEmpty() && !articleParam.articleIndexList.contains(articleLink.articleIndex)) {
                     continue;
                 }
-                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(articleLink.articleLinkText)) {
+                if (articleParam.articleTitleList != null && !articleParam.articleTitleList.isEmpty() && !articleParam.articleTitleList.contains(articleLink.articleLinkTitle)) {
                     continue;
                 }
                 articleLinkList.add(articleLink);
@@ -150,10 +150,10 @@ public class WordEnService {
         int total = 0, success = 0, fail = 0, single = 0, page = 1;
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (ArticleLink articleLink : articleLinkList) {
-            if (articleLink.articlePage.page != page) {
-                logger.info(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.articlePage.page - 1, total, success, fail, single));
-                page = articleLink.articlePage.page;
-            }
+//            if (articleLink.articlePage.page != page) {
+//                logger.info(String.format("                page:{%d}, pageTotal:{%d}, pageSuccess:{%d}, pageFail:{%d}, pageSingle:{%d}", articleLink.articlePage.page - 1, total, success, fail, single));
+//                page = articleLink.articlePage.page;
+//            }
             Config config = new Config();
             config.node = "china_daily";
             if (articleLink.articleType == 1) {
@@ -165,9 +165,9 @@ public class WordEnService {
                     WordEnArticle wordEnArticle = new WordEnArticle();
                     wordEnArticle.source = config;
                     wordEnArticle.answer = "";
-                    wordEnArticle.linkTitle = articleLink.articleLinkText;
+                    wordEnArticle.linkTitle = articleLink.articleLinkTitle;
                     wordEnArticle.articleIndex = articleLink.articleIndex;
-                    wordEnArticle.title = articleLink.articleLinkText;
+                    wordEnArticle.title = articleLink.articleLinkTitle;
                     wordEnArticle.content = articleContent;
                     wordEnArticleList.add(wordEnArticle);
                     logger.info(articleLink.toString());
@@ -180,8 +180,8 @@ public class WordEnService {
                         WordEnArticle wordEnArticle = new WordEnArticle();
                         wordEnArticle.source = config;
                         wordEnArticle.articleIndex = article.articleLink.articleIndex;
-                        wordEnArticle.linkTitle = article.articleLink.articleLinkText;
-                        wordEnArticle.linkTitle = article.articleLink.articleLinkText;
+                        wordEnArticle.linkTitle = article.articleLink.articleLinkTitle;
+                        wordEnArticle.linkTitle = article.articleLink.articleLinkTitle;
                         wordEnArticle.answer = "";
                         wordEnArticle.title = article.title;
                         wordEnArticle.titleNote = article.titleNote;

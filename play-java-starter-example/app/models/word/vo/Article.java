@@ -1,5 +1,7 @@
 package models.word.vo;
 
+import models.word.ArticleLink;
+
 public class Article {
 
     public ArticleLink articleLink;

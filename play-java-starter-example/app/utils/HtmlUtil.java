@@ -1,7 +1,7 @@
 package utils;
 
 import models.word.vo.Article;
-import models.word.vo.ArticleLink;
+import models.word.ArticleLink;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

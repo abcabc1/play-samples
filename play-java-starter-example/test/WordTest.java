@@ -1,5 +1,4 @@
 import models.word.WordEn;
-import models.word.vo.ArticlePage;
 import models.word.vo.ArticleParam;
 import org.junit.After;
 import org.junit.Before;
@@ -9,7 +8,6 @@ import services.word.WordEnService;
 import services.word.WordService;
 import services.word.impl.WordServiceImpl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -19,6 +17,15 @@ public class WordTest extends WithApplication {
     WordService wordService;
 
     @Test
+    public void saveChinaDailyTitle() throws ExecutionException, InterruptedException {
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.link = "waiyu/14804689";
+        articleParam.startPage = 1;
+        articleParam.endPage = 32;
+        wordService.saveChinaDailyTitle(articleParam);
+    }
+
+    /*@Test
     public void listChinaDailyTitle() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();
         articleParam.link = "waiyu/14804689";
@@ -35,7 +42,7 @@ public class WordTest extends WithApplication {
         articlePageList.stream().map(v -> v.singleArticleLinkList).forEach(System.out::println);
         System.out.println("multi");
 //        articlePageList.stream().map(v -> v.multiArticleLinkList).forEach(System.out::println);
-    }
+    }*/
 
     @Test
     public void xiaShuo() throws ExecutionException, InterruptedException {

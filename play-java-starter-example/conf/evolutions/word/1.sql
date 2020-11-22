@@ -52,6 +52,20 @@ BEGIN
   EXECUTE stmt;
 END
 $$
+create table article_link (
+  id                            bigint auto_increment not null,
+  status                        tinyint unsigned default 1 comment '数据是否有效[0 无效,1 有效]' not null,
+  create_time                   datetime(6) default current_timestamp(6) comment '创建时间' not null,
+  update_time                   datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间' not null,
+  article_page                  integer,
+  article_index                 integer,
+  article_link_text             varchar(255),
+  article_link_title            varchar(255),
+  article_link_href             varchar(255),
+  article_type                  integer,
+  constraint pk_article_link primary key (id)
+);
+
 create table config (
   node                          varchar(32) comment '配置节点' not null,
   status                        tinyint unsigned default 1 comment '数据是否有效[0 无效,1 有效]' not null,
@@ -177,6 +191,8 @@ drop index ix_word_en_question_choice_knowledge on word_en_question_choice;
 
 alter table word_en_sentence drop foreign key fk_word_en_sentence_wordenextend;
 drop index ix_word_en_sentence_wordenextend on word_en_sentence;
+
+drop table if exists article_link;
 
 drop table if exists config;
 
