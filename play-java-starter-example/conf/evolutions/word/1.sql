@@ -57,12 +57,14 @@ create table article_link (
   status                        tinyint unsigned default 1 comment '数据是否有效[0 无效,1 有效]' not null,
   create_time                   datetime(6) default current_timestamp(6) comment '创建时间' not null,
   update_time                   datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间' not null,
-  article_page                  integer,
-  article_index                 integer,
-  article_link_text             varchar(255),
-  article_link_title            varchar(255),
-  article_link_href             varchar(255),
-  article_type                  integer,
+  article_page                  integer not null default 0 comment '页码',
+  article_index                 integer not null default 0 comment '序号',
+  article_link_text             varchar(128) not null default '' comment '文本',
+  article_link_title            varchar(128) not null default '' comment '标题',
+  article_link_href             varchar(128) not null default '' comment '链接',
+  article_type                  tinyint not null default 0 comment '类别[0 待处理, 1 单篇, 2 多篇,  -1 不处理]',
+  source                        varchar(32) comment '配置节点',
+  constraint uq_article_link_source_article_index unique (source,article_index),
   constraint pk_article_link primary key (id)
 );
 
@@ -153,6 +155,9 @@ create table word_en_sentence (
   constraint pk_word_en_sentence primary key (word,type,no,sentence)
 );
 
+create index ix_article_link_source on article_link (source);
+alter table article_link add constraint fk_article_link_source foreign key (source) references config (node) on delete restrict on update restrict;
+
 create index ix_config_parent on config (parent);
 alter table config add constraint fk_config_parent foreign key (parent) references config (node) on delete restrict on update restrict;
 
@@ -173,6 +178,9 @@ alter table word_en_sentence add constraint fk_word_en_sentence_wordenextend for
 
 
 # --- !Downs
+
+alter table article_link drop foreign key fk_article_link_source;
+drop index ix_article_link_source on article_link;
 
 alter table config drop foreign key fk_config_parent;
 drop index ix_config_parent on config;

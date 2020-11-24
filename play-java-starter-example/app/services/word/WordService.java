@@ -4,13 +4,14 @@ import models.word.ArticleLink;
 import models.word.vo.ArticlePage;
 import models.word.vo.ArticleParam;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface WordService {
 
     void saveChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException;
+
+    void updateChinaDailyArticleType(ArticleLink articleLink);
 
     boolean checkParam(ArticleParam articleParam);
 

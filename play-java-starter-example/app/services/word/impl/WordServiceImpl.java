@@ -8,13 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import services.dict.DictService;
 import services.word.WordService;
-import utils.StringUtil;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -30,23 +28,48 @@ public class WordServiceImpl implements WordService {
 
     private static final Logger logger = LoggerFactory.getLogger(WordService.class);
 
+    @Override
     public void saveChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);
         LinkedHashSet<ArticleLink> articleLinks = collectArticleLink(articleParam);
         articleLinkService.saveAll(articleLinks);
     }
 
-    public void updateChinaDailyArticleType() {
-        ArticleLink model = new ArticleLink();
-        List<ArticleLink> articleLinkList = articleLinkService.list(model);
-        for (ArticleLink articleLink: articleLinkList) {
-            if (articleLink.articleLinkText.contains("特别节目"))
+    @Override
+    public void updateChinaDailyArticleType(ArticleLink articleLink) {
+        List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
+        List<ArticleLink> tempList = new ArrayList<>();
+        for (ArticleLink articleLinkTemp : articleLinkList) {
+            if (articleLinkTemp.articleLinkText.contains("：")) {
+                String articleLinkTextPre = articleLinkTemp.articleLinkText.substring(0, articleLinkTemp.articleLinkText.indexOf("："));
+                if (articleLinkTextPre.equals("早间英文播报") || articleLinkTextPre.equals("早间英文播播报")
+                        || articleLinkTextPre.equals("早间英语新闻播报") || articleLinkTextPre.equals("早间英文新闻")
+                        || articleLinkTextPre.equals("早间英语播报") || articleLinkTextPre.equals("早间英文")) {
+                    articleLinkTemp.articleType = 1;
+                    tempList.add(articleLinkTemp);
+                } else if (articleLinkTextPre.contains("特别节目") || articleLinkTextPre.contains("新课试听") || articleLinkTextPre.contains("中国日报独家视频")) {
+                    articleLinkTemp.articleType = 3;
+                    tempList.add(articleLinkTemp);
+                }
+            } else {
+                if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目")
+                        || articleLinkTemp.articleLinkText.equals("今日立冬！话说中国节") || articleLinkTemp.articleLinkText.equals("Little New Year 小年")) {
+                    articleLinkTemp.articleType = 3;
+                    tempList.add(articleLinkTemp);
+                } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")
+                        || articleLinkTemp.articleLinkText.contains(":")
+                        || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
+                    articleLinkTemp.articleType = 1;
+                    tempList.add(articleLinkTemp);
+                }
+            }
         }
+        articleLinkService.updateAll(tempList);
     }
 
     private LinkedHashSet<ArticleLink> collectArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         LinkedHashSet<ArticleLink> articleLinks = new LinkedHashSet<>();
-        for (int i = articleParam.startPage; i < articleParam.endPage; i++) {
+        for (int i = articleParam.startPage; i <= articleParam.endPage; i++) {
             LinkedHashSet<String> linkedHashSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
             for (String s : linkedHashSet) {
                 String[] temp = s.split("#");
@@ -60,6 +83,7 @@ public class WordServiceImpl implements WordService {
                 articleLink.articleIndex = index;
                 articleLink.articleLinkText = linkText;
                 articleLink.articleLinkHref = href;
+                articleLink.articleLinkTitle = "";
                 articleLinks.add(articleLink);
             }
         }

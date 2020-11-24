@@ -33,6 +33,12 @@ public class ArticleLinkRepository extends ModelRepository<ArticleLink> {
         if (model.id != null) {
             expressionList.eq("id", model.id);
         }
+        if (model.articleIndex != null) {
+            expressionList.eq("articleIndex", model.articleIndex);
+        }
+        if (model.articleType != null) {
+            expressionList.eq("articleType", model.articleType);
+        }
         return expressionList;
     }
 }

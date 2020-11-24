@@ -1,3 +1,4 @@
+import models.word.ArticleLink;
 import models.word.WordEn;
 import models.word.vo.ArticleParam;
 import org.junit.After;
@@ -22,7 +23,15 @@ public class WordTest extends WithApplication {
         articleParam.link = "waiyu/14804689";
         articleParam.startPage = 1;
         articleParam.endPage = 32;
-        wordService.saveChinaDailyTitle(articleParam);
+        wordService.saveChinaDailyArticleLink(articleParam);
+    }
+
+    @Test
+    public void updateChinaDailyArticleType() throws ExecutionException, InterruptedException {
+        ArticleLink articleLink = new ArticleLink();
+//        articleLink.articleIndex = 539;
+//        articleLink.articleType = 4;
+        wordService.updateChinaDailyArticleType(articleLink);
     }
 
     /*@Test
