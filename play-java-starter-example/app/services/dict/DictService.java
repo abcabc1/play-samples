@@ -10,7 +10,6 @@ import utils.HtmlUtil;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
@@ -44,12 +43,12 @@ public class DictService {
         return ws.url(HOST_DICT + "/" + word).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractDictPhraseEn);
     }
 
-    public CompletionStage<LinkedList<String>> getXMLYXiaShuoTitle(String pageLink) {
-        return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYXiaShuoTitle);
+    public CompletionStage<LinkedHashSet<String>> getXiaShuoTitle(String pageLink) {
+        return ws.url(HOST_XMLY + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYTitle);
     }
 
-    public CompletionStage<LinkedHashSet<String>> getXMLYChinaDailyTitle(String pageLink) {
-        return ws.url(HOST_XMLY + "/" + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyTitle);
+    public CompletionStage<LinkedHashSet<String>> getXMLYTitle(String pageLink) {
+        return ws.url(HOST_XMLY + "/" + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYTitle);
     }
 
     public CompletionStage<List<String>> getXMLYXiaShuoArticle(String page) {

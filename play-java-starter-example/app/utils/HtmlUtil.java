@@ -110,31 +110,7 @@ public class HtmlUtil {
         return map;
     }
 
-    public static LinkedList<String> extractXMLYXiaShuoTitle(String html) {
-        Document document = Jsoup.parse(html);
-        LinkedHashSet<String> titleSet = new LinkedHashSet<>();
-        LinkedList<String> titleList = new LinkedList<>();
-        Elements indexElements = document.select(".num._Vc");
-        List<String> indexList = indexElements.eachText();
-        Elements elements = document.select(".text._Vc");
-        int i = 0;
-        for (Element element : elements) {
-            String title = "";
-            String text = element.text();
-            if (text.contains("（")) {
-                String index = indexList.get(i);
-                title = text.substring(0, text.indexOf("（"));
-                String href = element.select("a").attr("href");
-                if (titleSet.add(title)) {
-                    titleList.add(index + "#" + title + "#" + href);
-                }
-            }
-            i++;
-        }
-        return titleList;
-    }
-
-    public static LinkedHashSet<String> extractXMLYChinaDailyTitle(String html) {
+    public static LinkedHashSet<String> extractXMLYTitle(String html) {
         Document document = Jsoup.parse(html);
         LinkedHashSet<String> pageArticleTitleSet = new LinkedHashSet<>();
         String indexClass = ".num.lF_";

@@ -27,6 +27,15 @@ public class WordTest extends WithApplication {
     }
 
     @Test
+    public void saveXiaShuoTitle() throws ExecutionException, InterruptedException {
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.link = "waiyu/3240558";
+        articleParam.startPage = 1;
+        articleParam.endPage = 69;
+        wordService.saveChinaDailyArticleLink(articleParam);
+    }
+
+    @Test
     public void updateChinaDailyArticleType() throws ExecutionException, InterruptedException {
         ArticleLink articleLink = new ArticleLink();
 //        articleLink.articleIndex = 678;

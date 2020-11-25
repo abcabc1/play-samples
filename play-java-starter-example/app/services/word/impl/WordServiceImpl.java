@@ -12,9 +12,7 @@ import utils.StringUtil;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,7 @@ public class WordServiceImpl implements WordService {
     @Override
     public void saveChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);
-        LinkedHashSet<ArticleLink> articleLinks = collectArticleLink(articleParam);
+        LinkedHashSet<ArticleLink> articleLinks = collectChinaDailyArticleLink(articleParam);
         articleLinkService.saveAll(articleLinks);
     }
 
@@ -48,11 +46,9 @@ public class WordServiceImpl implements WordService {
                         || articleLinkTextLead.equals("早间英语新闻播报") || articleLinkTextLead.equals("早间英文新闻")
                         || articleLinkTextLead.equals("早间英语播报") || articleLinkTextLead.equals("早间英文")) {
                     articleLinkTemp.articleType = 1;
-//                    tempList.add(articleLinkTemp);
                 } else if (articleLinkTextLead.contains("特别节目") || articleLinkTextLead.contains("新课试听") || articleLinkTextLead.contains("中国日报独家视频")
                         || articleLinkTextLead.contains("中英文双语动画") || articleLinkTextLead.contains("中英文视频")) {
                     articleLinkTemp.articleType = -1;
-                    tempList.add(articleLinkTemp);
                 } else if (articleLinkTextLead.equals("") || articleLinkTextLead.equals("精选") || articleLinkTextLead.equals("热门音频")
                         || articleLinkTextLead.equals("英语新闻精选") || articleLinkTextLead.equals("英语音频") || articleLinkTextLead.equals("英语精选")
                         || articleLinkTextLead.equals("双语热门") || articleLinkTextLead.equals("双语新闻播报") || articleLinkTextLead.equals("双语新闻精选")
@@ -60,35 +56,32 @@ public class WordServiceImpl implements WordService {
                         || articleLinkTextLead.equals("午间双语播报") || articleLinkTextLead.equals("午间双语新闻") || articleLinkTextLead.equals("双语")
                         || articleLinkTextLead.equals("双语精选") || articleLinkTextLead.equals("热门") || articleLinkTextLead.equals("英语")) {
                     articleLinkTemp.articleType = 2;
-                    tempList.add(articleLinkTemp);
                 } else if (articleLinkTextLead.equals("英语新闻音频") || articleLinkTextLead.equals("英语新闻")) {
                     if (StringUtil.isChineseByScript(articleLinkTextTrail.charAt(0)) || StringUtil.isNumber(articleLinkTextTrail.charAt(0))) {
                         articleLinkTemp.articleType = 2;
                     } else if (StringUtil.isAlpha(articleLinkTextTrail.charAt(0))) {
                         articleLinkTemp.articleType = 1;
                     }
-                    tempList.add(articleLinkTemp);
                 }
             } else {
                 if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目")
                         || articleLinkTemp.articleLinkText.equals("今日立冬！话说中国节") || articleLinkTemp.articleLinkText.equals("Little New Year 小年")) {
                     articleLinkTemp.articleType = -1;
-//                    tempList.add(articleLinkTemp);
                 } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")
                         || articleLinkTemp.articleLinkText.contains(":")
                         || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
                     articleLinkTemp.articleType = 1;
-//                    tempList.add(articleLinkTemp);
                 }
             }
+            tempList.add(articleLinkTemp);
         }
         articleLinkService.updateAll(tempList);
     }
 
-    private LinkedHashSet<ArticleLink> collectArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+    private LinkedHashSet<ArticleLink> collectChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         LinkedHashSet<ArticleLink> articleLinks = new LinkedHashSet<>();
         for (int i = articleParam.startPage; i <= articleParam.endPage; i++) {
-            LinkedHashSet<String> linkedHashSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
+            LinkedHashSet<String> linkedHashSet = dictService.getXMLYTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
             for (String s : linkedHashSet) {
                 String[] temp = s.split("#");
                 Integer index = Integer.parseInt(temp[0]);
@@ -108,6 +101,40 @@ public class WordServiceImpl implements WordService {
         return articleLinks;
     }
 
+    private LinkedHashSet<ArticleLink> collectXSArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+        LinkedHashSet<ArticleLink> articleLinks = new LinkedHashSet<>();
+        Set<String> titleSet = new HashSet<>();
+        for (int i = articleParam.startPage; i <= articleParam.endPage; i++) {
+            LinkedHashSet<String> linkedHashSet = dictService.getXiaShuoTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
+            for (String s : linkedHashSet) {
+                String[] temp = s.split("#");
+                Integer index = Integer.parseInt(temp[0]);
+                String linkText = temp[1];
+                if (linkText.contains("万娘娘") || linkText.contains("晚间一首歌") || linkText.contains("友邻优课周年纪念版")
+                        || linkText.contains("春节晨读公告更新") || linkText.contains("祝祖国母亲生日快乐") || linkText.contains("直播回听")
+                        || linkText.contains("十个海子在春天复活") || linkText.contains("特刊")) {
+                    continue;
+                } else if (linkText.contains("|")) {
+                    linkText = linkText.substring(0, linkText.indexOf("|"));
+                } else if (linkText.contains("｜")) {
+                    linkText = linkText.substring(0, linkText.indexOf("｜"));
+                }
+                linkText = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(linkText.replaceAll("（朗读版）", "").replaceAll("（讲解版）", "")));
+                if (!titleSet.add(linkText)) {
+                    continue;
+                }
+                String href = temp[2];
+                ArticleLink articleLink = new ArticleLink();
+                articleLink.articlePage = i;
+                articleLink.articleIndex = index;
+                articleLink.articleLinkText = linkText;
+                articleLink.articleLinkHref = href;
+                articleLink.articleLinkTitle = "";
+                articleLinks.add(articleLink);
+            }
+        }
+        return articleLinks;
+    }
    /* @Override
     public List<ArticlePage> listWordEnArticleTitle4XMLY(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);

@@ -42,13 +42,13 @@ public class WordEnService {
 
     @Transactional
     public void loadXiaShuoArticle(ArticleParam articleParam) throws ExecutionException, InterruptedException {
-        if (articleParam.link == null || articleParam.link.isEmpty()) {
+        /*if (articleParam.link == null || articleParam.link.isEmpty()) {
             return;
         }
         List<Integer> pageList = listArticlePage(articleParam);
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         for (Integer page : pageList) {
-            LinkedList<String> titleList = dictService.getXMLYXiaShuoTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
+            LinkedList<String> titleList = dictService.getXiaShuoTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
             for (String titleText : titleList) {
                 System.out.println(titleText);
                 String[] titleStr = titleText.split("#");
@@ -72,7 +72,7 @@ public class WordEnService {
                 wordEnArticleList.add(wordEnArticle);
             }
         }
-        wordEnArticleRepository.insertAll(wordEnArticleList);
+        wordEnArticleRepository.insertAll(wordEnArticleList);*/
     }
 
     private List<Integer> listArticlePage(ArticleParam articleParam) {
@@ -111,7 +111,7 @@ public class WordEnService {
         List<Integer> pageList = listArticlePage(articleParam);
         for (Integer page : pageList) {
             // list article links of current page
-            LinkedHashSet<String> pageTitleSet = dictService.getXMLYChinaDailyTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
+            LinkedHashSet<String> pageTitleSet = dictService.getXMLYTitle(articleParam.link + "/p" + page).toCompletableFuture().get();
             for (String pageTitle : pageTitleSet) {
                 ArticleLink articleLink = new ArticleLink();
                 String[] temp = pageTitle.split("#");
