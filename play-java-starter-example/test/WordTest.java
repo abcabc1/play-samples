@@ -29,8 +29,8 @@ public class WordTest extends WithApplication {
     @Test
     public void updateChinaDailyArticleType() throws ExecutionException, InterruptedException {
         ArticleLink articleLink = new ArticleLink();
-//        articleLink.articleIndex = 539;
-//        articleLink.articleType = 4;
+//        articleLink.articleIndex = 678;
+        articleLink.articleType = 0;
         wordService.updateChinaDailyArticleType(articleLink);
     }
 

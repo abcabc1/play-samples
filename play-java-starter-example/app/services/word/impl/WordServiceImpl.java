@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import services.dict.DictService;
 import services.word.WordService;
+import utils.StringUtil;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
@@ -41,26 +42,43 @@ public class WordServiceImpl implements WordService {
         List<ArticleLink> tempList = new ArrayList<>();
         for (ArticleLink articleLinkTemp : articleLinkList) {
             if (articleLinkTemp.articleLinkText.contains("：")) {
-                String articleLinkTextPre = articleLinkTemp.articleLinkText.substring(0, articleLinkTemp.articleLinkText.indexOf("："));
-                if (articleLinkTextPre.equals("早间英文播报") || articleLinkTextPre.equals("早间英文播播报")
-                        || articleLinkTextPre.equals("早间英语新闻播报") || articleLinkTextPre.equals("早间英文新闻")
-                        || articleLinkTextPre.equals("早间英语播报") || articleLinkTextPre.equals("早间英文")) {
+                String articleLinkTextLead = articleLinkTemp.articleLinkText.substring(0, articleLinkTemp.articleLinkText.indexOf("："));
+                String articleLinkTextTrail = StringUtils.trimLeadingWhitespace(articleLinkTemp.articleLinkText.substring(articleLinkTemp.articleLinkText.indexOf("：") + 1));
+                if (articleLinkTextLead.equals("早间英文播报") || articleLinkTextLead.equals("早间英文播播报")
+                        || articleLinkTextLead.equals("早间英语新闻播报") || articleLinkTextLead.equals("早间英文新闻")
+                        || articleLinkTextLead.equals("早间英语播报") || articleLinkTextLead.equals("早间英文")) {
                     articleLinkTemp.articleType = 1;
+//                    tempList.add(articleLinkTemp);
+                } else if (articleLinkTextLead.contains("特别节目") || articleLinkTextLead.contains("新课试听") || articleLinkTextLead.contains("中国日报独家视频")
+                        || articleLinkTextLead.contains("中英文双语动画") || articleLinkTextLead.contains("中英文视频")) {
+                    articleLinkTemp.articleType = -1;
                     tempList.add(articleLinkTemp);
-                } else if (articleLinkTextPre.contains("特别节目") || articleLinkTextPre.contains("新课试听") || articleLinkTextPre.contains("中国日报独家视频")) {
-                    articleLinkTemp.articleType = 3;
+                } else if (articleLinkTextLead.equals("") || articleLinkTextLead.equals("精选") || articleLinkTextLead.equals("热门音频")
+                        || articleLinkTextLead.equals("英语新闻精选") || articleLinkTextLead.equals("英语音频") || articleLinkTextLead.equals("英语精选")
+                        || articleLinkTextLead.equals("双语热门") || articleLinkTextLead.equals("双语新闻播报") || articleLinkTextLead.equals("双语新闻精选")
+                        || articleLinkTextLead.equals("午间英语新闻") || articleLinkTextLead.equals("热门双语") || articleLinkTextLead.equals("双语新闻")
+                        || articleLinkTextLead.equals("午间双语播报") || articleLinkTextLead.equals("午间双语新闻") || articleLinkTextLead.equals("双语")
+                        || articleLinkTextLead.equals("双语精选") || articleLinkTextLead.equals("热门") || articleLinkTextLead.equals("英语")) {
+                    articleLinkTemp.articleType = 2;
+                    tempList.add(articleLinkTemp);
+                } else if (articleLinkTextLead.equals("英语新闻音频") || articleLinkTextLead.equals("英语新闻")) {
+                    if (StringUtil.isChineseByScript(articleLinkTextTrail.charAt(0)) || StringUtil.isNumber(articleLinkTextTrail.charAt(0))) {
+                        articleLinkTemp.articleType = 2;
+                    } else if (StringUtil.isAlpha(articleLinkTextTrail.charAt(0))) {
+                        articleLinkTemp.articleType = 1;
+                    }
                     tempList.add(articleLinkTemp);
                 }
             } else {
                 if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目")
                         || articleLinkTemp.articleLinkText.equals("今日立冬！话说中国节") || articleLinkTemp.articleLinkText.equals("Little New Year 小年")) {
-                    articleLinkTemp.articleType = 3;
-                    tempList.add(articleLinkTemp);
+                    articleLinkTemp.articleType = -1;
+//                    tempList.add(articleLinkTemp);
                 } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")
                         || articleLinkTemp.articleLinkText.contains(":")
                         || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
                     articleLinkTemp.articleType = 1;
-                    tempList.add(articleLinkTemp);
+//                    tempList.add(articleLinkTemp);
                 }
             }
         }
@@ -75,7 +93,7 @@ public class WordServiceImpl implements WordService {
                 String[] temp = s.split("#");
                 Integer index = Integer.parseInt(temp[0]);
                 String linkText = temp[1].replaceAll("^\\d{1,2}\\.\\d{1,2}", "").replaceAll("^\\d{1,2}月\\d{1,2}[日月号]", "")
-                        .replaceAll("Jan\\s\\d{1,2}|Feb\\s\\d{1,2}|Mar\\s\\d{1,2}|Apr\\s\\d{1,2}|May\\s\\d{1,2}|Jun\\s\\d{1,2}|July\\s\\d{1,2}|Aug\\s\\d{1,2}|Sep\\s\\d{1,2}|Oct\\s\\d{1,2}|Nov\\s\\d{1,2}|Dec\\s\\d{1,2}", "");
+                        .replaceAll("Jan\\s\\d{1,2}|Feb\\s\\d{1,2}|Mar\\s\\d{1,2}|Apr\\s\\d{1,2}|May\\s\\d{1,2}|Jun\\s\\d{1,2}|July\\s\\d{1,2}|Aug\\s\\d{1,2}|Sep\\s\\d{1,2}|Oct\\s\\d{1,2}|Nov\\s\\d{1,2}|Dec\\s\\d{1,2}|April\\s\\d{1,2}", "");
                 linkText = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(linkText));
                 String href = temp[2];
                 ArticleLink articleLink = new ArticleLink();
