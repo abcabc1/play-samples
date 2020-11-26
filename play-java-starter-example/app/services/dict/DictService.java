@@ -1,7 +1,7 @@
 package services.dict;
 
-import models.word.vo.Article;
 import models.word.ArticleLink;
+import models.word.vo.Article;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
@@ -51,8 +51,8 @@ public class DictService {
         return ws.url(HOST_XMLY + "/" + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYTitle);
     }
 
-    public CompletionStage<List<String>> getXMLYXiaShuoArticle(String page) {
-        return ws.url(HOST_XMLY + page).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYXiaShuoArticle);
+    public CompletionStage<List<String>> getXSArticle(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + "/" + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXSArticle);
     }
 
     /*public CompletionStage<List<String>> getXMLYChinaDailyArticle(boolean isSingle, String pageLink) {

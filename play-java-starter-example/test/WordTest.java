@@ -1,3 +1,4 @@
+import models.common.Config;
 import models.word.ArticleLink;
 import models.word.WordEn;
 import models.word.vo.ArticleParam;
@@ -32,7 +33,7 @@ public class WordTest extends WithApplication {
         articleParam.link = "waiyu/3240558";
         articleParam.startPage = 1;
         articleParam.endPage = 69;
-        wordService.saveChinaDailyArticleLink(articleParam);
+        wordService.saveXSArticleLink(articleParam);
     }
 
     @Test
@@ -43,6 +44,16 @@ public class WordTest extends WithApplication {
         wordService.updateChinaDailyArticleType(articleLink);
     }
 
+    @Test
+    public void saveXSArticle() throws ExecutionException, InterruptedException {
+        Config config = new Config();
+        config.node = "xia_shuo";
+        ArticleLink articleLink = new ArticleLink();
+        articleLink.source = config;
+        articleLink.articleType = 0;
+        articleLink.articleIndex = 426;
+        wordService.saveXSArticle(articleLink);
+    }
     /*@Test
     public void listChinaDailyTitle() throws ExecutionException, InterruptedException {
         ArticleParam articleParam = new ArticleParam();

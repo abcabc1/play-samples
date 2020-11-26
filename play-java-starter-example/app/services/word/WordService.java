@@ -17,6 +17,10 @@ public interface WordService {
 
     List<ArticlePage> listPage(ArticleParam articleParam);
 
+    void saveXSArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException;
+
+    void saveXSArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException;
+
 //    List<ArticlePage> listWordEnArticleTitle4XMLY(ArticleParam articleParam) throws ExecutionException, InterruptedException;
 //    LinkedList<ArticleLink> listArticleLink(ArticleParam articleParam, List<ArticlePage> pageList) throws ExecutionException, InterruptedException;
 

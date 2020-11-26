@@ -128,7 +128,7 @@ public class HtmlUtil {
         return pageArticleTitleSet;
     }
 
-    public static List<String> extractXMLYXiaShuoArticle(String html) {
+    public static List<String> extractXSArticle(String html) {
         Document document = Jsoup.parse(html);
         List<String> articleList = new ArrayList<>();
         List<String> pTextList = document.select("p[data-flag]").eachText();

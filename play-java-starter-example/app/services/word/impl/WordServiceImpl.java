@@ -1,6 +1,8 @@
 package services.word.impl;
 
+import models.common.Config;
 import models.word.ArticleLink;
+import models.word.WordEnArticle;
 import models.word.vo.ArticlePage;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
@@ -25,13 +27,43 @@ public class WordServiceImpl implements WordService {
     @Inject
     ArticleLinkServiceImpl articleLinkService;
 
+    @Inject
+    WordEnArticleServiceImpl wordEnArticleService;
+
     private static final Logger logger = LoggerFactory.getLogger(WordService.class);
+
+    @Override
+    public void saveXSArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
+        checkParam(articleParam);
+        LinkedHashSet<ArticleLink> articleLinks = collectXSArticleLink(articleParam);
+        articleLinkService.saveAll(articleLinks);
+    }
 
     @Override
     public void saveChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);
         LinkedHashSet<ArticleLink> articleLinks = collectChinaDailyArticleLink(articleParam);
         articleLinkService.saveAll(articleLinks);
+    }
+
+    @Override
+    public void saveXSArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+        List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
+        for (int i = 0; i < articleLinkList.size(); i++) {
+            List<String> list = dictService.getXSArticle(articleLink).toCompletableFuture().get();
+            list.size();
+        }
+        wordEnArticleService.saveAll(wordEnArticleList);
+    }
+
+    public void saveChinaDailyArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+        List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
+        for (int i = 0; i < articleLinkList.size(); i++) {
+            dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+        }
+        wordEnArticleService.saveAll(wordEnArticleList);
     }
 
     @Override
@@ -80,6 +112,8 @@ public class WordServiceImpl implements WordService {
 
     private LinkedHashSet<ArticleLink> collectChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         LinkedHashSet<ArticleLink> articleLinks = new LinkedHashSet<>();
+        Config config = new Config();
+        config.node = "china_daily";
         for (int i = articleParam.startPage; i <= articleParam.endPage; i++) {
             LinkedHashSet<String> linkedHashSet = dictService.getXMLYTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
             for (String s : linkedHashSet) {
@@ -95,6 +129,7 @@ public class WordServiceImpl implements WordService {
                 articleLink.articleLinkText = linkText;
                 articleLink.articleLinkHref = href;
                 articleLink.articleLinkTitle = "";
+                articleLink.source = config;
                 articleLinks.add(articleLink);
             }
         }
@@ -103,9 +138,11 @@ public class WordServiceImpl implements WordService {
 
     private LinkedHashSet<ArticleLink> collectXSArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         LinkedHashSet<ArticleLink> articleLinks = new LinkedHashSet<>();
+        Config config = new Config();
+        config.node = "xia_shuo";
         Set<String> titleSet = new HashSet<>();
         for (int i = articleParam.startPage; i <= articleParam.endPage; i++) {
-            LinkedHashSet<String> linkedHashSet = dictService.getXiaShuoTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
+            LinkedHashSet<String> linkedHashSet = dictService.getXMLYTitle(articleParam.link + "/p" + i).toCompletableFuture().get();
             for (String s : linkedHashSet) {
                 String[] temp = s.split("#");
                 Integer index = Integer.parseInt(temp[0]);
@@ -119,7 +156,16 @@ public class WordServiceImpl implements WordService {
                 } else if (linkText.contains("｜")) {
                     linkText = linkText.substring(0, linkText.indexOf("｜"));
                 }
-                linkText = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(linkText.replaceAll("（朗读版）", "").replaceAll("（讲解版）", "")));
+                linkText = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(
+                        linkText.replaceAll("（朗读版）", "").replaceAll("（讲解版）", "")
+                                .replaceAll("（慢速版）", "").replaceAll("（慢速听写版）", "")
+                                .replaceAll("（暴虐朗读试听版1）", "").replaceAll("（暴虐朗读版1）", "")
+                                .replaceAll("（听写版）", "").replaceAll("（暴虐跟读版）", "")
+                                .replaceAll("（慢速听写训练-听写导语）", "").replaceAll("（慢速听写训练-慢速1）", "")
+                                .replaceAll("（慢速听写训练-慢速2）", "").replaceAll("（慢速听写训练-慢速3）", "")
+                                .replaceAll("（例句朗读版）", "").replaceAll("（credit的用法）", "")
+                                .replaceAll("（虚拟语气竟然这么简单）", "").replaceAll("（慢速朗读版）", "")
+                                .replaceAll("（reckon的用法）", "")));
                 if (!titleSet.add(linkText)) {
                     continue;
                 }
@@ -128,8 +174,9 @@ public class WordServiceImpl implements WordService {
                 articleLink.articlePage = i;
                 articleLink.articleIndex = index;
                 articleLink.articleLinkText = linkText;
+                articleLink.articleLinkTitle = linkText;
                 articleLink.articleLinkHref = href;
-                articleLink.articleLinkTitle = "";
+                articleLink.source = config;
                 articleLinks.add(articleLink);
             }
         }
