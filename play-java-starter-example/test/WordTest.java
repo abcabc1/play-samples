@@ -51,7 +51,7 @@ public class WordTest extends WithApplication {
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 0;
-        articleLink.articleIndex = 426;
+//        articleLink.articleIndex = 139;
         wordService.saveXSArticle(articleLink);
     }
     /*@Test

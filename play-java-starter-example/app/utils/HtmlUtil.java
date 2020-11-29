@@ -128,28 +128,39 @@ public class HtmlUtil {
         return pageArticleTitleSet;
     }
 
-    public static List<String> extractXSArticle(String html) {
+    public static String extractXSArticle(String html) {
         Document document = Jsoup.parse(html);
-        List<String> articleList = new ArrayList<>();
         List<String> pTextList = document.select("p[data-flag]").eachText();
-        int startIndex = 0, endIndex = 0;
+        boolean contentFlag = false;
+        String content = "";
         for (int i = 0; i < pTextList.size(); i++) {
             String pText = pTextList.get(i);
             if (pText.contains("原文")) {
-                startIndex = i;
-            }
-            if (pText.contains("语言点")) {
-                endIndex = i;
+                contentFlag = true;
+                continue;
+            } else if (pText.contains("语言点")) {
                 break;
             }
+            if (contentFlag) {
+                content += pText;
+            }
         }
-        if (startIndex == 0 || endIndex == 0) {
-            return null;
+        contentFlag = false;
+        if (content.isEmpty()) {
+            pTextList = document.select("p").eachText();
+            for (int i = 0; i < pTextList.size(); i++) {
+                String pText = pTextList.get(i);
+                if (pText.contains("小雅音箱")) {
+                    contentFlag = true;
+                    continue;
+                }
+                if (contentFlag) {
+                    content += pText;
+                    break;
+                }
+            }
         }
-        for (int j = startIndex + 1; j < endIndex; j++) {
-            articleList.add(pTextList.get(j));
-        }
-        return articleList;
+        return content;
     }
 
     public static String extractXMLYChinaDailyArticleSingle(String html) {

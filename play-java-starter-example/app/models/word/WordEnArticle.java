@@ -17,9 +17,6 @@ public class WordEnArticle extends BaseModel {
 
     public Integer articleIndex;
 
-    @Column(nullable = true, columnDefinition = "varchar(128) default '' comment '链接标题'")
-    public String linkTitle;
-
     @Column(nullable = true, columnDefinition = "varchar(128) default '' comment '标题'")
     public String title;
 
@@ -46,7 +43,6 @@ public class WordEnArticle extends BaseModel {
     public String toString() {
         return "WordEnArticle{" +
                 "articleIndex=" + articleIndex +
-                ", linkTitle='" + linkTitle + '\'' +
                 ", title='" + title + '\'' +
                 ", titleNote='" + titleNote + '\'' +
                 '}';

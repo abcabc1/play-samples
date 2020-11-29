@@ -51,8 +51,8 @@ public class DictService {
         return ws.url(HOST_XMLY + "/" + pageLink).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYTitle);
     }
 
-    public CompletionStage<List<String>> getXSArticle(ArticleLink articleLink) {
-        return ws.url(HOST_XMLY + "/" + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXSArticle);
+    public CompletionStage<String> getXSArticle(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXSArticle);
     }
 
     /*public CompletionStage<List<String>> getXMLYChinaDailyArticle(boolean isSingle, String pageLink) {

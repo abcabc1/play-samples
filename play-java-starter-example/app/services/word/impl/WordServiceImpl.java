@@ -1,5 +1,6 @@
 package services.word.impl;
 
+import com.google.common.collect.Lists;
 import models.common.Config;
 import models.word.ArticleLink;
 import models.word.WordEnArticle;
@@ -50,11 +51,22 @@ public class WordServiceImpl implements WordService {
     public void saveXSArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
-        for (int i = 0; i < articleLinkList.size(); i++) {
-            List<String> list = dictService.getXSArticle(articleLink).toCompletableFuture().get();
-            list.size();
+        for (ArticleLink articleLinkTemp : articleLinkList) {
+            String content = dictService.getXSArticle(articleLinkTemp).toCompletableFuture().get();
+            if (content.isEmpty()) {
+                continue;
+            }
+            WordEnArticle wordEnArticle = new WordEnArticle();
+            wordEnArticle.content = content;
+            wordEnArticle.title = articleLinkTemp.articleLinkTitle;
+            wordEnArticle.articleIndex = articleLinkTemp.articleIndex;
+            wordEnArticle.source = articleLinkTemp.source;
+            wordEnArticle.answer = "";
+            wordEnArticleList.add(wordEnArticle);
         }
-        wordEnArticleService.saveAll(wordEnArticleList);
+        Lists.partition(wordEnArticleList, 100).forEach(v -> {
+            wordEnArticleService.saveAll(wordEnArticleList);
+        });
     }
 
     public void saveChinaDailyArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {

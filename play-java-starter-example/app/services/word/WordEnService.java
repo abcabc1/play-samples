@@ -165,7 +165,6 @@ public class WordEnService {
                     WordEnArticle wordEnArticle = new WordEnArticle();
                     wordEnArticle.source = config;
                     wordEnArticle.answer = "";
-                    wordEnArticle.linkTitle = articleLink.articleLinkTitle;
                     wordEnArticle.articleIndex = articleLink.articleIndex;
                     wordEnArticle.title = articleLink.articleLinkTitle;
                     wordEnArticle.content = articleContent;
@@ -180,8 +179,6 @@ public class WordEnService {
                         WordEnArticle wordEnArticle = new WordEnArticle();
                         wordEnArticle.source = config;
                         wordEnArticle.articleIndex = article.articleLink.articleIndex;
-                        wordEnArticle.linkTitle = article.articleLink.articleLinkTitle;
-                        wordEnArticle.linkTitle = article.articleLink.articleLinkTitle;
                         wordEnArticle.answer = "";
                         wordEnArticle.title = article.title;
                         wordEnArticle.titleNote = article.titleNote;

@@ -104,7 +104,6 @@ create table word_en_article (
   create_time                   datetime(6) default current_timestamp(6) comment '创建时间' not null,
   update_time                   datetime(6) default current_timestamp(6) on update current_timestamp(6) comment '修改时间' not null,
   article_index                 integer,
-  link_title                    varchar(128) default '' comment '链接标题',
   title                         varchar(128) default '' comment '标题',
   title_note                    varchar(128) default '' comment '标题翻译',
   content                       text comment '内容',
