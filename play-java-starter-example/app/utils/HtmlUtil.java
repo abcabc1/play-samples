@@ -160,6 +160,9 @@ public class HtmlUtil {
                 }
             }
         }
+        if (content.equals("教书匠小夏")) {
+            content = document.selectFirst("article").selectFirst("span").text();
+        }
         return content;
     }
 

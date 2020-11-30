@@ -64,9 +64,9 @@ public class WordServiceImpl implements WordService {
             wordEnArticle.answer = "";
             wordEnArticleList.add(wordEnArticle);
         }
-        Lists.partition(wordEnArticleList, 100).forEach(v -> {
+        /*Lists.partition(wordEnArticleList, 100).forEach(v -> {
             wordEnArticleService.saveAll(wordEnArticleList);
-        });
+        });*/
     }
 
     public void saveChinaDailyArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
