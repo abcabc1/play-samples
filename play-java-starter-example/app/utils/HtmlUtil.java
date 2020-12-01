@@ -1,7 +1,7 @@
 package utils;
 
-import models.word.vo.Article;
 import models.word.ArticleLink;
+import models.word.vo.Article;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -161,7 +161,18 @@ public class HtmlUtil {
             }
         }
         if (content.equals("教书匠小夏")) {
-            content = document.selectFirst("article").selectFirst("span").text();
+            Element element = document.selectFirst("article");
+            if (element == null) {
+                return "";
+            }
+            content = element.text();
+            if (content == null || content.isEmpty()) {
+                element = element.selectFirst("span");
+                if (element == null) {
+                    return "";
+                }
+                content = element.text();
+            }
         }
         return content;
     }

@@ -51,8 +51,18 @@ public class WordTest extends WithApplication {
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 0;
-        articleLink.articleIndex = 1;
+//        articleLink.articleIndex = 19;
         wordService.saveXSArticle(articleLink);
+    }
+
+    @Test
+    public void saveChinaDailyArticle() {
+        Config config = new Config();
+        config.node = "xia_shuo";
+        ArticleLink articleLink = new ArticleLink();
+        articleLink.source = config;
+        articleLink.articleType = 0;
+        wordService.saveChinaDailyArticle(articleLink);
     }
     /*@Test
     public void listChinaDailyTitle() throws ExecutionException, InterruptedException {

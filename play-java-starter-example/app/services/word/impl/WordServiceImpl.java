@@ -1,6 +1,7 @@
 package services.word.impl;
 
 import com.google.common.collect.Lists;
+import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.ArticleLink;
 import models.word.WordEnArticle;
@@ -34,6 +35,7 @@ public class WordServiceImpl implements WordService {
     private static final Logger logger = LoggerFactory.getLogger(WordService.class);
 
     @Override
+    @Transactional
     public void saveXSArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);
         LinkedHashSet<ArticleLink> articleLinks = collectXSArticleLink(articleParam);
@@ -48,10 +50,12 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
+    @Transactional
     public void saveXSArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
+            logger.info(articleLinkTemp.toString());
             String content = dictService.getXSArticle(articleLinkTemp).toCompletableFuture().get();
             if (content.isEmpty()) {
                 continue;
@@ -64,16 +68,47 @@ public class WordServiceImpl implements WordService {
             wordEnArticle.answer = "";
             wordEnArticleList.add(wordEnArticle);
         }
-        /*Lists.partition(wordEnArticleList, 100).forEach(v -> {
+        Lists.partition(wordEnArticleList, 100).forEach(v -> {
             wordEnArticleService.saveAll(wordEnArticleList);
-        });*/
+        });
     }
 
-    public void saveChinaDailyArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+    public void saveChinaDailyArticleSingle(ArticleLink articleLink) throws ExecutionException, InterruptedException {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
-        for (int i = 0; i < articleLinkList.size(); i++) {
-            dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+        for (ArticleLink articleLinkTemp : articleLinkList) {
+            logger.info(articleLinkTemp.toString());
+            String content = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+            if (content.isEmpty()) {
+                continue;
+            }
+            WordEnArticle wordEnArticle = new WordEnArticle();
+            wordEnArticle.content = content;
+            wordEnArticle.title = articleLinkTemp.articleLinkTitle;
+            wordEnArticle.articleIndex = articleLinkTemp.articleIndex;
+            wordEnArticle.source = articleLinkTemp.source;
+            wordEnArticle.answer = "";
+            wordEnArticleList.add(wordEnArticle);
+        }
+        wordEnArticleService.saveAll(wordEnArticleList);
+    }
+
+    public void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+        List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
+        for (ArticleLink articleLinkTemp : articleLinkList) {
+            logger.info(articleLinkTemp.toString());
+            String content = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+            if (content.isEmpty()) {
+                continue;
+            }
+            WordEnArticle wordEnArticle = new WordEnArticle();
+            wordEnArticle.content = content;
+            wordEnArticle.title = articleLinkTemp.articleLinkTitle;
+            wordEnArticle.articleIndex = articleLinkTemp.articleIndex;
+            wordEnArticle.source = articleLinkTemp.source;
+            wordEnArticle.answer = "";
+            wordEnArticleList.add(wordEnArticle);
         }
         wordEnArticleService.saveAll(wordEnArticleList);
     }

@@ -35,9 +35,32 @@ public class StringUtil {
         return c >= 48 && c <= 57;
     }
 
+    public static String getFirstChinese(String s) {
+        String result = "";
+        int chineseIndex = indexOfChinese(s);
+        if (chineseIndex == -1) {
+            return result;
+        }
+        int startCn = 0;
+        int endCn = 0;
+        char[] chars = s.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            boolean chineseFlag = isChineseByScript(chars[i]);
+            if (startCn == 0 && chineseFlag) {
+                startCn = i;
+            }
+            if (startCn != 0 && !chineseFlag) {
+                endCn = i;
+                break;
+            }
+        }
+        result = s.substring(startCn, endCn);
+        return result;
+    }
+
     public static boolean isChineseByScript(char c) {
         Character.UnicodeScript sc = Character.UnicodeScript.of(c);
-        return  sc == Character.UnicodeScript.HAN;
+        return sc == Character.UnicodeScript.HAN;
     }
 
     public static int indexOfChinese(String str) {
