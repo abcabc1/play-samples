@@ -38,8 +38,11 @@ public class WordTest extends WithApplication {
 
     @Test
     public void updateChinaDailyArticleType() throws ExecutionException, InterruptedException {
+        Config config = new Config();
+        config.node = "china_daily";
         ArticleLink articleLink = new ArticleLink();
 //        articleLink.articleIndex = 678;
+        articleLink.source = config;
         articleLink.articleType = 0;
         wordService.updateChinaDailyArticleType(articleLink);
     }
@@ -56,13 +59,13 @@ public class WordTest extends WithApplication {
     }
 
     @Test
-    public void saveChinaDailyArticle() {
+    public void saveChinaDailyArticle() throws ExecutionException, InterruptedException {
         Config config = new Config();
         config.node = "xia_shuo";
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 0;
-        wordService.saveChinaDailyArticle(articleLink);
+        wordService.saveChinaDailyArticleSingle(articleLink);
     }
     /*@Test
     public void listChinaDailyTitle() throws ExecutionException, InterruptedException {

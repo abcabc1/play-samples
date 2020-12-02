@@ -21,7 +21,9 @@ public interface WordService {
 
     void saveXSArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException;
 
-    void saveChinaDailyArticle(ArticleLink articleLink) throws ExecutionException, InterruptedException;
+    void saveChinaDailyArticleSingle(ArticleLink articleLink) throws ExecutionException, InterruptedException;
+
+    void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException;
 
 //    List<ArticlePage> listWordEnArticleTitle4XMLY(ArticleParam articleParam) throws ExecutionException, InterruptedException;
 //    LinkedList<ArticleLink> listArticleLink(ArticleParam articleParam, List<ArticlePage> pageList) throws ExecutionException, InterruptedException;

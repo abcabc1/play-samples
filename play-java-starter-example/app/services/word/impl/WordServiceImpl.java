@@ -142,6 +142,9 @@ public class WordServiceImpl implements WordService {
                         articleLinkTemp.articleType = 1;
                     }
                 }
+                if (articleLinkTemp.articleType != -1) {
+                    articleLinkTemp.articleLinkTitle = articleLinkTextTrail;
+                }
             } else {
                 if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目")
                         || articleLinkTemp.articleLinkText.equals("今日立冬！话说中国节") || articleLinkTemp.articleLinkText.equals("Little New Year 小年")) {
@@ -150,6 +153,7 @@ public class WordServiceImpl implements WordService {
                         || articleLinkTemp.articleLinkText.contains(":")
                         || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
                     articleLinkTemp.articleType = 1;
+                    articleLinkTemp.articleLinkTitle = "";
                 }
             }
             tempList.add(articleLinkTemp);
@@ -223,6 +227,7 @@ public class WordServiceImpl implements WordService {
                 articleLink.articleLinkText = linkText;
                 articleLink.articleLinkTitle = linkText;
                 articleLink.articleLinkHref = href;
+                articleLink.articleType = 1;
                 articleLink.source = config;
                 articleLinks.add(articleLink);
             }
