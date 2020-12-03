@@ -152,8 +152,11 @@ public class WordServiceImpl implements WordService {
                 } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")
                         || articleLinkTemp.articleLinkText.contains(":")
                         || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
+                    String text = articleLinkTemp.articleLinkText.replaceAll("\\|", ":").replaceAll("︱", ":");//.replaceAll("｜", ":");
+                    logger.info(articleLinkTemp.toString());
+                    String title = StringUtils.trimLeadingWhitespace(text.substring(text.indexOf(":") + 1));
                     articleLinkTemp.articleType = 1;
-                    articleLinkTemp.articleLinkTitle = "";
+                    articleLinkTemp.articleLinkTitle = title;
                 }
             }
             tempList.add(articleLinkTemp);

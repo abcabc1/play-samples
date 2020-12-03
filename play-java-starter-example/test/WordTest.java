@@ -37,7 +37,7 @@ public class WordTest extends WithApplication {
     }
 
     @Test
-    public void updateChinaDailyArticleType() throws ExecutionException, InterruptedException {
+    public void updateChinaDailyArticleType() {
         Config config = new Config();
         config.node = "china_daily";
         ArticleLink articleLink = new ArticleLink();

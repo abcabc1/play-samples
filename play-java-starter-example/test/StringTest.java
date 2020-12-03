@@ -46,4 +46,11 @@ public class StringTest {
         String result = StringUtil.getFirstChinese(s);
         System.out.println(result);
     }
+
+    @Test
+    public void testSub() {
+        String s  = "abc";
+        String s1=  s.substring(s.indexOf(":") + 1);
+        System.out.println(s1);
+    }
 }
