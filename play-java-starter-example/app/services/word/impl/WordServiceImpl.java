@@ -152,7 +152,8 @@ public class WordServiceImpl implements WordService {
                 } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")
                         || articleLinkTemp.articleLinkText.contains(":")
                         || articleLinkTemp.articleLinkText.contains("早间英文播报") || articleLinkTemp.articleLinkText.contains("早间新闻播报") || articleLinkTemp.articleLinkText.contains("早间英语播报")) {
-                    String text = articleLinkTemp.articleLinkText.replaceAll("\\|", ":").replaceAll("︱", ":");//.replaceAll("｜", ":");
+                    String text = articleLinkTemp.articleLinkText.replaceAll("\\|", ":").replaceAll("︱", ":").replaceAll("｜", ":")
+                            .replaceAll("早间英文播报", "").replaceAll("早间新闻播报", "").replaceAll("早间英语播报", "");
                     logger.info(articleLinkTemp.toString());
                     String title = StringUtils.trimLeadingWhitespace(text.substring(text.indexOf(":") + 1));
                     articleLinkTemp.articleType = 1;
