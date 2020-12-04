@@ -41,7 +41,7 @@ public class WordTest extends WithApplication {
         Config config = new Config();
         config.node = "china_daily";
         ArticleLink articleLink = new ArticleLink();
-//        articleLink.articleIndex = 693;
+//        articleLink.articleIndex = 631;
         articleLink.source = config;
 //        articleLink.articleType = 0;
         wordService.updateChinaDailyArticleType(articleLink);
@@ -61,11 +61,12 @@ public class WordTest extends WithApplication {
     @Test
     public void saveChinaDailyArticle() throws ExecutionException, InterruptedException {
         Config config = new Config();
-        config.node = "xia_shuo";
+        config.node = "china_daily";
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
-        articleLink.articleType = 0;
-        wordService.saveChinaDailyArticleSingle(articleLink);
+        articleLink.articleType = 2;
+//        wordService.saveChinaDailyArticleSingle(articleLink);
+        wordService.saveChinaDailyArticleMulti(articleLink);
     }
     /*@Test
     public void listChinaDailyTitle() throws ExecutionException, InterruptedException {

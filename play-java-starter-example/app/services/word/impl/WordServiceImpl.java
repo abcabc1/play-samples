@@ -78,7 +78,7 @@ public class WordServiceImpl implements WordService {
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
-            String content = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+            String content = dictService.getXMLYChinaDailyArticleSingle(articleLinkTemp).toCompletableFuture().get();
             if (content.isEmpty()) {
                 continue;
             }
@@ -98,7 +98,7 @@ public class WordServiceImpl implements WordService {
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
-            String content = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+            String content = dictService.getXMLYChinaDailyArticleSingle(articleLinkTemp).toCompletableFuture().get();
             if (content.isEmpty()) {
                 continue;
             }
