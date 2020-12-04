@@ -62,7 +62,7 @@ public class WordServiceImpl implements WordService {
             }
             WordEnArticle wordEnArticle = new WordEnArticle();
             wordEnArticle.content = content;
-            wordEnArticle.title = articleLinkTemp.articleLinkTitle;
+            wordEnArticle.titleNote = articleLinkTemp.articleLinkTitle;
             wordEnArticle.articleIndex = articleLinkTemp.articleIndex;
             wordEnArticle.source = articleLinkTemp.source;
             wordEnArticle.answer = "";
@@ -204,7 +204,7 @@ public class WordServiceImpl implements WordService {
                 String linkText = temp[1];
                 if (linkText.contains("万娘娘") || linkText.contains("晚间一首歌") || linkText.contains("友邻优课周年纪念版")
                         || linkText.contains("春节晨读公告更新") || linkText.contains("祝祖国母亲生日快乐") || linkText.contains("直播回听")
-                        || linkText.contains("十个海子在春天复活") || linkText.contains("特刊")) {
+                        || linkText.contains("十个海子在春天复活") || linkText.contains("特刊") || linkText.contains("晨读团优秀学生朗读")) {
                     continue;
                 } else if (linkText.contains("|")) {
                     linkText = linkText.substring(0, linkText.indexOf("|"));

@@ -135,13 +135,25 @@ public class HtmlUtil {
         String content = "";
         for (int i = 0; i < pTextList.size(); i++) {
             String pText = pTextList.get(i);
-            if (pText.contains("原文")) {
-                contentFlag = true;
-                continue;
+            if (pText.contains("英语学新闻")) {
+                break;
+            }
+            if (pText.contains("▍原文")) {
+                if (pText.equals("▍原文")) {
+                    contentFlag = true;
+                    continue;
+                } else {
+                    if (pText.indexOf("语言点") == -1) {
+                        content = StringUtils.trimLeadingWhitespace(pText.substring(pText.indexOf("原文") + 2));
+                    } else {
+                        content = StringUtils.trimLeadingWhitespace(pText.substring(pText.indexOf("原文") + 2, pText.indexOf("语言点")));
+                    }
+                    return content;
+                }
             } else if (pText.contains("语言点")) {
                 break;
             }
-            if (contentFlag) {
+            if (contentFlag && (!StringUtils.trimLeadingWhitespace(pText).isEmpty() && !StringUtil.isChineseByScript(StringUtils.trimLeadingWhitespace(pText).charAt(0)))) {
                 content += pText;
             }
         }
@@ -160,7 +172,7 @@ public class HtmlUtil {
                 }
             }
         }
-        if (content.equals("教书匠小夏")) {
+        if (content.equals("教书匠小夏") || StringUtil.isChineseByScript(content.charAt(0)) || content.length() < 50) {
             Element element = document.selectFirst("article");
             if (element == null) {
                 return "";

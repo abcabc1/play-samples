@@ -41,7 +41,7 @@ public class WordTest extends WithApplication {
         Config config = new Config();
         config.node = "china_daily";
         ArticleLink articleLink = new ArticleLink();
-//        articleLink.articleIndex = 515;
+//        articleLink.articleIndex = 693;
         articleLink.source = config;
 //        articleLink.articleType = 0;
         wordService.updateChinaDailyArticleType(articleLink);
@@ -53,8 +53,8 @@ public class WordTest extends WithApplication {
         config.node = "xia_shuo";
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
-        articleLink.articleType = 0;
-//        articleLink.articleIndex = 19;
+//        articleLink.articleType = 0;
+//        articleLink.articleIndex = 693;
         wordService.saveXSArticle(articleLink);
     }
 
