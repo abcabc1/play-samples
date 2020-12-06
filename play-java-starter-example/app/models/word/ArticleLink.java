@@ -25,7 +25,7 @@ public class ArticleLink extends BaseModel {
     public String articleLinkTitle;
     @Column(columnDefinition = "varchar(128) not null default '' comment '链接'")
     public String articleLinkHref;
-    @Column(insertable = false, columnDefinition = "tinyint not null default 0 comment '类别[0 待处理, 1 单篇, 2 多篇,  -1 不处理]'")
+    @Column(columnDefinition = "tinyint not null default 0 comment '类别[0 待处理, 1 单篇, 2 多篇,  -1 不处理]'")
     public Integer articleType;
 
     @ManyToOne

@@ -78,7 +78,7 @@ public class WordServiceImpl implements WordService {
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
-            String content = dictService.getXMLYChinaDailyArticleSingle(articleLinkTemp).toCompletableFuture().get();
+            String content = dictService.getChinaDailyArticleSingle(articleLinkTemp).toCompletableFuture().get();
             if (content.isEmpty()) {
                 continue;
             }
@@ -93,12 +93,12 @@ public class WordServiceImpl implements WordService {
         wordEnArticleService.saveAll(wordEnArticleList);
     }
 
-    public void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+    /*public void saveChinaDailyArticleMulti1(ArticleLink articleLink) throws ExecutionException, InterruptedException {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
-            String content = dictService.getXMLYChinaDailyArticleSingle(articleLinkTemp).toCompletableFuture().get();
+            String content = dictService.getChinaDailyArticleMulti(articleLinkTemp).toCompletableFuture().get();
             if (content.isEmpty()) {
                 continue;
             }
@@ -111,6 +111,37 @@ public class WordServiceImpl implements WordService {
             wordEnArticleList.add(wordEnArticle);
         }
         wordEnArticleService.saveAll(wordEnArticleList);
+    }*/
+
+    public void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+        List<WordEnArticle> wordEnArticleList = new ArrayList<>();
+        List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
+        for (ArticleLink articleLinkTemp : articleLinkList) {
+            logger.info(articleLinkTemp.toString());
+            List<String> articleList = dictService.getChinaDailyArticleMulti(articleLinkTemp).toCompletableFuture().get();
+            if (articleLinkList.size() <= 4) {
+                logger.error(articleLinkTemp.toString());
+            }
+            for (String article : articleList) {
+                String[] temp = article.split("#");
+                if (temp.length <= 4) {
+                    logger.error(article);
+                    continue;
+                }
+                WordEnArticle wordEnArticle = new WordEnArticle();
+                wordEnArticle.title = temp[0];
+                wordEnArticle.titleNote = temp[1];
+                wordEnArticle.content = temp[2];
+                wordEnArticle.contentNote = temp[3];
+                wordEnArticle.articleIndex = articleLinkTemp.articleIndex;
+                wordEnArticle.source = articleLinkTemp.source;
+                wordEnArticle.answer = "";
+                wordEnArticleList.add(wordEnArticle);
+                logger.info(wordEnArticle.toString());
+            }
+        }
+        wordEnArticleList.size();
+//        wordEnArticleService.saveAll(wordEnArticleList);
     }
 
     @Override
@@ -136,7 +167,7 @@ public class WordServiceImpl implements WordService {
                         || articleLinkTextLead.equals("双语精选") || articleLinkTextLead.equals("热门") || articleLinkTextLead.equals("英语")) {
                     articleLinkTemp.articleType = 2;
                 } else if (articleLinkTextLead.equals("英语新闻音频") || articleLinkTextLead.equals("英语新闻")) {
-                    if (StringUtil.isChineseByScript(articleLinkTextTrail.charAt(0)) || StringUtil.isNumber(articleLinkTextTrail.charAt(0))) {
+                    if (StringUtil.isChineseByScript(articleLinkTextTrail.charAt(0)) || StringUtil.isNumber(articleLinkTextTrail.charAt(0)) || articleLinkTemp.articleIndex == 631) {
                         articleLinkTemp.articleType = 2;
                     } else if (StringUtil.isAlpha(articleLinkTextTrail.charAt(0))) {
                         articleLinkTemp.articleType = 1;
@@ -184,6 +215,7 @@ public class WordServiceImpl implements WordService {
                 articleLink.articleLinkText = linkText;
                 articleLink.articleLinkHref = href;
                 articleLink.articleLinkTitle = "";
+                articleLink.articleType = 0;
                 articleLink.source = config;
                 articleLinks.add(articleLink);
             }

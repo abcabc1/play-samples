@@ -1,11 +1,8 @@
 package services.word;
 
-import com.google.common.collect.Lists;
 import io.ebean.annotation.Transactional;
 import models.common.Config;
 import models.word.*;
-import models.word.vo.Article;
-import models.word.ArticleLink;
 import models.word.vo.ArticleParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +154,7 @@ public class WordEnService {
             Config config = new Config();
             config.node = "china_daily";
             if (articleLink.articleType == 1) {
-                String articleContent = dictService.getXMLYChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
+                String articleContent = dictService.getChinaDailyArticleSingle(articleLink).toCompletableFuture().get();
                 if (articleContent == null || articleContent.isEmpty()) {
                     logger.error("---------------------------fail " + articleLink);
                     fail++;
@@ -173,7 +170,7 @@ public class WordEnService {
                 }
                 single++;
             } else if (articleLink.articleType == 2) {
-                List<Article> articleList = dictService.getXMLYChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
+                /*List<Article> articleList = dictService.getChinaDailyArticleMulti(articleLink).toCompletableFuture().get();
                 if (articleList.size() == 4) {
                     for (Article article : articleList) {
                         WordEnArticle wordEnArticle = new WordEnArticle();
@@ -187,21 +184,22 @@ public class WordEnService {
                         wordEnArticleList.add(wordEnArticle);
                     }
                     success++;
-                    logger.info(articleLink.toString());
-                } else {
-                    logger.error("------------------fail " + articleLink.toString());
-                    fail++;
-                }
+                    logger.info(articleLink.toString());*/
+            } else {
+                logger.error("------------------fail " + articleLink.toString());
+                fail++;
             }
-            total++;
-//            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}, single:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail, single));
         }
-        for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
+        total++;
+//            System.out.println(String.format("                page:{%d}, index:{%d}, total:{%d}, success:{%d}, fail:{%d}, single:{%d}", articleLink.page, articleLink.articleIndex, total, success, fail, single));
+//    }
+        /*for (List<WordEnArticle> subList : Lists.partition(wordEnArticleList, 100)) {
                 wordEnArticleRepository.insertAll(subList);
         }
         result = String.format("total:{%d}, success:{%d}, fail:{%d}, single:{%d}", total, success, fail, single);
-        logger.info(result);
-        return result;
+        logger.info(result);*/
+//        return result;
+        return "";
     }
 
     public void dictWordEn(WordEn model) throws ExecutionException, InterruptedException {

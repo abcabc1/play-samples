@@ -23,7 +23,7 @@ public class WordTest extends WithApplication {
         ArticleParam articleParam = new ArticleParam();
         articleParam.link = "waiyu/14804689";
         articleParam.startPage = 1;
-        articleParam.endPage = 32;
+        articleParam.endPage = 33;
         wordService.saveChinaDailyArticleLink(articleParam);
     }
 
@@ -65,6 +65,8 @@ public class WordTest extends WithApplication {
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 2;
+//        articleLink.articleIndex = 932;
+        articleLink.articlePage = 1;
 //        wordService.saveChinaDailyArticleSingle(articleLink);
         wordService.saveChinaDailyArticleMulti(articleLink);
     }

@@ -34,7 +34,7 @@ public class WordEnArticle extends BaseModel {
     public Config source;
 
     @Column(insertable = false, nullable = false, columnDefinition = "tinyint unsigned default 0 comment '是否标记为识记[0 不识记, 1 识记]'")
-    public Boolean remember_mark;
+    public Boolean rememberMark;
 
     @Column(columnDefinition = "varchar(64) not null default '' comment '答案'")
     public String answer;

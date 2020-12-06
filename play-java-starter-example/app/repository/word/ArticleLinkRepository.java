@@ -39,6 +39,9 @@ public class ArticleLinkRepository extends ModelRepository<ArticleLink> {
         if (model.articleType != null) {
             expressionList.eq("articleType", model.articleType);
         }
+        if (model.articlePage != null) {
+            expressionList.eq("articlePage", model.articlePage);
+        }
         if (model.source != null) {
             expressionList.eq("source.node", model.source.node);
         }

@@ -63,11 +63,15 @@ public class DictService {
         }
     }*/
 
-    public CompletionStage<String> getXMLYChinaDailyArticleSingle(ArticleLink articleLink) {
-        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractXMLYChinaDailyArticleSingle);
+    public CompletionStage<String> getChinaDailyArticleSingle(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(HtmlUtil::extractChinaDailyArticleSingle);
     }
 
-    public CompletionStage<List<Article>> getXMLYChinaDailyArticleMulti(ArticleLink articleLink) {
-        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(v -> HtmlUtil.extractXMLYChinaDailyArticleMulti(v, articleLink));
+    public CompletionStage<List<Article>> getChinaDailyArticleMulti1(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(v -> HtmlUtil.extractChinaDailyArticleMulti1(v, articleLink));
+    }
+
+    public CompletionStage<List<String>> getChinaDailyArticleMulti(ArticleLink articleLink) {
+        return ws.url(HOST_XMLY + articleLink.articleLinkHref).get().thenApply(WSResponse::getBody).thenApply(v -> HtmlUtil.extractChinaDailyArticleMulti(v, articleLink));
     }
 }

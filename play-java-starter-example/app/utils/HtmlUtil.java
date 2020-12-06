@@ -189,7 +189,7 @@ public class HtmlUtil {
         return content;
     }
 
-    public static String extractXMLYChinaDailyArticleSingle(String html) {
+    public static String extractChinaDailyArticleSingle(String html) {
         Document document = Jsoup.parse(html);
         String content = "";
         List<String> pTextList = document.select("p").eachText();
@@ -215,14 +215,73 @@ public class HtmlUtil {
         return content;
     }
 
-    public static List<Article> extractXMLYChinaDailyArticleMulti(String html, ArticleLink articleLink) {
+    public static List<Article> extractChinaDailyArticleMulti1(String html, ArticleLink articleLink) {
         Document document = Jsoup.parse(html);
-        List<Article> articleList = extractXMLYChinaDailyArticleTitle(document, articleLink);
-        articleList = extractXMLYChinaDailyArticleContent(document, articleList);
+        List<Article> articleList = extractChinaDailyArticleTitle(document, articleLink);
+        articleList = extractChinaDailyArticleContent(document, articleList);
         return articleList;
     }
 
-    private static List<Article> extractXMLYChinaDailyArticleContent(Document document, List<Article> articleList) {
+    public static List<String> extractChinaDailyArticleMulti(String html, ArticleLink articleLink) {
+        Document document = Jsoup.parse(html);
+        List<String> articleList = new ArrayList<>();
+        List<String> pTextList = document.select("p[data-flag]").eachText();
+        String text = "";
+        String content = "";
+        String contentNode = "";
+        boolean textFlag = false;
+        for (String s : pTextList) {
+            if (StringUtils.uncapitalize(s).contains("find more audio news")) {
+                break;
+            }
+            if (s.contains("重要词汇") || s.contains("重点词汇") || s.contains("中国日报网")
+                    || (s.contains("英") && s.contains("美") && (s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("vt.") || s.contains("n.")))
+                    || s.isEmpty() || (StringUtil.isNumber(s.charAt(0)) && s.charAt(1) == '、')) {
+                /*if (!text.isEmpty()) {
+                    text = "";
+                    content = "";
+                    contentNode = "";
+                }*/
+                continue;
+            }
+            int chineseIndex = StringUtil.indexOfChinese(s);
+            if (chineseIndex != -1) {
+                if (chineseIndex < 50) {
+                    if (!text.isEmpty() && !content.isEmpty() && !contentNode.isEmpty()) {
+                        text = text + "#" + content + "#" + contentNode;
+                        articleList.add(text);
+                        text = "";
+                        content = "";
+                        contentNode = "";
+                    }
+                    String title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(0, chineseIndex)));
+                    String titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(chineseIndex + 1)));
+                    text = title + "#" + titleNote;
+                } else {
+                    content += s.substring(0, chineseIndex);
+                    contentNode += s.substring(chineseIndex + 1);
+                }
+            }
+//            }
+        }
+        if (!text.isEmpty()) {
+            text = text + "#" + content + "#" + contentNode;
+            articleList.add(text);
+            text = "";
+            content = "";
+            contentNode = "";
+        }
+        /*if (articleList.size() == 4) {
+            return articleList;
+        }
+        List<String> p1TextList = document.select("p1").eachText();
+        for (String s: p1TextList) {
+            pTextList.add(content);
+        }*/
+        return articleList;
+    }
+
+    private static List<Article> extractChinaDailyArticleContent(Document document, List<Article> articleList) {
         if (articleList.stream().map(v -> v.title).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
                 || articleList.stream().map(v -> v.titleNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4
                 || articleList.stream().map(v -> v.titleAndNote).filter(v1 -> !(v1 == null || v1.isEmpty())).collect(Collectors.toList()).size() < 4) {
@@ -277,7 +336,7 @@ public class HtmlUtil {
         return articleList;
     }
 
-    private static List<Article> extractXMLYChinaDailyArticleTitle(Document document, ArticleLink articleLink) {
+    private static List<Article> extractChinaDailyArticleTitle(Document document, ArticleLink articleLink) {
         List<Article> articleList = new ArrayList<>();
         Article article = null;
         List<String> bTextList = document.select("b").eachText();
