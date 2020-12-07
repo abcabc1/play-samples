@@ -120,12 +120,12 @@ public class WordServiceImpl implements WordService {
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
             List<String> articleList = dictService.getChinaDailyArticleMulti(articleLinkTemp).toCompletableFuture().get();
-            if (articleLinkList.size() <= 4) {
+            if (articleList.size() != 4) {
                 logger.error(articleLinkTemp.toString());
             }
-            /*for (String article : articleList) {
+            for (String article : articleList) {
                 String[] temp = article.split("#");
-                if (temp.length <= 4) {
+                if (temp.length != 4) {
                     logger.error(article);
                     continue;
                 }
@@ -139,7 +139,7 @@ public class WordServiceImpl implements WordService {
                 wordEnArticle.answer = "";
                 wordEnArticleList.add(wordEnArticle);
                 logger.info(wordEnArticle.toString());
-            }*/
+            }
         }
         wordEnArticleList.size();
 //        wordEnArticleService.saveAll(wordEnArticleList);

@@ -10,6 +10,7 @@ import services.word.WordEnService;
 import services.word.WordService;
 import services.word.impl.WordServiceImpl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,9 +66,9 @@ public class WordTest extends WithApplication {
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 2;
-//        articleLink.articleIndex = 901;
-        articleLink.articlePageFrom = 12;
-        articleLink.articlePageTo = 15;
+//        articleLink.exArticleIndexes = Arrays.asList(874, 876, 880, 882, 893, 887, 889, 891, 897);
+        articleLink.articleIndexes = Arrays.asList(870);
+        articleLink.articlePage = 4;
 //        wordService.saveChinaDailyArticleSingle(articleLink);
         wordService.saveChinaDailyArticleMulti(articleLink);
     }

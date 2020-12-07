@@ -54,6 +54,12 @@ public class ArticleLinkRepository extends ModelRepository<ArticleLink> {
         if (model.articleIndexTo != null) {
             expressionList.le("articleIndex", model.articleIndexTo);
         }
+        if (model.articleIndexes != null) {
+            expressionList.in("articleIndex", model.articleIndexes);
+        }
+        if (model.exArticleIndexes != null) {
+            expressionList.notIn("articleIndex", model.exArticleIndexes);
+        }
         if (model.source != null) {
             expressionList.eq("source.node", model.source.node);
         }

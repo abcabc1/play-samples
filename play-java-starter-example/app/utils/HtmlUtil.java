@@ -226,6 +226,9 @@ public class HtmlUtil {
         if (s.isEmpty() || s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网") || s.contains("重点单词：") || s.contains("一键领取入口")) {
             return true;
         }
+        if (s.equals("上传") || s.equals("创作中心") || s.equals("有声出版") || s.equals("小雅音箱")) {
+            return true;
+        }
         List<String> ss = Arrays.asList("laboratory-grown", "实验室里培养的", "reinfection", "hilltop", "irreversible", "drastic", "法郎体系"
                 , "yearlong", "signatory", "francs", "flocking", "impetus", "fintech", "金融科技（financial technology）", "bourse", "infuriatingly"
                 , "probiotics", "cubilose", "spearheading", "grotto", "plight", "equestrian", "vineyard", "national census", "人口普查", "全国人口普查"
@@ -279,7 +282,7 @@ public class HtmlUtil {
                 , "tenure", "beleaguer", "sacrifice", "wide-field", "panoramic", "astronomical", "celestial", "practitioner", "residency", "unprecedented", "cutting-edge", "per-capita", "[统计] 人均；（拉丁）每人；按人口计算"
                 , "cosmologist", "compassionate", "aviation", "refit", "toll", "death toll", "死亡人数", "scooter", "narrative", "infrared", "thermometer", "telecommuting"
                 , "boastful", "furlough", "nix", "int. 没有；不行；（非正式）当心（上司来临）", "pervasive", "Psychiatry", "symptom", "bring under control", "把…控制起来", "receptor", "plenary", "customarily", "streamline"
-                , "island-looping", "环岛", "unwavering", "preliminary", "plausible", "venue");
+                , "island-looping", "环岛", "unwavering", "preliminary", "plausible", "venue", "annual disposable income 年均可支配收入", "省出; 抽出；驳回，撤销；不顾；把…抛在脑后");
         if (ss.contains(s)) {
             return true;
         }
@@ -292,77 +295,166 @@ public class HtmlUtil {
         return false;
     }
 
-    public static List<String> extractChinaDailyArticleMulti(String html, ArticleLink articleLink) {
-        Document document = Jsoup.parse(html);
+    /**
+     * 874, 876, 880, 882, 893, 887, 889, 891, 897
+     *
+     * @param textList
+     * @return
+     */
+    public static List<String> handle1(List<String> textList) {
         List<String> articleList = new ArrayList<>();
-        List<String> pTextList = document.select("p[data-flag]").eachText();
-        List<String> textList = pTextList.stream().filter(v -> !filterChinaDailyArticleMulti(v)).collect(Collectors.toList());
-        /*String text = "";
         String content = "";
         String contentNote = "";
         String title = "";
         String titleNote = "";
-        boolean textFlag = false;
+        boolean contentFlag = false;
         int titleTicket = 0;
-        for (String s : pTextList) {
-            if (s.toLowerCase().contains("find more audio news") || s.toLowerCase().equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.)) {
+        for (String s : textList) {
+            if (s.toLowerCase().contains("find more audio news") || s.toLowerCase().equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.")) {
+                if (!title.isEmpty()) {
+                    articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                }
                 break;
             }
-            if (s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网")
-                    || s.contains("英 [") || s.contains("美 [") || s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("n.")
-                    || s.equals("laboratory-grown") || s.equals("ruminate") || s.equals("实验室里培养的")
-                    || s.isEmpty() || (StringUtil.isNumber(s.charAt(0)) && s.charAt(1) == '、')) {
+            if (filterChinaDailyArticleMulti(s)) {
                 continue;
             }
-            if (articleLink.articleIndex == 920) {
-                if (s.matches("^\\d\\s/.*")) {
+            if (s.matches("^\\d\\s?/.*")) {
+                if (!title.isEmpty()) {
                     articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
                     content = "";
                     contentNote = "";
-                    title = StringUtils.trimLeadingWhitespace(s.replaceAll("^\\d\\s/", ""));
-                    titleTicket = 1;
                 }
-                if (titleTicket == 1) {
-                    titleNote = s;
-                    titleTicket--;
+                title = StringUtils.trimLeadingWhitespace(s.replaceAll("^\\d\\s?/", ""));
+                titleTicket = 1;
+                contentFlag = false;
+                continue;
+            }
+            if (titleTicket == 1) {
+                titleNote = s;
+                titleTicket--;
+                contentFlag = true;
+                continue;
+            }
+            if (contentFlag) {
+                if (StringUtil.isAlpha(s.charAt(0))) {
+                    content += s;
                 }
-                if (titleTicket == 0) {
-                    if (StringUtil.isAlpha(s.charAt(0))) {
-                        content += s;
+                if (StringUtil.isChineseByScript(s.charAt(0))) {
+                    contentNote += s;
+                }
+            }
+        }
+        return articleList;
+    }
+
+    /**
+     * 874, 876, 880, 882, 893, 887, 889, 891, 897
+     *
+     * @param textList
+     * @return
+     */
+    public static List<String> handle2(List<String> textList) {
+        List<String> articleList = new ArrayList<>();
+        String content = "";
+        String contentNote = "";
+        String title = "";
+        String titleNote = "";
+        boolean contentFlag = false;
+        int titleTicket = 0;
+        for (String s : textList) {
+            if (s.toLowerCase().contains("find more audio news") || s.toLowerCase().equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.")) {
+                if (!title.isEmpty()) {
+                    articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                }
+                break;
+            }
+            if (filterChinaDailyArticleMulti(s)) {
+                continue;
+            }
+            int chineseIndex = StringUtil.indexOfChinese(s);
+            if (s.length() < 50) {
+                if (chineseIndex == -1) {
+                    if (!content.isEmpty() && !contentNote.isEmpty()) {
+                        /*title = title.isEmpty() ? "title" : title;
+                        titleNote = titleNote.isEmpty() ? "titleNote" : titleNote;*/
+                        articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                        content = "";
+                        contentNote = "";
                     }
-                    if (StringUtil.isChineseByScript(s.charAt(0))) {
-                        contentNote += s;
-                    }
+                    title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s));
+                } else {
+                    titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s));
                 }
             } else {
-                int chineseIndex = StringUtil.indexOfChinese(s);
-                if (chineseIndex != -1) {
-                    if (chineseIndex < 50) {
-                        if (!text.isEmpty() && !content.isEmpty() && !contentNote.isEmpty()) {
-                            text = text + "#" + content + "#" + contentNote;
-                            articleList.add(text);
-                            text = "";
-                            content = "";
-                            contentNote = "";
-                        }
-                        title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(0, chineseIndex)));
-                        titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(chineseIndex)));
-                        text = title + "#" + titleNote;
-                    } else {
-                        content += s.substring(0, chineseIndex);
-                        contentNote += s.substring(chineseIndex);
-                    }
+                if (chineseIndex == -1) {
+                    content += s.substring(0, chineseIndex);
+                } else {
+                    contentNote += s.substring(chineseIndex);
                 }
             }
-            if (!text.isEmpty()) {
-                text = text + "#" + content + "#" + contentNote;
-                articleList.add(text);
-                text = "";
-                content = "";
-                contentNote = "";
-            }
-        }*/
+        }
         return articleList;
+    }
+
+    /**
+     * 874, 876, 880, 882, 893, 887, 889, 891, 897
+     *
+     * @param textList
+     * @return
+     */
+    public static List<String> handle3(List<String> textList) {
+        List<String> articleList = new ArrayList<>();
+        String content = "";
+        String contentNote = "";
+        String title = "";
+        String titleNote = "";
+        for (String s : textList) {
+            if (s.toLowerCase().contains("find more audio news") || s.toLowerCase().equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.")) {
+                if (!title.isEmpty()) {
+                    articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                }
+                break;
+            }
+            if (filterChinaDailyArticleMulti(s)) {
+                continue;
+            }
+            int chineseIndex = StringUtil.indexOfChinese(s);
+            if (chineseIndex != -1) {
+                if (chineseIndex < 50) {
+                    if (!content.isEmpty() && !contentNote.isEmpty()) {
+                        title = title.isEmpty() ? "title" : title;
+                        titleNote = titleNote.isEmpty() ? "titleNote" : titleNote;
+                        articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                        content = "";
+                        contentNote = "";
+                    }
+                    title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(0, chineseIndex)));
+                    titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(chineseIndex)));
+                } else {
+                    content += s.substring(0, chineseIndex);
+                    contentNote += s.substring(chineseIndex);
+                }
+            }
+        }
+        return articleList;
+    }
+
+    public static List<String> extractChinaDailyArticleMulti(String html, ArticleLink articleLink) {
+        Document document = Jsoup.parse(html);
+        List<String> articleList = new ArrayList<>();
+//        List<String> pTextList = document.select("p[data-flag]").eachText();
+        List<String> pTextList = document.select("p").eachText();
+        List<String> textList = pTextList.stream().filter(v -> !filterChinaDailyArticleMulti(v)).collect(Collectors.toList());
+        /*if (!Arrays.asList(874, 876, 880, 882, 893, 887, 889, 891, 897).contains(articleLink.articleIndex)) {
+            return articleList;
+        }*/
+        List<String> articleList1 = handle1(textList);
+        //874,876,880,882,887,889,891,893,897,850,852,854,858,861,863,865,868,
+        List<String> articleList2 = handle2(textList);
+        List<String> articleList3 = handle3(textList);
+        //878,884,895,899,844,846,848,856,872,
+        return articleList;//870,
     }
 
     private static List<Article> extractChinaDailyArticleContent(Document document, List<Article> articleList) {

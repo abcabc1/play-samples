@@ -5,6 +5,7 @@ import models.base.BaseModel;
 import models.common.Config;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Table
 @Entity
@@ -39,6 +40,12 @@ public class ArticleLink extends BaseModel {
 
     @Transient
     public Integer articleIndexTo;
+
+    @Transient
+    public List<Integer> articleIndexes;
+
+    @Transient
+    public List<Integer> exArticleIndexes;
 
     @ManyToOne
     @JoinColumn(name = "source")
