@@ -42,6 +42,18 @@ public class ArticleLinkRepository extends ModelRepository<ArticleLink> {
         if (model.articlePage != null) {
             expressionList.eq("articlePage", model.articlePage);
         }
+        if (model.articlePageFrom != null) {
+            expressionList.ge("articlePage", model.articlePageFrom);
+        }
+        if (model.articlePageTo != null) {
+            expressionList.le("articlePage", model.articlePageTo);
+        }
+        if (model.articleIndexFrom != null) {
+            expressionList.ge("articleIndex", model.articleIndexFrom);
+        }
+        if (model.articleIndexTo != null) {
+            expressionList.le("articleIndex", model.articleIndexTo);
+        }
         if (model.source != null) {
             expressionList.eq("source.node", model.source.node);
         }

@@ -43,6 +43,7 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
+    @Transactional
     public void saveChinaDailyArticleLink(ArticleParam articleParam) throws ExecutionException, InterruptedException {
         checkParam(articleParam);
         LinkedHashSet<ArticleLink> articleLinks = collectChinaDailyArticleLink(articleParam);
@@ -122,7 +123,7 @@ public class WordServiceImpl implements WordService {
             if (articleLinkList.size() <= 4) {
                 logger.error(articleLinkTemp.toString());
             }
-            for (String article : articleList) {
+            /*for (String article : articleList) {
                 String[] temp = article.split("#");
                 if (temp.length <= 4) {
                     logger.error(article);
@@ -138,13 +139,14 @@ public class WordServiceImpl implements WordService {
                 wordEnArticle.answer = "";
                 wordEnArticleList.add(wordEnArticle);
                 logger.info(wordEnArticle.toString());
-            }
+            }*/
         }
         wordEnArticleList.size();
 //        wordEnArticleService.saveAll(wordEnArticleList);
     }
 
     @Override
+    @Transactional
     public void updateChinaDailyArticleType(ArticleLink articleLink) {
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         List<ArticleLink> tempList = new ArrayList<>();
@@ -172,12 +174,14 @@ public class WordServiceImpl implements WordService {
                     } else if (StringUtil.isAlpha(articleLinkTextTrail.charAt(0))) {
                         articleLinkTemp.articleType = 1;
                     }
+                } else if (articleLinkTextLead.equals("早间新闻播报")) {
+                    articleLinkTemp.articleType = 1;
                 }
                 if (articleLinkTemp.articleType != -1) {
                     articleLinkTemp.articleLinkTitle = articleLinkTextTrail;
                 }
             } else {
-                if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目")
+                if (articleLinkTemp.articleLinkText.contains("节气英语说") || articleLinkTemp.articleLinkText.contains("特别节目") || articleLinkTemp.articleLinkText.contains("双语微视频")
                         || articleLinkTemp.articleLinkText.equals("今日立冬！话说中国节") || articleLinkTemp.articleLinkText.equals("Little New Year 小年")) {
                     articleLinkTemp.articleType = -1;
                 } else if (articleLinkTemp.articleLinkText.contains("|") || articleLinkTemp.articleLinkText.contains("︱") || articleLinkTemp.articleLinkText.contains("｜")

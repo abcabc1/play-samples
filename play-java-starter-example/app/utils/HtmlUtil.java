@@ -222,61 +222,145 @@ public class HtmlUtil {
         return articleList;
     }
 
+    private static boolean filterChinaDailyArticleMulti(String s) {
+        if (s.isEmpty() || s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网") || s.contains("重点单词：") || s.contains("一键领取入口")) {
+            return true;
+        }
+        List<String> ss = Arrays.asList("laboratory-grown", "实验室里培养的", "reinfection", "hilltop", "irreversible", "drastic", "法郎体系"
+                , "yearlong", "signatory", "francs", "flocking", "impetus", "fintech", "金融科技（financial technology）", "bourse", "infuriatingly"
+                , "probiotics", "cubilose", "spearheading", "grotto", "plight", "equestrian", "vineyard", "national census", "人口普查", "全国人口普查"
+                , "portrayal", "expansionary", "the Ministry of Public Security", "公安部", "dweller", "megacity", "the Civil Aviation Administration of China"
+                , "中国民用航空局", "crappy", "hoard", "ply", "reluctant", "bumper", "peer-reviewed", "consecutive", "controversy", "disturbance", "subdistrict"
+                , "concede", "Chrysanthemum Throne", "天皇王位", "abdicate", "bulk-buy", "批量购买", "centralized", "epidemiologic", "ruminate", "pharmaceutical"
+                , "sign up", "签约雇用，签约参加", "organ donation", "器官捐献", "optimize", "thorough", "put into operation", "使生效；使运转，使开动"
+                , "grassroots", "bracelet", "abuser", "marital", "contraband", "canine", "swab", "daring", "enamel", "motif", "demolish", "hail", "int. 万岁；欢迎"
+                , "women's singles final", "女子单打决赛", "Grand Slam", "大满贯；满垒时的全垒打", "beat", "in collaboration with", "与…勾结；与…合作", "Captive"
+                , "breeding", "phase out", "使逐步淘汰；逐渐停止", "bamboo rat", "竹鼠", "果子狸", "masked palm civet", "porcupine", "porcupine", "green bamboo snake", "竹叶青"
+                , "certify", "hedgehog", "guinea pig", "豚鼠；天竺鼠", "nutria", "cobra", "复数 cobras", "Robotaxi", "自动驾驶出租车", "surpassing", "e-commerce livestreaming", "电商直播"
+                , "The State Administration for Market Regulation", "市场监管总局", "penalty", "fabricate", "forging", "deceive", "implement", "standardize", "curfew"
+                , "unbearable", "baseline", "prohibit", "radio frequency", "无线电频率", "[免疫] 群体免疫", "herd immunity", "[免疫] 群体免疫力", "problematic", "susceptible"
+                , "frustration", "tech-savvy", "精通技术的", "consultancy", "organ", "extortion", "deliberately", "fabricated", "scenario", "property", "stipulate"
+                , "fraud", "Perpetrator", "negligently", "intake", "11、criminal liability /ˈkrɪmɪnl ˌlaɪəˈbɪləti/ [法] 刑事责任", "foliage", "mimic", "life expectancy"
+                , "预期寿命；平均寿命", "gauge", "the National Health Commission", "国家卫健委", "orca", "mink", "circus", "dolphinarium"
+                , "过去式 prohibited过去分词 prohibited现在分词 prohibiting第三人称单数 prohibits", "resurgence", "consolidate", "aesthetic"
+                , "enact", "loophole", "superjumbo", "/'sjuːpə,dʒʌmbəʊ/", "巨型喷气式飞机", "dietary habit", "饮食习惯", "sodium", "potassium", "low-potassium", "低钾"
+                , "hypertension", "preface", "postscript", "equitable", "contraction", "normalize", "symbolize", "vaccinate", "livestreamer", "直播流", "endeavor"
+                , "sequoia", "liquidity", "submerge", "partisan", "cash-strapped", "fundraiser", "in accordance with", "依照；与…一致", "discard", "复数 censuses"
+                , "designated", "enthusiasm", "compromise", "tumultuous", "subdue", "抑制；", "减轻", "snap up", "抢购，匆匆吃下，抢先弄到手；", "锁键调节式", "trilogy"
+                , "sequel", "Cyberbullying", "网上欺凌", "plugged-in", "profanity", "blur", "derogatory", "extroverted", "fell", "砍伐", "confer"
+                , "过去式 conferred过去分词 conferred现在分词 conferring第三人称单数 confers", "standardized", "first - tier city", "renovate", "resuscitate", "elevation", "crescent"
+                , "safe - haven", "安全港；容许幅度标准", "geopolitical", "slump", "probe", "orbital", "undergo", "influential", "pour out", "fury", "supremacy", "discourse", "ideology"
+                , "splashdown", "prestigious", "honorary", "archeology", "shipwreck", "uninhabited", "mafia", "outright", "countermeasure", "casualty", "interoperability", "rebound"
+                , "figurine", "uncanny", "resemblance", "unicorn", "interconnected", "territory", "albeit", "strenuously", "tailor - made", "pedestrian", "escort", "fugitive", "anti - graft"
+                , "反腐败", "anti - corruption", "aspiration", "carpool", "involuntarily", "amicus", "proclamation", "completion", "backbone", "downturn", "competitiveness", "commute"
+                , "logistics", "物流", "hit a record high of", "创历史新高", "orientation", "adenovirus", "in the pipeline", "在运输中；在进行中；在准备中", "nozzle", "complimentary"
+                , "contagion", "sovereign", "Geopark", "Neolithic", "reservoir", "cut off", "切断；中断；使死亡；剥夺继承权", "withdrawal", "obligation", "miniature", "depict", "enthrall"
+                , "mandate", "hydrological", "deterioration", "underscore", "inundation", "rain - swollen", "洪水泛滥的", "precautionary", "reiterated", "反复的", "重复的", "prelaunch"
+                , "disinfection", "resilience", "coalition", "friend - of - the - court", "法庭之友", "anticipated", "output", "respectively", "falsify", "simultaneously", "cryptocurrency"
+                , "solicit", "blast off", "点火起飞；发射升空（等于blast - off）", "municipal", "assessment", "in response to", "响应；回答；对…有反应", "prestigious", "layoff", "redundancy", "scrutinize"
+                , "immunogenicity", "frugal", "planetary", "maneuver", "exquisite", "sundial", "degradable", "outrageous", "sabotages", "unilaterally", "heroine", "tumultuous", "fruition"
+                , "amphibious", "turboprop", "doe - eyed", " (像雌鹿般) 眼睛天真无邪的 ", "sainted", "unwed", "backtrack", "factory - gate price", "出厂价", "assassination"
+                , "postponement", "multi - pronged", "多方面的;多管齐下的", "incentive", "panacea", "Chancellery", "decentralized", "tremendous", "grim", "cluster outbreak"
+                , "集群爆发", "contamination", "fixed - rate", "固定比率", "proactive", "inter - city", "市际的", "recognition", "drastically", "slaughterhouse", "catch-up"
+                , "off - limit", "禁止的", "high - accuracy", "高精度", "cluster", "spur", "Sino - US", "contract", "stealth", "assassin", "Immaculate", "baroque", "botched", "plasma"
+                , "convalescent", "inclusivity", "prioritize", "dexamethasone", "tarpaulin", "glacier", "resilient", "volatile", "premium", "dominate", " hiatus", " layoff", "procurement"
+                , "spiral", "politicized", "/, haɪpɚ 'θɝmɪə/", "a cascade of 大量", "recoup", "disinfectant", "routinely", "overdrive", "shrink", "rigorous", "make-or-break", "emerging", "livestreaming"
+                , "suspension", "abridged", "deem", "deportation", "disregard", "algae", "Infectious", "deliberation", "pathogen", "decouple", "patriarch", "Sanatorium", "pinnacle", "airborne", "uphold", "malicious"
+                , "Calabash", "impacted", "bilateral", "extradition", "arbitrarily", "propelling", "looting", "roadside booth", "路边摊", "pedestrian", "vending", "inappropriateness", "mobilize", "rioting"
+                , "reconnaissance", "undermine", "flimsy", "Blackout", "competitiveness", "asymptomatic", "anti-malaria", "抗疟疾", "protocol", "solidarity", "hinder", "prospect", "mechanism", "favorable"
+                , "elongate", "cobbler", "occupancy", "spike", "coaster", "racism", "brutality", "shatter", "shockwave", "implementation", "caregiver", "aggregate"
+                , "liaison", "follow-up", "unflattering", "bypass", "rigorous", "realm", "downpour", "precipitation", "brutality", "reassess", "projection", "stark", "sewage", "desulfuration"
+                , "脱硫（一种化学作用）", "sweltering", "refrigerant", "non-porous", "intimacy", "craftspeople", "hue", "multiracial", "scale up", "按比例放大；按比例增加", "hospitalize", "vicinity"
+                , "narrate", "extraterrestrial", "bioluminescence", "plummet", "antibody", "credential", "grassroot", "star-studded", "stepwise", "epidemiologist", "prompt", "publicize", "ratchet", "ratchet up"
+                , "逐渐升高；略微调高", "launchpad", "retrieval", "demographic", "Hispanic", "highest-profile", "最受人瞩目的", "最具知名度的", "最高调的", "convene", "carry out", "baccalaureate", "eliminate", "resume"
+                , "normalcy", "slew", "pent-up", "outcry", "condemn", "first-of-its-kind", "史无前例", "moderator", "indispensable", "在场的；亲身的；亲自；外貌上", "堆在…之上；使堆积在…", "尽一切办法做某事", "制裁；镇压；取缔；劈啪击下"
+                , "varying", "aftermath", "rope off", "用绳索隔开；围起来", "stricken", "would-be", "silent tribute 默哀", "bionic", "outperform", "entangle", "preliminary", "incalculable", "pinky toes 小脚趾", "stabilize", "crude"
+                , "sweep", "resumption", "integrated", "sex assault 性侵犯", "vector", "spearhead", "cherished", "engulf", "conceivable", "intermittently", "salute", "rampage", "cruiser", "horrific", "benchmark", "evaporation"
+                , "tenure", "beleaguer", "sacrifice", "wide-field", "panoramic", "astronomical", "celestial", "practitioner", "residency", "unprecedented", "cutting-edge", "per-capita", "[统计] 人均；（拉丁）每人；按人口计算"
+                , "cosmologist", "compassionate", "aviation", "refit", "toll", "death toll", "死亡人数", "scooter", "narrative", "infrared", "thermometer", "telecommuting"
+                , "boastful", "furlough", "nix", "int. 没有；不行；（非正式）当心（上司来临）", "pervasive", "Psychiatry", "symptom", "bring under control", "把…控制起来", "receptor", "plenary", "customarily", "streamline"
+                , "island-looping", "环岛", "unwavering", "preliminary", "plausible", "venue");
+        if (ss.contains(s)) {
+            return true;
+        }
+        if (s.contains("英 [") || s.contains("英 /") || s.contains("美 [") || s.contains("美 /") || s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("n.") || s.contains("conj.") || s.contains("dj.")) {
+            return true;
+        }
+        if (StringUtil.isNumber(s.charAt(0)) && s.charAt(1) == '、') {
+            return true;
+        }
+        return false;
+    }
+
     public static List<String> extractChinaDailyArticleMulti(String html, ArticleLink articleLink) {
         Document document = Jsoup.parse(html);
         List<String> articleList = new ArrayList<>();
         List<String> pTextList = document.select("p[data-flag]").eachText();
-        String text = "";
+        List<String> textList = pTextList.stream().filter(v -> !filterChinaDailyArticleMulti(v)).collect(Collectors.toList());
+        /*String text = "";
         String content = "";
-        String contentNode = "";
+        String contentNote = "";
+        String title = "";
+        String titleNote = "";
         boolean textFlag = false;
+        int titleTicket = 0;
         for (String s : pTextList) {
-            if (StringUtils.uncapitalize(s).contains("find more audio news")) {
+            if (s.toLowerCase().contains("find more audio news") || s.toLowerCase().equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.)) {
                 break;
             }
-            if (s.contains("重要词汇") || s.contains("重点词汇") || s.contains("中国日报网")
-                    || (s.contains("英") && s.contains("美") && (s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("vt.") || s.contains("n.")))
+            if (s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网")
+                    || s.contains("英 [") || s.contains("美 [") || s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("n.")
+                    || s.equals("laboratory-grown") || s.equals("ruminate") || s.equals("实验室里培养的")
                     || s.isEmpty() || (StringUtil.isNumber(s.charAt(0)) && s.charAt(1) == '、')) {
-                /*if (!text.isEmpty()) {
-                    text = "";
-                    content = "";
-                    contentNode = "";
-                }*/
                 continue;
             }
-            int chineseIndex = StringUtil.indexOfChinese(s);
-            if (chineseIndex != -1) {
-                if (chineseIndex < 50) {
-                    if (!text.isEmpty() && !content.isEmpty() && !contentNode.isEmpty()) {
-                        text = text + "#" + content + "#" + contentNode;
-                        articleList.add(text);
-                        text = "";
-                        content = "";
-                        contentNode = "";
+            if (articleLink.articleIndex == 920) {
+                if (s.matches("^\\d\\s/.*")) {
+                    articleList.add(title + "#" + titleNote + "#" + content + "#" + contentNote);
+                    content = "";
+                    contentNote = "";
+                    title = StringUtils.trimLeadingWhitespace(s.replaceAll("^\\d\\s/", ""));
+                    titleTicket = 1;
+                }
+                if (titleTicket == 1) {
+                    titleNote = s;
+                    titleTicket--;
+                }
+                if (titleTicket == 0) {
+                    if (StringUtil.isAlpha(s.charAt(0))) {
+                        content += s;
                     }
-                    String title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(0, chineseIndex)));
-                    String titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(chineseIndex + 1)));
-                    text = title + "#" + titleNote;
-                } else {
-                    content += s.substring(0, chineseIndex);
-                    contentNode += s.substring(chineseIndex + 1);
+                    if (StringUtil.isChineseByScript(s.charAt(0))) {
+                        contentNote += s;
+                    }
+                }
+            } else {
+                int chineseIndex = StringUtil.indexOfChinese(s);
+                if (chineseIndex != -1) {
+                    if (chineseIndex < 50) {
+                        if (!text.isEmpty() && !content.isEmpty() && !contentNote.isEmpty()) {
+                            text = text + "#" + content + "#" + contentNote;
+                            articleList.add(text);
+                            text = "";
+                            content = "";
+                            contentNote = "";
+                        }
+                        title = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(0, chineseIndex)));
+                        titleNote = StringUtils.trimTrailingWhitespace(StringUtils.trimLeadingWhitespace(s.substring(chineseIndex)));
+                        text = title + "#" + titleNote;
+                    } else {
+                        content += s.substring(0, chineseIndex);
+                        contentNote += s.substring(chineseIndex);
+                    }
                 }
             }
-//            }
-        }
-        if (!text.isEmpty()) {
-            text = text + "#" + content + "#" + contentNode;
-            articleList.add(text);
-            text = "";
-            content = "";
-            contentNode = "";
-        }
-        /*if (articleList.size() == 4) {
-            return articleList;
-        }
-        List<String> p1TextList = document.select("p1").eachText();
-        for (String s: p1TextList) {
-            pTextList.add(content);
+            if (!text.isEmpty()) {
+                text = text + "#" + content + "#" + contentNote;
+                articleList.add(text);
+                text = "";
+                content = "";
+                contentNote = "";
+            }
         }*/
         return articleList;
     }

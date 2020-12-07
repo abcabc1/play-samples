@@ -8,6 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table
+@UniqueConstraint(columnNames = {"article_index", "title"})
 public class WordEnArticle extends BaseModel {
     private static final long serialVersionUID = 1L;
     public static final Finder<Long, WordEnArticle> find = new Finder<>(WordEnArticle.class, "word");

@@ -111,6 +111,7 @@ create table word_en_article (
   source                        varchar(32) comment '配置节点',
   remember_mark                 tinyint unsigned default 0 comment '是否标记为识记[0 不识记, 1 识记]' not null,
   answer                        varchar(64) not null default '' comment '答案',
+  constraint uq_word_en_article_article_index_title unique (article_index,title),
   constraint pk_word_en_article primary key (id)
 );
 

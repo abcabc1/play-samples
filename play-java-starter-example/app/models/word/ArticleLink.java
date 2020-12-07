@@ -28,6 +28,18 @@ public class ArticleLink extends BaseModel {
     @Column(columnDefinition = "tinyint not null default 0 comment '类别[0 待处理, 1 单篇, 2 多篇,  -1 不处理]'")
     public Integer articleType;
 
+    @Transient
+    public Integer articlePageFrom;
+
+    @Transient
+    public Integer articlePageTo;
+
+    @Transient
+    public Integer articleIndexFrom;
+
+    @Transient
+    public Integer articleIndexTo;
+
     @ManyToOne
     @JoinColumn(name = "source")
     public Config source;
