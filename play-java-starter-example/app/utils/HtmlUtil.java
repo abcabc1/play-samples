@@ -223,7 +223,8 @@ public class HtmlUtil {
     }
 
     private static boolean filterChinaDailyArticleMulti(String s) {
-        if (s.isEmpty() || s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网") || s.contains("重点单词：") || s.contains("一键领取入口")) {
+        if (s.isEmpty() || s.contains("重要词汇") || s.contains("重点词汇") || s.contains("重点词") || s.contains("中国日报网") || s.contains("重点单词：")
+                || s.contains("一键领取入口") || s.contains("This is ChinaDaily audio news")) {
             return true;
         }
         if (s.equals("上传") || s.equals("创作中心") || s.equals("有声出版") || s.equals("小雅音箱")) {
@@ -282,14 +283,15 @@ public class HtmlUtil {
                 , "tenure", "beleaguer", "sacrifice", "wide-field", "panoramic", "astronomical", "celestial", "practitioner", "residency", "unprecedented", "cutting-edge", "per-capita", "[统计] 人均；（拉丁）每人；按人口计算"
                 , "cosmologist", "compassionate", "aviation", "refit", "toll", "death toll", "死亡人数", "scooter", "narrative", "infrared", "thermometer", "telecommuting"
                 , "boastful", "furlough", "nix", "int. 没有；不行；（非正式）当心（上司来临）", "pervasive", "Psychiatry", "symptom", "bring under control", "把…控制起来", "receptor", "plenary", "customarily", "streamline"
-                , "island-looping", "环岛", "unwavering", "preliminary", "plausible", "venue", "annual disposable income 年均可支配收入", "省出; 抽出；驳回，撤销；不顾；把…抛在脑后");
+                , "island-looping", "环岛", "unwavering", "preliminary", "plausible", "venue", "annual disposable income 年均可支配收入", "省出; 抽出；驳回，撤销；不顾；把…抛在脑后"
+                , "得到……消息；赶上；弥补", "用被子将...盖好；大吃", "受……委托", "包裹，包装；圆满完成；（使）穿得暖和（wrap somebody/yourself up）；注意力完全集中于……", "加热；变热；升温");
         if (ss.contains(s)) {
             return true;
         }
         if (s.contains("英 [") || s.contains("英 /") || s.contains("美 [") || s.contains("美 /") || s.contains("vt.") || s.contains("adj.") || s.contains("v.") || s.contains("vi.") || s.contains("n.") || s.contains("conj.") || s.contains("dj.")) {
             return true;
         }
-        if (StringUtil.isNumber(s.charAt(0)) && s.charAt(1) == '、') {
+        if (s.matches("^\\d、")) {
             return true;
         }
         return false;
@@ -388,9 +390,9 @@ public class HtmlUtil {
                 }
             } else {
                 if (chineseIndex == -1) {
-                    content += s.substring(0, chineseIndex);
+                    content += s;
                 } else {
-                    contentNote += s.substring(chineseIndex);
+                    contentNote += s;
                 }
             }
         }
@@ -445,16 +447,32 @@ public class HtmlUtil {
         List<String> articleList = new ArrayList<>();
 //        List<String> pTextList = document.select("p[data-flag]").eachText();
         List<String> pTextList = document.select("p").eachText();
-        List<String> textList = pTextList.stream().filter(v -> !filterChinaDailyArticleMulti(v)).collect(Collectors.toList());
+        int endFlagIndex = 0;
+        for (int i = 0; i < pTextList.size(); i++) {
+            String s = pTextList.get(i);
+            if (StringUtils.trimAllWhitespace(s.toLowerCase()).contains("findmoreaudionews") || s.equals("重点单词怎么读？") || s.equals("Hi everyone, here are words you should know from today's news.")) {
+                endFlagIndex = i;
+                break;
+            } else if (s.equals("戴口罩的靓仔")){
+                endFlagIndex = i;
+                break;
+            }
+        }
+        List<String> textList = pTextList.stream().limit(endFlagIndex).filter(v -> !filterChinaDailyArticleMulti(v)).collect(Collectors.toList());
         /*if (!Arrays.asList(874, 876, 880, 882, 893, 887, 889, 891, 897).contains(articleLink.articleIndex)) {
             return articleList;
         }*/
-        List<String> articleList1 = handle1(textList);
-        //874,876,880,882,887,889,891,893,897,850,852,854,858,861,863,865,868,
+/*        List<String> articleList1 = handle1(textList);
+        //874,876,880,882,887,889,891,893,897,850,852,854,858,861,863,865,868,813,819,830,783,788,790,792,795,754,758,760,762,764,768,771,773,775,779,781,724,726,728,734,738,740
+        // ,742,693,695,697,701,703,705,708,710,712,714,716,718,720,722,
+
         List<String> articleList2 = handle2(textList);
-        List<String> articleList3 = handle3(textList);
-        //878,884,895,899,844,846,848,856,872,
-        return articleList;//870,
+        //870,
+
+        List<String> articleList3 = handle3(textList);*/
+        //878,884,895,899,844,846,848,856,872,815,817,821,824,826,828,832,785,786,797,756,766,777,731,736,699,
+
+        return articleList;//
     }
 
     private static List<Article> extractChinaDailyArticleContent(Document document, List<Article> articleList) {

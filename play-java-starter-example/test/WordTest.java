@@ -66,9 +66,10 @@ public class WordTest extends WithApplication {
         ArticleLink articleLink = new ArticleLink();
         articleLink.source = config;
         articleLink.articleType = 2;
-//        articleLink.exArticleIndexes = Arrays.asList(874, 876, 880, 882, 893, 887, 889, 891, 897);
-        articleLink.articleIndexes = Arrays.asList(870);
-        articleLink.articlePage = 4;
+//        articleLink.exArticleIndexes = Arrays.asList(874, 876, 880, 882, 893, 887, 889, 891, 897);31-48
+//        articleLink.articleIndexes = Arrays.asList(756);
+//        articleLink.articlePageFrom = 10;
+//        articleLink.articlePage = 10;
 //        wordService.saveChinaDailyArticleSingle(articleLink);
         wordService.saveChinaDailyArticleMulti(articleLink);
     }
