@@ -1,26 +1,56 @@
 ###
+POST http://{{host}}:{{port}}/word/saveChinaDailyArticle
+Content-Type: application/json
+
+{
+  "articlePage": -1
+}
+
+###
 POST http://{{host}}:{{port}}/word/loadXiaShuoArticle
 Content-Type: application/json
 
-{ "model": { "articleLink":"/waiyu/3240558", "articleStartPage": 1, "articleEndPage": 1, "articleIndex": 1, "articleTitleList": ["把绿色理念变成商业","2"]} }
+{
+  "model": {
+    "articleLink": "/waiyu/3240558",
+    "articleStartPage": 1,
+    "articleEndPage": 1,
+    "articleIndex": 1,
+    "articleTitleList": [
+      "把绿色理念变成商业",
+      "2"
+    ]
+  }
+}
 
 ###
 POST http://{{host}}:{{port}}/word/loadChinaDailyArticle
 Content-Type: application/json
 
-{ "model": { "link":"waiyu/14804689", "startPage": 1, "endPage": 31, "articleIndexList": []} }
+{
+  "model": {
+    "link": "waiyu/14804689",
+    "startPage": 1,
+    "endPage": 31,
+    "articleIndexList": []
+  }
+}
 
 ###
 POST http://{{host}}:{{port}}/word/dictWordEn
 Content-Type: application/json
 
-{   "model": {    } }
+{
+  "model": {}
+}
 
 ###
 POST http://{{host}}:{{port}}/word/listWordEn
 Content-Type: application/json
 
-{   "word": "key" }
+{
+  "word": "key"
+}
 
 ###
 

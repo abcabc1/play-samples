@@ -20,7 +20,8 @@ public enum ExceptionEnum {
     MISSING_ARTICLE_TITLE_FAILURE("word", "Missing article title"),
     FINAL_ARTICLE_FAILURE("word", "Final article extract fail"),
     MATCH_ARTICLE_TITLE_4_CONTENT_FAILURE("word", "Match article title fail"),
-    INVALID_ARTICLE_PARAM("word", "invalid article param {0}");
+    INVALID_ARTICLE_PARAM("word", "invalid article param {0}"),
+    ARTICLE_EXCEPTION("word", " article InterruptedException ExecutionException");
 
     // 成员变量
     private String code;

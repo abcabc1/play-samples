@@ -1,11 +1,17 @@
 package controllers;
 
+import models.word.ArticleLink;
 import models.word.WordEn;
+import models.word.vo.ArticleLinkForm;
 import models.word.vo.ArticleParam;
+import org.springframework.beans.BeanUtils;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.word.WordEnService;
+import services.word.WordService;
+import services.word.impl.WordServiceImpl;
 import utils.RequestUtil;
 import utils.ResultUtil;
 
@@ -19,6 +25,20 @@ public class WordEnController extends Controller {
 
     @Inject
     WordEnService wordEnService;
+
+    @Inject
+    WordServiceImpl wordService;
+
+    @Inject
+    FormFactory formFactory;
+
+    public Result saveChinaDailyArticle(Http.Request request) {
+        ArticleLinkForm articleLinkForm = formFactory.form(ArticleLinkForm.class).bindFromRequest(request).get();
+        ArticleLink articleLink = new ArticleLink();
+        BeanUtils.copyProperties(articleLinkForm, articleLink);
+        wordService.saveChinaDailyArticleMulti(articleLink);
+        return play.mvc.Results.ok();
+    }
 
     public Result dictWordEn(Http.Request request) throws ExecutionException, InterruptedException {
         WordEn wordEn = RequestUtil.getModel(request, WordEn.class);

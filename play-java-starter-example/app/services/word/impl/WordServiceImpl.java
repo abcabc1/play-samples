@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import services.dict.DictService;
 import services.word.WordService;
 import utils.StringUtil;
+import utils.exception.ExceptionEnum;
 import utils.exception.InternalException;
 
 import javax.inject.Inject;
@@ -114,12 +115,17 @@ public class WordServiceImpl implements WordService {
         wordEnArticleService.saveAll(wordEnArticleList);
     }*/
 
-    public void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException {
+    public void saveChinaDailyArticleMulti(ArticleLink articleLink) {
         List<WordEnArticle> wordEnArticleList = new ArrayList<>();
         List<ArticleLink> articleLinkList = articleLinkService.list(articleLink);
         for (ArticleLink articleLinkTemp : articleLinkList) {
             logger.info(articleLinkTemp.toString());
-            List<String> articleList = dictService.getChinaDailyArticleMulti(articleLinkTemp).toCompletableFuture().get();
+            List<String> articleList = null;
+            try {
+                articleList = dictService.getChinaDailyArticleMulti(articleLinkTemp).toCompletableFuture().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw InternalException.build(ExceptionEnum.ARTICLE_EXCEPTION);
+            }
             if (articleList.size() != 4) {
                 logger.error(articleLinkTemp.toString());
             }

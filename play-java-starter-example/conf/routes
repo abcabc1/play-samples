@@ -16,6 +16,7 @@ POST        /word/loadXiaShuoArticle           controllers.WordEnController.load
 POST        /word/loadChinaDailyArticle        controllers.WordEnController.loadChinaDailyArticle(request: Request)
 POST        /word/dictWordEn                   controllers.WordEnController.dictWordEn(request: Request)
 POST        /word/listWordEn                   controllers.WordEnController.listWordEn(request: Request)
+POST        /word/saveChinaDailyArticle        controllers.WordEnController.saveChinaDailyArticle(request: Request)
 
 GET         /excel/watch                       controllers.ExcelController.watch()
 GET         /excel/singleRead                  controllers.ExcelController.singleRead(request: Request)

@@ -23,7 +23,7 @@ public interface WordService {
 
     void saveChinaDailyArticleSingle(ArticleLink articleLink) throws ExecutionException, InterruptedException;
 
-    void saveChinaDailyArticleMulti(ArticleLink articleLink) throws ExecutionException, InterruptedException;
+    void saveChinaDailyArticleMulti(ArticleLink articleLink);
 
 //    List<ArticlePage> listWordEnArticleTitle4XMLY(ArticleParam articleParam) throws ExecutionException, InterruptedException;
 //    LinkedList<ArticleLink> listArticleLink(ArticleParam articleParam, List<ArticlePage> pageList) throws ExecutionException, InterruptedException;
